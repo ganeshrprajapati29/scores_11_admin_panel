@@ -10,9 +10,13 @@ import { clsx } from 'clsx'
 const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
   { name: 'Users', icon: Users, path: '/users' },
-  { name: 'Teams', icon: Users2, path: '/teams' }, // ✅ FIXED
+  { name: 'Players', icon: Users2, path: '/players' },
+  { name: 'Teams', icon: Users2, path: '/teams' },
   { name: 'Matches', icon: Calendar, path: '/matches' },
   { name: 'Tournaments', icon: Trophy, path: '/tournaments' },
+  { name: 'Contests', icon: Trophy, path: '/contests' },
+  { name: 'Leaderboard', icon: Trophy, path: '/leaderboard' },
+  { name: 'Profiles', icon: Users, path: '/profiles' },
   { name: 'Blogs', icon: FileText, path: '/blogs' },
   { name: 'News', icon: MessageSquare, path: '/news' },
   { name: 'Community', icon: Users, path: '/community/posts' },
@@ -22,6 +26,10 @@ const menuItems = [
   { name: 'Awards', icon: Award, path: '/awards' },
   { name: 'Subscriptions', icon: CreditCard, path: '/subscriptions/plans' },
   { name: 'Wallet', icon: DollarSign, path: '/wallet' },
+  { name: 'Performance', icon: BarChart3, path: '/performance' },
+  { name: 'Notifications', icon: BarChart3, path: '/notifications' },
+  { name: 'Reviews', icon: BarChart3, path: '/reviews' },
+  { name: 'Contact', icon: BarChart3, path: '/contact' },
   { name: 'Reports', icon: BarChart3, path: '/reports' },
   { name: 'Settings', icon: Settings, path: '/settings' },
 ]

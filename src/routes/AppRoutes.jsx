@@ -12,6 +12,11 @@ import Dashboard from '../pages/dashboard/Dashboard'
 import UsersList from '../pages/users/UsersList'
 import ViewUser from '../pages/users/ViewUser'
 import CreateUser from '../pages/users/CreateUser'
+import EditUser from '../pages/users/EditUser'
+
+// Players
+import PlayersList from '../pages/players/PlayersList'
+import CreatePlayer from '../pages/players/CreatePlayer'
 
 // Teams
 import TeamsList from '../pages/teams/TeamsList'
@@ -25,6 +30,16 @@ import LiveControl from '../pages/matches/LiveControl'
 // Tournaments
 import TournamentList from '../pages/tournaments/TournamentList'
 import CreateTournament from '../pages/tournaments/CreateTournament'
+
+// Contests
+import ContestsList from '../pages/contests/ContestsList'
+import CreateContest from '../pages/contests/CreateContest'
+
+// Leaderboard
+import LeaderboardList from '../pages/leaderboard/LeaderboardList'
+
+// Player Profiles
+import PlayerProfilesList from '../pages/profiles/PlayerProfilesList'
 
 // Blogs
 import BlogList from '../pages/blogs/BlogList'
@@ -58,6 +73,24 @@ import CreateAward from '../pages/awards/CreateAward'
 // Subscriptions
 import PlansList from '../pages/subscriptions/PlansList'
 import SubscribersList from '../pages/subscriptions/SubscribersList'
+
+// Wallet
+import Wallet from '../pages/wallet/Wallet'
+
+// Performance
+import PerformanceList from '../pages/performance/PerformanceList'
+
+// Notifications
+import NotificationsList from '../pages/notifications/NotificationsList'
+
+// Contact
+import ContactList from '../pages/contact/ContactList'
+
+// Reviews
+import ReviewsList from '../pages/reviews/ReviewsList'
+
+// Reports
+import Reports from '../pages/reports/Reports'
 
 // Settings
 import Settings from '../pages/settings/Settings'
@@ -124,6 +157,38 @@ const AppRoutes = () => {
         {/* Subscriptions */}
         <Route path="/subscriptions/plans" element={<PlansList />} />
         <Route path="/subscriptions/subscribers" element={<SubscribersList />} />
+        
+        {/* Players */}
+        <Route path="/players" element={<PlayersList />} />
+        <Route path="/players/create" element={<CreatePlayer />} />
+        
+        {/* Contests */}
+        <Route path="/contests" element={<ContestsList />} />
+        <Route path="/contests/create" element={<CreateContest />} />
+        
+        {/* Leaderboard */}
+        <Route path="/leaderboard" element={<LeaderboardList />} />
+        
+        {/* Player Profiles */}
+        <Route path="/profiles" element={<PlayerProfilesList />} />
+        
+        {/* Wallet */}
+        <Route path="/wallet" element={<Wallet />} />
+        
+        {/* Performance */}
+        <Route path="/performance" element={<PerformanceList />} />
+        
+        {/* Notifications */}
+        <Route path="/notifications" element={<NotificationsList />} />
+        
+        {/* Contact */}
+        <Route path="/contact" element={<ContactList />} />
+        
+        {/* Reviews */}
+        <Route path="/reviews" element={<ReviewsList />} />
+        
+        {/* Reports */}
+        <Route path="/reports" element={<Reports />} />
         
         {/* Settings */}
         <Route path="/settings" element={<Settings />} />

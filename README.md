@@ -419,7 +419,7 @@ This project is licensed under the **MIT License**.
 ---
 
 <p align="center">
-  <strong>Made with ❤️ for Cricket Management</strong>
+  <strong>Made with ❤️ Ganesh</strong>
 </p>
 
 <p align="center">

@@ -2,15 +2,15 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   Users, Users2, Trophy, Calendar, DollarSign, 
-  TrendingUp, TrendingDown, Activity, Eye,
-  Bell, MessageSquare, ShoppingCart, CreditCard,
-  ChevronRight, Play, Award, Globe, Flag
+  TrendingUp, Activity, Eye,
+  Bell, MessageSquare, ShoppingCart, Globe,
+  ChevronRight, Play
 } from 'lucide-react'
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend 
 } from 'recharts'
-import { usersAPI, teamsAPI, matchesAPI, tournamentsAPI, walletAPI, adminAPI } from '../../services/api'
+import { adminAPI } from '../../services/api'
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -19,11 +19,13 @@ const Dashboard = () => {
     totalMatches: 0,
     totalTournaments: 0,
     totalRevenue: 0,
-    activeUsers: 0
+    activeTournaments: 0,
+    liveMatches: 0
   })
   const [recentMatches, setRecentMatches] = useState([])
   const [recentTournaments, setRecentTournaments] = useState([])
-  const [walletOverview, setWalletOverview] = useState(null)
+  const [monthlyData, setMonthlyData] = useState([])
+  const [matchStatusData, setMatchStatusData] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -34,64 +36,92 @@ const Dashboard = () => {
     try {
       setLoading(true)
       
-      // Fetch all data in parallel
-      const [usersRes, teamsRes, matchesRes, tournamentsRes, walletRes] = await Promise.allSettled([
-        usersAPI.getAll({ limit: 1 }),
-        teamsAPI.getAll({ limit: 1 }),
-        matchesAPI.getAll({ limit: 10 }),
-        tournamentsAPI.getAll({ limit: 6 }),
-        walletAPI.getAdminOverview().catch(() => null)
-      ])
+      // Fetch dashboard data from admin API
+      const response = await adminAPI.getDashboard()
+      const data = response.data
 
-      // Update stats
+      // Set stats
       setStats({
-        totalUsers: usersRes.status === 'fulfilled' ? (usersRes.value.pagination?.total || 0) : 0,
-        totalTeams: teamsRes.status === 'fulfilled' ? (teamsRes.value.pagination?.total || 0) : 0,
-        totalMatches: matchesRes.status === 'fulfilled' ? (matchesRes.value.pagination?.total || 0) : 0,
-        totalTournaments: tournamentsRes.status === 'fulfilled' ? (tournamentsRes.value.pagination?.total || 0) : 0,
-        totalRevenue: walletRes.status === 'fulfilled' && walletRes.value ? (walletRes.value.totalRevenue || 0) : 0,
-        activeUsers: usersRes.status === 'fulfilled' 
-          ? (usersRes.value.data?.filter(u => u.isActive).length || 0) 
-          : 0
+        totalUsers: data.stats.totalUsers || 0,
+        totalTeams: data.stats.totalTeams || 0,
+        totalMatches: data.stats.totalMatches || 0,
+        totalTournaments: data.stats.totalTournaments || 0,
+        totalRevenue: data.stats.totalRevenue || 0,
+        activeTournaments: data.stats.activeTournaments || 0,
+        liveMatches: data.stats.liveMatches || 0
       })
 
-      // Set recent matches
-      if (matchesRes.status === 'fulfilled') {
-        setRecentMatches(matchesRes.value.data || [])
+      // Set recent data
+      setRecentMatches(data.recentMatches || [])
+      setRecentTournaments(data.recentTournaments || [])
+
+      // Process monthly data for charts - format month names
+      if (data.monthlyData && data.monthlyData.length > 0) {
+        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        const processedMonthlyData = data.monthlyData.map(item => {
+          const [year, month] = item.month.split('-')
+          return {
+            name: monthNames[parseInt(month) - 1],
+            users: item.users || 0,
+            matches: item.matches || 0,
+            revenue: (item.users || 0) * 1000
+          }
+        })
+        setMonthlyData(processedMonthlyData)
+      } else {
+        setMonthlyData([
+          { name: 'Jan', users: 0, matches: 0, revenue: 0 },
+          { name: 'Feb', users: 0, matches: 0, revenue: 0 },
+          { name: 'Mar', users: 0, matches: 0, revenue: 0 },
+          { name: 'Apr', users: 0, matches: 0, revenue: 0 },
+          { name: 'May', users: 0, matches: 0, revenue: 0 },
+          { name: 'Jun', users: 0, matches: 0, revenue: 0 },
+        ])
       }
 
-      // Set recent tournaments
-      if (tournamentsRes.status === 'fulfilled') {
-        setRecentTournaments(tournamentsRes.value.data || [])
-      }
-
-      // Set wallet overview
-      if (walletRes.status === 'fulfilled' && walletRes.value) {
-        setWalletOverview(walletRes.value)
+      // Process match status data with colors
+      if (data.matchStatusData && data.matchStatusData.length > 0) {
+        const statusColors = {
+          'completed': '#10b981',
+          'scheduled': '#3b82f6',
+          'live': '#f59e0b',
+          'cancelled': '#ef4444',
+          'ongoing': '#8b5cf6'
+        }
+        const processedStatusData = data.matchStatusData.map(item => ({
+          name: item.name ? item.name.charAt(0).toUpperCase() + item.name.slice(1) : 'Unknown',
+          value: item.value || 0,
+          color: statusColors[item.name] || '#6b7280'
+        }))
+        setMatchStatusData(processedStatusData)
+      } else {
+        setMatchStatusData([
+          { name: 'Completed', value: 0, color: '#10b981' },
+          { name: 'Scheduled', value: 0, color: '#3b82f6' },
+          { name: 'Live', value: 0, color: '#f59e0b' },
+          { name: 'Cancelled', value: 0, color: '#ef4444' },
+        ])
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
+      setMonthlyData([
+        { name: 'Jan', users: 0, matches: 0, revenue: 0 },
+        { name: 'Feb', users: 0, matches: 0, revenue: 0 },
+        { name: 'Mar', users: 0, matches: 0, revenue: 0 },
+        { name: 'Apr', users: 0, matches: 0, revenue: 0 },
+        { name: 'May', users: 0, matches: 0, revenue: 0 },
+        { name: 'Jun', users: 0, matches: 0, revenue: 0 },
+      ])
+      setMatchStatusData([
+        { name: 'Completed', value: 0, color: '#10b981' },
+        { name: 'Scheduled', value: 0, color: '#3b82f6' },
+        { name: 'Live', value: 0, color: '#f59e0b' },
+        { name: 'Cancelled', value: 0, color: '#ef4444' },
+      ])
     } finally {
       setLoading(false)
     }
   }
-
-  // Mock data for charts
-  const monthlyData = [
-    { name: 'Jan', users: 120, matches: 15, revenue: 25000 },
-    { name: 'Feb', users: 150, matches: 20, revenue: 32000 },
-    { name: 'Mar', users: 180, matches: 25, revenue: 40000 },
-    { name: 'Apr', users: 220, matches: 30, revenue: 48000 },
-    { name: 'May', users: 280, matches: 35, revenue: 55000 },
-    { name: 'Jun', users: 350, matches: 40, revenue: 68000 },
-  ]
-
-  const matchStatusData = [
-    { name: 'Completed', value: 45, color: '#10b981' },
-    { name: 'Scheduled', value: 25, color: '#3b82f6' },
-    { name: 'Live', value: 10, color: '#f59e0b' },
-    { name: 'Cancelled', value: 5, color: '#ef4444' },
-  ]
 
   const getMatchStatusLabel = (status) => {
     switch (status) {
@@ -99,7 +129,8 @@ const Dashboard = () => {
       case 'live': return 'Live'
       case 'completed': return 'Completed'
       case 'cancelled': return 'Cancelled'
-      default: return status
+      case 'ongoing': return 'Ongoing'
+      default: return status || 'Unknown'
     }
   }
 

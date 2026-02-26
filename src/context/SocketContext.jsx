@@ -16,7 +16,7 @@ export const SocketProvider = ({ children }) => {
   const [connected, setConnected] = useState(false)
 
   useEffect(() => {
-    const socketInstance = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:3000', {
+    const socketInstance = io(import.meta.env.VITE_SOCKET_URL || 'http://68.178.171.95:3000', {
       transports: ['websocket'],
       autoConnect: true,
     })
