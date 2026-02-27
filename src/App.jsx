@@ -6,6 +6,7 @@ import Login from './pages/auth/Login'
 import Dashboard from './pages/dashboard/Dashboard'
 import UsersList from './pages/users/UsersList'
 import ViewUser from './pages/users/ViewUser'
+import CreateUser from './pages/users/CreateUser'
 import EditUser from './pages/users/EditUser'
 import TeamsList from './pages/teams/TeamsList'
 import CreateTeam from './pages/teams/CreateTeam'
@@ -61,6 +62,7 @@ function App() {
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="users" element={<UsersList />} />
+            <Route path="users/create" element={<CreateUser />} />
             <Route path="users/:id" element={<ViewUser />} />
             <Route path="users/:id/edit" element={<EditUser />} />
             <Route path="teams" element={<TeamsList />} />

@@ -106,10 +106,20 @@ const AppRoutes = () => {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         
-        {/* Users */}
+        {/* Users - Note: /users/create must come BEFORE /users/:id to avoid route matching issues */}
         <Route path="/users" element={<UsersList />} />
         <Route path="/users/create" element={<CreateUser />} />
+        <Route path="/users/:id/edit" element={<EditUser />} />
         <Route path="/users/:id" element={<ViewUser />} />
+        
+        {/* Admin Users - Routes with /admin prefix */}
+        {/* Note: /admin/users/create must come BEFORE /admin/users/:id to avoid route matching issues */}
+        <Route path="/admin/users" element={<UsersList />} />
+        <Route path="/admin/users/create" element={<CreateUser />} />
+        <Route path="/admin/users/:id/edit" element={<EditUser />} />
+        <Route path="/admin/users/:id" element={<ViewUser />} />
+
+
         
         {/* Teams */}
         <Route path="/teams" element={<TeamsList />} />
