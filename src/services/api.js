@@ -267,10 +267,21 @@ export const playerProfilesAPI = {
 
 // Scoring API
 export const scoringAPI = {
-  getMatchScoring: (matchId) => api.get(`/scoring/match/${matchId}`),
+  getMatchScoring: (matchId) => api.get(`/scoring/match/${matchId}/scoring`),
+  getLiveScore: (matchId) => api.get(`/scoring/match/${matchId}/live`),
+  getScorecard: (matchId) => api.get(`/scoring/match/${matchId}/scorecard`),
+  initializeMatch: (matchId, battingOrder) => api.post(`/scoring/match/${matchId}/initialize`, { battingOrder }),
   updateBall: (matchId, data) => api.post(`/scoring/match/${matchId}/ball`, data),
   updateOver: (matchId, data) => api.post(`/scoring/match/${matchId}/over`, data),
   updateInnings: (matchId, data) => api.post(`/scoring/match/${matchId}/innings`, data),
+  startInnings: (matchId, inningsNumber) => api.post(`/scoring/match/${matchId}/innings/start`, { inningsNumber }),
+  endInnings: (matchId) => api.post(`/scoring/match/${matchId}/innings/end`, {}),
+  setStriker: (matchId, batsmanId) => api.patch(`/scoring/match/${matchId}/striker`, { batsmanId }),
+  setNonStriker: (matchId, batsmanId) => api.patch(`/scoring/match/${matchId}/non-striker`, { batsmanId }),
+  setBowler: (matchId, bowlerId) => api.patch(`/scoring/match/${matchId}/bowler`, { bowlerId }),
+  getPartnership: (matchId) => api.get(`/scoring/match/${matchId}/partnership`),
+  getFallOfWickets: (matchId) => api.get(`/scoring/match/${matchId}/fall-of-wickets`),
+  getMatchTimeline: (matchId) => api.get(`/scoring/match/${matchId}/timeline`),
   endMatch: (matchId) => api.post(`/scoring/match/${matchId}/end`),
 }
 

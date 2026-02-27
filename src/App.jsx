@@ -69,6 +69,7 @@ function App() {
             <Route path="teams/:id/edit" element={<CreateTeam />} />
             <Route path="players" element={<PlayersList />} />
             <Route path="players/create" element={<CreatePlayer />} />
+            <Route path="players/:id" element={<CreatePlayer />} />
             <Route path="players/:id/edit" element={<CreatePlayer />} />
             <Route path="matches" element={<MatchesList />} />
             <Route path="matches/create" element={<CreateMatch />} />

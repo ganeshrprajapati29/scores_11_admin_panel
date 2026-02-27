@@ -161,6 +161,8 @@ const AppRoutes = () => {
         {/* Players */}
         <Route path="/players" element={<PlayersList />} />
         <Route path="/players/create" element={<CreatePlayer />} />
+        <Route path="/players/:id" element={<CreatePlayer />} />
+        <Route path="/players/:id/edit" element={<CreatePlayer />} />
         
         {/* Contests */}
         <Route path="/contests" element={<ContestsList />} />
