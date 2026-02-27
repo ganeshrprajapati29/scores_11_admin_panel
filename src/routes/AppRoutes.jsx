@@ -95,6 +95,20 @@ import Reports from '../pages/reports/Reports'
 // Settings
 import Settings from '../pages/settings/Settings'
 
+// Admin Pages
+import RoleManagement from '../pages/admin/RoleManagement'
+import SystemLogs from '../pages/admin/SystemLogs'
+import BackupRestore from '../pages/admin/BackupRestore'
+import EmailTemplates from '../pages/admin/EmailTemplates'
+import Analytics from '../pages/admin/Analytics'
+import ContentModeration from '../pages/admin/ContentModeration'
+import FinancialOverview from '../pages/admin/FinancialOverview'
+import UserVerifications from '../pages/admin/UserVerifications'
+import APIManagement from '../pages/admin/APIManagement'
+import MobileAppManager from '../pages/admin/MobileAppManager'
+import StoreManager from '../pages/admin/StoreManager'
+import ContestManager from '../pages/admin/ContestManager'
+
 const AppRoutes = () => {
   return (
     <Routes>
@@ -204,7 +218,24 @@ const AppRoutes = () => {
         
         {/* Settings */}
         <Route path="/settings" element={<Settings />} />
+        
+        {/* Admin Routes */}
+        <Route path="/admin/roles" element={<RoleManagement />} />
+        <Route path="/admin/logs" element={<SystemLogs />} />
+        <Route path="/admin/backups" element={<BackupRestore />} />
+        <Route path="/admin/email-templates" element={<EmailTemplates />} />
+        <Route path="/admin/analytics" element={<Analytics />} />
+        <Route path="/admin/moderation" element={<ContentModeration />} />
+        <Route path="/admin/finance" element={<FinancialOverview />} />
+        <Route path="/admin/verifications" element={<UserVerifications />} />
+        <Route path="/admin/api" element={<APIManagement />} />
+        
+        {/* New Core Admin Routes */}
+        <Route path="/admin/mobile-app" element={<MobileAppManager />} />
+        <Route path="/admin/store-manager" element={<StoreManager />} />
+        <Route path="/admin/contest-manager" element={<ContestManager />} />
       </Route>
+
       
       {/* Catch all */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
