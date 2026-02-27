@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { 
   Shield, CheckCircle, XCircle, Eye, Flag, 
   MessageSquare, Image, FileText, User,
-  Filter, Search, RefreshCw, AlertTriangle
+  Filter, Search, RefreshCw, AlertTriangle, X
 } from 'lucide-react'
+
 import Button from '../../components/common/Button'
 import Input from '../../components/common/Input'
 import Modal from '../../components/common/Modal'
@@ -22,9 +23,12 @@ const ContentModeration = () => {
   const [filterStatus, setFilterStatus] = useState('pending')
   const [filterType, setFilterType] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [selectedContent, setSelectedContent] = useState(null)
+  const [isSearching, setIsSearching] = useState(false)
+
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
   const [actionType, setActionType] = useState('')
@@ -47,9 +51,21 @@ const ContentModeration = () => {
     'Other'
   ]
 
+  // Debounce search query
+  useEffect(() => {
+    setIsSearching(true)
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+      setIsSearching(false)
+    }, 500) // 500ms debounce
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
   useEffect(() => {
     fetchContent()
-  }, [currentPage, filterStatus, filterType])
+  }, [currentPage, filterStatus, filterType, debouncedSearchQuery])
+
 
   const fetchContent = async () => {
     try {
@@ -58,7 +74,7 @@ const ContentModeration = () => {
         page: currentPage,
         status: filterStatus,
         type: filterType !== 'all' ? filterType : undefined,
-        search: searchQuery || undefined
+        search: debouncedSearchQuery || undefined
       })
       setContent(response.data?.content || [])
       setTotalPages(response.data?.pagination?.totalPages || 1)
@@ -68,6 +84,89 @@ const ContentModeration = () => {
       setLoading(false)
     }
   }
+
+  // Advanced search algorithm - filters and ranks results
+  const filteredContent = useMemo(() => {
+    if (!debouncedSearchQuery.trim()) return content
+
+    const query = debouncedSearchQuery.toLowerCase().trim()
+    const queryWords = query.split(/\s+/).filter(word => word.length > 0)
+    
+    return content.filter(item => {
+      const author = item.author || {}
+      const searchFields = [
+        item.title?.toLowerCase() || '',
+        item.content?.toLowerCase() || '',
+        author.name?.toLowerCase() || '',
+        author.email?.toLowerCase() || '',
+        item.type?.toLowerCase() || '',
+        item.status?.toLowerCase() || '',
+        item._id?.toLowerCase() || ''
+      ]
+      
+      const searchText = searchFields.join(' ')
+      
+      // Check if all query words are present in search fields
+      return queryWords.every(word => searchText.includes(word))
+    }).sort((a, b) => {
+      // Ranking algorithm: prioritize exact matches and title matches
+      const aTitle = a.title?.toLowerCase() || ''
+      const bTitle = b.title?.toLowerCase() || ''
+      const aAuthor = a.author?.name?.toLowerCase() || ''
+      const bAuthor = b.author?.name?.toLowerCase() || ''
+      
+      const queryLower = query.toLowerCase()
+      
+      // Exact title match gets highest priority
+      if (aTitle === queryLower && bTitle !== queryLower) return -1
+      if (bTitle === queryLower && aTitle !== queryLower) return 1
+      
+      // Title starts with query gets second priority
+      const aTitleStarts = aTitle.startsWith(queryLower)
+      const bTitleStarts = bTitle.startsWith(queryLower)
+      if (aTitleStarts && !bTitleStarts) return -1
+      if (bTitleStarts && !aTitleStarts) return 1
+      
+      // Author name starts with query gets third priority
+      const aAuthorStarts = aAuthor.startsWith(queryLower)
+      const bAuthorStarts = bAuthor.startsWith(queryLower)
+      if (aAuthorStarts && !bAuthorStarts) return -1
+      if (bAuthorStarts && !aAuthorStarts) return 1
+      
+      // Title contains query gets fourth priority
+      const aTitleContains = aTitle.includes(queryLower)
+      const bTitleContains = bTitle.includes(queryLower)
+      if (aTitleContains && !bTitleContains) return -1
+      if (bTitleContains && !aTitleContains) return 1
+      
+      // Default: sort by report count (highest first)
+      return (b.reportCount || 0) - (a.reportCount || 0)
+    })
+  }, [content, debouncedSearchQuery])
+
+  const clearSearch = () => {
+    setSearchQuery('')
+    setDebouncedSearchQuery('')
+  }
+
+  const highlightMatch = (text, query) => {
+    if (!query.trim() || !text) return text
+    
+    const queryLower = query.toLowerCase()
+    const textLower = text.toLowerCase()
+    
+    if (!textLower.includes(queryLower)) return text
+    
+    const parts = text.split(new RegExp(`(${query})`, 'gi'))
+    return parts.map((part, index) => 
+      part.toLowerCase() === queryLower ? (
+        <mark key={index} className="bg-yellow-200 text-gray-900 px-0.5 rounded">
+          {part}
+        </mark>
+      ) : part
+    )
+  }
+
 
   const handleApprove = async () => {
     try {
@@ -250,15 +349,25 @@ const ContentModeration = () => {
       <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isSearching ? 'text-primary-500 animate-pulse' : 'text-gray-400'}`} />
             <Input
               type="text"
-              placeholder="Search content..."
+              placeholder="Search by title, content, author, or type..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 pr-10"
             />
+            {searchQuery && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                title="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
+
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -282,14 +391,66 @@ const ContentModeration = () => {
         </div>
       </div>
 
+      {/* Search Results Info */}
+      {debouncedSearchQuery && (
+        <div className="flex items-center justify-between text-sm text-gray-600">
+          <span>
+            Found {filteredContent.length} result{filteredContent.length !== 1 ? 's' : ''} 
+            {isSearching ? ' (searching...)' : ''}
+          </span>
+          {filteredContent.length > 0 && (
+            <span className="text-gray-500">
+              Sorted by relevance
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Content Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <Table
-          columns={columns}
-          data={content}
-          emptyMessage="No content to moderate"
+          columns={columns.map(col => {
+            if (col.key === 'content') {
+              return {
+                ...col,
+                render: (item) => (
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                      {item.type === 'image' ? (
+                        <Image className="w-5 h-5 text-gray-500" />
+                      ) : (
+                        <FileText className="w-5 h-5 text-gray-500" />
+                      )}
+                    </div>
+                    <div className="max-w-xs">
+                      <p className="text-sm font-medium text-gray-900 line-clamp-2">
+                        {highlightMatch(item.title || item.content, debouncedSearchQuery)}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1 capitalize">{item.type}</p>
+                    </div>
+                  </div>
+                )
+              }
+            }
+            if (col.key === 'author') {
+              return {
+                ...col,
+                render: (item) => (
+                  <div className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-gray-400" />
+                    <span className="text-sm">
+                      {highlightMatch(item.author?.name || 'Unknown', debouncedSearchQuery)}
+                    </span>
+                  </div>
+                )
+              }
+            }
+            return col
+          })}
+          data={filteredContent}
+          emptyMessage={debouncedSearchQuery ? `No results found for "${debouncedSearchQuery}"` : "No content to moderate"}
         />
-        {content.length > 0 && (
+        {filteredContent.length > 0 && (
           <div className="p-4 border-t border-gray-200">
             <Pagination
               currentPage={currentPage}
@@ -299,6 +460,7 @@ const ContentModeration = () => {
           </div>
         )}
       </div>
+
 
       {/* Preview Modal */}
       <Modal
