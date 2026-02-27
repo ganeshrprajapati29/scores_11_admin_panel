@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { 
   DollarSign, TrendingUp, TrendingDown, CreditCard,
   Wallet, Users, ArrowUpRight, ArrowDownRight,
   Download, Calendar, Filter, PieChart as PieChartIcon,
-  BarChart3, Activity
+  BarChart3, Activity, Search, X
 } from 'lucide-react'
+
 import Button from '../../components/common/Button'
 import Input from '../../components/common/Input'
 import Loader from '../../components/common/Loader'
@@ -20,6 +21,9 @@ import { formatDate } from '../../utils/formatDate'
 const FinancialOverview = () => {
   const [loading, setLoading] = useState(true)
   const [dateRange, setDateRange] = useState({ start: '', end: '' })
+  const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
   const [financialData, setFinancialData] = useState({
     overview: {},
     revenue: [],
@@ -27,6 +31,18 @@ const FinancialOverview = () => {
     subscriptions: [],
     breakdown: []
   })
+
+  // Debounce search query
+  useEffect(() => {
+    setIsSearching(true)
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+      setIsSearching(false)
+    }, 500) // 500ms debounce
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
 
   useEffect(() => {
     fetchFinancialData()
@@ -91,14 +107,85 @@ const FinancialOverview = () => {
     </div>
   )
 
+  // Advanced search algorithm for transactions
+  const filteredTransactions = useMemo(() => {
+    if (!debouncedSearchQuery.trim()) return financialData.transactions || []
+
+    const query = debouncedSearchQuery.toLowerCase().trim()
+    const queryWords = query.split(/\s+/).filter(word => word.length > 0)
+    
+    return (financialData.transactions || []).filter(transaction => {
+      const user = transaction.user || {}
+      const searchFields = [
+        user.name?.toLowerCase() || '',
+        user.email?.toLowerCase() || '',
+        transaction.type?.toLowerCase() || '',
+        transaction.status?.toLowerCase() || '',
+        transaction.description?.toLowerCase() || '',
+        transaction.amount?.toString() || '',
+        transaction._id?.toLowerCase() || ''
+      ]
+      
+      const searchText = searchFields.join(' ')
+      
+      // Check if all query words are present in search fields
+      return queryWords.every(word => searchText.includes(word))
+    }).sort((a, b) => {
+      // Ranking algorithm: prioritize user name matches
+      const aUser = a.user?.name?.toLowerCase() || ''
+      const bUser = b.user?.name?.toLowerCase() || ''
+      const queryLower = query.toLowerCase()
+      
+      // Exact name match gets highest priority
+      if (aUser === queryLower && bUser !== queryLower) return -1
+      if (bUser === queryLower && aUser !== queryLower) return 1
+      
+      // Name starts with query gets second priority
+      const aNameStarts = aUser.startsWith(queryLower)
+      const bNameStarts = bUser.startsWith(queryLower)
+      if (aNameStarts && !bNameStarts) return -1
+      if (bNameStarts && !aNameStarts) return 1
+      
+      // Default: sort by date (newest first)
+      return new Date(b.createdAt) - new Date(a.createdAt)
+    })
+  }, [financialData.transactions, debouncedSearchQuery])
+
+  const clearSearch = () => {
+    setSearchQuery('')
+    setDebouncedSearchQuery('')
+  }
+
+  const highlightMatch = (text, query) => {
+    if (!query.trim() || !text) return text
+    
+    const queryLower = query.toLowerCase()
+    const textLower = text.toLowerCase()
+    
+    if (!textLower.includes(queryLower)) return text
+    
+    const parts = text.split(new RegExp(`(${query})`, 'gi'))
+    return parts.map((part, index) => 
+      part.toLowerCase() === queryLower ? (
+        <mark key={index} className="bg-yellow-200 text-gray-900 px-0.5 rounded">
+          {part}
+        </mark>
+      ) : part
+    )
+  }
+
   const transactionColumns = [
     { key: 'date', title: 'Date', render: (t) => formatDate(t.createdAt, 'MMM DD, HH:mm') },
-    { key: 'user', title: 'User', render: (t) => t.user?.name || 'Unknown' },
+    { key: 'user', title: 'User', render: (t) => (
+      <span className="text-sm">
+        {highlightMatch(t.user?.name || 'Unknown', debouncedSearchQuery)}
+      </span>
+    )},
     { key: 'type', title: 'Type', render: (t) => (
       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
         t.type === 'credit' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
       }`}>
-        {t.type}
+        {highlightMatch(t.type, debouncedSearchQuery)}
       </span>
     )},
     { key: 'amount', title: 'Amount', render: (t) => (
@@ -112,13 +199,16 @@ const FinancialOverview = () => {
         t.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
         'bg-red-100 text-red-700'
       }`}>
-        {t.status}
+        {highlightMatch(t.status, debouncedSearchQuery)}
       </span>
     )},
     { key: 'description', title: 'Description', render: (t) => (
-      <p className="text-sm text-gray-600 truncate max-w-xs">{t.description}</p>
+      <p className="text-sm text-gray-600 truncate max-w-xs">
+        {highlightMatch(t.description, debouncedSearchQuery)}
+      </p>
     )},
   ]
+
 
   if (loading) return <Loader />
 
@@ -253,18 +343,54 @@ const FinancialOverview = () => {
         </div>
       </div>
 
-      {/* Recent Transactions */}
+      {/* Search and Recent Transactions */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-        <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+        <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <h3 className="text-lg font-semibold text-gray-900">Recent Transactions</h3>
-          <Button variant="secondary" size="sm">View All</Button>
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 ${isSearching ? 'text-primary-500 animate-pulse' : 'text-gray-400'}`} />
+              <Input
+                type="text"
+                placeholder="Search by user, type, status..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9 pr-9 w-64"
+              />
+              {searchQuery && (
+                <button
+                  onClick={clearSearch}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                  title="Clear search"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+            <Button variant="secondary" size="sm">View All</Button>
+          </div>
         </div>
+        
+        {/* Search Results Info */}
+        {debouncedSearchQuery && (
+          <div className="px-4 py-2 bg-gray-50 border-b border-gray-200 flex items-center justify-between text-sm text-gray-600">
+            <span>
+              Found {filteredTransactions.length} result{filteredTransactions.length !== 1 ? 's' : ''} 
+              {isSearching ? ' (searching...)' : ''}
+            </span>
+            {filteredTransactions.length > 0 && (
+              <span className="text-gray-500">Sorted by relevance</span>
+            )}
+          </div>
+        )}
+        
         <Table
           columns={transactionColumns}
-          data={financialData.transactions?.slice(0, 10) || []}
-          emptyMessage="No transactions found"
+          data={filteredTransactions.slice(0, 10)}
+          emptyMessage={debouncedSearchQuery ? `No results found for "${debouncedSearchQuery}"` : "No transactions found"}
         />
       </div>
+
 
       {/* Financial Health Indicators */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { 
   Database, Search, Filter, Download, Calendar,
   User, Activity, AlertTriangle, Info, CheckCircle,
-  XCircle, RefreshCw, Trash2
+  XCircle, RefreshCw, Trash2, X
 } from 'lucide-react'
+
 import Button from '../../components/common/Button'
 import Input from '../../components/common/Input'
 import Table from '../../components/common/Table'
@@ -18,7 +19,10 @@ const SystemLogs = () => {
   const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
   const [filterType, setFilterType] = useState('all')
+
   const [filterAction, setFilterAction] = useState('all')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
@@ -43,9 +47,21 @@ const SystemLogs = () => {
     { id: 'import', name: 'Import' },
   ]
 
+  // Debounce search query
+  useEffect(() => {
+    setIsSearching(true)
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+      setIsSearching(false)
+    }, 500) // 500ms debounce
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
   useEffect(() => {
     fetchLogs()
-  }, [currentPage, filterType, filterAction])
+  }, [currentPage, filterType, filterAction, debouncedSearchQuery])
+
 
   const fetchLogs = async () => {
     try {
@@ -54,7 +70,8 @@ const SystemLogs = () => {
         page: currentPage,
         type: filterType !== 'all' ? filterType : undefined,
         action: filterAction !== 'all' ? filterAction : undefined,
-        search: searchQuery || undefined,
+        search: debouncedSearchQuery || undefined,
+
         startDate: dateRange.start || undefined,
         endDate: dateRange.end || undefined
       })
@@ -111,6 +128,82 @@ const SystemLogs = () => {
     return <Icon className={`w-5 h-5 ${logType?.color || 'text-gray-600'}`} />
   }
 
+  // Advanced search algorithm for logs
+  const filteredLogs = useMemo(() => {
+    if (!debouncedSearchQuery.trim()) return logs
+
+    const query = debouncedSearchQuery.toLowerCase().trim()
+    const queryWords = query.split(/\s+/).filter(word => word.length > 0)
+    
+    return logs.filter(log => {
+      const user = log.user || {}
+      const searchFields = [
+        log.action?.toLowerCase() || '',
+        log.type?.toLowerCase() || '',
+        log.resource?.toLowerCase() || '',
+        log.resourceId?.toLowerCase() || '',
+        log.details?.toLowerCase() || '',
+        user.name?.toLowerCase() || '',
+        log.ipAddress?.toLowerCase() || ''
+      ]
+      
+      const searchText = searchFields.join(' ')
+      
+      // Check if all query words are present in search fields
+      return queryWords.every(word => searchText.includes(word))
+    }).sort((a, b) => {
+      // Ranking algorithm: prioritize action and resource matches
+      const aAction = a.action?.toLowerCase() || ''
+      const bAction = b.action?.toLowerCase() || ''
+      const aResource = a.resource?.toLowerCase() || ''
+      const bResource = b.resource?.toLowerCase() || ''
+      const queryLower = query.toLowerCase()
+      
+      // Exact action match gets highest priority
+      if (aAction === queryLower && bAction !== queryLower) return -1
+      if (bAction === queryLower && aAction !== queryLower) return 1
+      
+      // Action starts with query gets second priority
+      const aActionStarts = aAction.startsWith(queryLower)
+      const bActionStarts = bAction.startsWith(queryLower)
+      if (aActionStarts && !bActionStarts) return -1
+      if (bActionStarts && !aActionStarts) return 1
+      
+      // Resource starts with query gets third priority
+      const aResourceStarts = aResource.startsWith(queryLower)
+      const bResourceStarts = bResource.startsWith(queryLower)
+      if (aResourceStarts && !bResourceStarts) return -1
+      if (bResourceStarts && !aResourceStarts) return 1
+      
+      // Default: sort by date (newest first)
+      return new Date(b.createdAt) - new Date(a.createdAt)
+    })
+  }, [logs, debouncedSearchQuery])
+
+  const clearSearch = () => {
+    setSearchQuery('')
+    setDebouncedSearchQuery('')
+  }
+
+  const highlightMatch = (text, query) => {
+    if (!query.trim() || !text) return text
+    
+    const queryLower = query.toLowerCase()
+    const textLower = text.toLowerCase()
+    
+    if (!textLower.includes(queryLower)) return text
+    
+    const parts = text.split(new RegExp(`(${query})`, 'gi'))
+    return parts.map((part, index) => 
+      part.toLowerCase() === queryLower ? (
+        <mark key={index} className="bg-yellow-200 text-gray-900 px-0.5 rounded">
+          {part}
+        </mark>
+      ) : part
+    )
+  }
+
+
   const columns = [
     { key: 'timestamp', title: 'Timestamp', render: (log) => (
       <div className="text-sm text-gray-600">
@@ -125,26 +218,27 @@ const SystemLogs = () => {
     )},
     { key: 'action', title: 'Action', render: (log) => (
       <span className="px-2 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium uppercase">
-        {log.action}
+        {highlightMatch(log.action, debouncedSearchQuery)}
       </span>
     )},
     { key: 'user', title: 'User', render: (log) => (
       <div className="flex items-center gap-2">
         <User className="w-4 h-4 text-gray-400" />
-        <span className="text-sm">{log.user?.name || 'System'}</span>
+        <span className="text-sm">{highlightMatch(log.user?.name || 'System', debouncedSearchQuery)}</span>
       </div>
     )},
     { key: 'resource', title: 'Resource', render: (log) => (
       <div>
-        <p className="text-sm font-medium text-gray-900">{log.resource}</p>
-        <p className="text-xs text-gray-500">{log.resourceId}</p>
+        <p className="text-sm font-medium text-gray-900">{highlightMatch(log.resource, debouncedSearchQuery)}</p>
+        <p className="text-xs text-gray-500">{highlightMatch(log.resourceId, debouncedSearchQuery)}</p>
       </div>
     )},
     { key: 'details', title: 'Details', render: (log) => (
       <p className="text-sm text-gray-600 max-w-xs truncate" title={log.details}>
-        {log.details}
+        {highlightMatch(log.details, debouncedSearchQuery)}
       </p>
     )},
+
     { key: 'ip', title: 'IP Address', render: (log) => (
       <span className="text-sm text-gray-500 font-mono">{log.ipAddress}</span>
     )},
@@ -185,15 +279,25 @@ const SystemLogs = () => {
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Search */}
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isSearching ? 'text-primary-500 animate-pulse' : 'text-gray-400'}`} />
             <Input
               type="text"
-              placeholder="Search logs..."
+              placeholder="Search by action, user, resource, or details..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 pr-10"
             />
+            {searchQuery && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                title="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
+
 
           {/* Type Filter */}
           <select
@@ -267,16 +371,29 @@ const SystemLogs = () => {
         })}
       </div>
 
+      {/* Search Results Info */}
+      {debouncedSearchQuery && (
+        <div className="flex items-center justify-between text-sm text-gray-600">
+          <span>
+            Found {filteredLogs.length} result{filteredLogs.length !== 1 ? 's' : ''} 
+            {isSearching ? ' (searching...)' : ''}
+          </span>
+          {filteredLogs.length > 0 && (
+            <span className="text-gray-500">Sorted by relevance</span>
+          )}
+        </div>
+      )}
+
       {/* Logs Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <Table
           columns={columns}
-          data={logs}
-          emptyMessage="No logs found"
+          data={filteredLogs}
+          emptyMessage={debouncedSearchQuery ? `No results found for "${debouncedSearchQuery}"` : "No logs found"}
         />
         
         {/* Pagination */}
-        {logs.length > 0 && (
+        {filteredLogs.length > 0 && (
           <div className="p-4 border-t border-gray-200">
             <Pagination
               currentPage={currentPage}
@@ -286,6 +403,7 @@ const SystemLogs = () => {
           </div>
         )}
       </div>
+
     </div>
   )
 }

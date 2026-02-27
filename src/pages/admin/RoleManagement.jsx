@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { 
   Shield, Plus, Edit2, Trash2, Search, 
-  CheckCircle, XCircle, Users, Lock 
+  CheckCircle, XCircle, Users, Lock, X 
 } from 'lucide-react'
+
 import Button from '../../components/common/Button'
 import Input from '../../components/common/Input'
 import Modal from '../../components/common/Modal'
@@ -18,7 +19,21 @@ const RoleManagement = () => {
   const [roles, setRoles] = useState([])
   const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  // Debounce search query
+  useEffect(() => {
+    setIsSearching(true)
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+      setIsSearching(false)
+    }, 500) // 500ms debounce
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
   const [selectedRole, setSelectedRole] = useState(null)
   const [formData, setFormData] = useState({
@@ -116,19 +131,80 @@ const RoleManagement = () => {
     setIsModalOpen(true)
   }
 
-  const filteredRoles = roles.filter(role =>
-    role.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    role.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  )
+  // Advanced search algorithm with ranking
+  const filteredRoles = useMemo(() => {
+    if (!debouncedSearchQuery.trim()) return roles
+
+    const query = debouncedSearchQuery.toLowerCase().trim()
+    const queryWords = query.split(/\s+/).filter(word => word.length > 0)
+    
+    return roles.filter(role => {
+      const searchFields = [
+        role.name?.toLowerCase() || '',
+        role.description?.toLowerCase() || '',
+        role._id?.toLowerCase() || ''
+      ]
+      
+      const searchText = searchFields.join(' ')
+      
+      // Check if all query words are present in search fields
+      return queryWords.every(word => searchText.includes(word))
+    }).sort((a, b) => {
+      // Ranking algorithm: prioritize exact matches
+      const aName = a.name?.toLowerCase() || ''
+      const bName = b.name?.toLowerCase() || ''
+      const queryLower = query.toLowerCase()
+      
+      // Exact name match gets highest priority
+      if (aName === queryLower && bName !== queryLower) return -1
+      if (bName === queryLower && aName !== queryLower) return 1
+      
+      // Name starts with query gets second priority
+      const aNameStarts = aName.startsWith(queryLower)
+      const bNameStarts = bName.startsWith(queryLower)
+      if (aNameStarts && !bNameStarts) return -1
+      if (bNameStarts && !aNameStarts) return 1
+      
+      // Default: sort by user count (highest first)
+      return (b.userCount || 0) - (a.userCount || 0)
+    })
+  }, [roles, debouncedSearchQuery])
+
+  const clearSearch = () => {
+    setSearchQuery('')
+    setDebouncedSearchQuery('')
+  }
+
+  const highlightMatch = (text, query) => {
+    if (!query.trim() || !text) return text
+    
+    const queryLower = query.toLowerCase()
+    const textLower = text.toLowerCase()
+    
+    if (!textLower.includes(queryLower)) return text
+    
+    const parts = text.split(new RegExp(`(${query})`, 'gi'))
+    return parts.map((part, index) => 
+      part.toLowerCase() === queryLower ? (
+        <mark key={index} className="bg-yellow-200 text-gray-900 px-0.5 rounded">
+          {part}
+        </mark>
+      ) : part
+    )
+  }
+
 
   const columns = [
     { key: 'name', title: 'Role Name', render: (role) => (
       <div className="flex items-center gap-2">
         <Shield className="w-5 h-5 text-primary-500" />
-        <span className="font-medium">{role.name}</span>
+        <span className="font-medium">{highlightMatch(role.name, debouncedSearchQuery)}</span>
       </div>
     )},
-    { key: 'description', title: 'Description' },
+    { key: 'description', title: 'Description', render: (role) => (
+      <span>{highlightMatch(role.description, debouncedSearchQuery)}</span>
+    )},
+
     { key: 'permissions', title: 'Permissions', render: (role) => (
       <span className="px-2 py-1 bg-primary-100 text-primary-700 rounded-full text-xs">
         {role.permissions?.length || 0} permissions
@@ -186,23 +262,46 @@ const RoleManagement = () => {
       {/* Search */}
       <div className="flex gap-4">
         <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+          <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isSearching ? 'text-primary-500 animate-pulse' : 'text-gray-400'}`} />
           <Input
             type="text"
-            placeholder="Search roles..."
+            placeholder="Search roles by name or description..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
+            className="pl-10 pr-10"
           />
+          {searchQuery && (
+            <button
+              onClick={clearSearch}
+              className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+              title="Clear search"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Search Results Info */}
+      {debouncedSearchQuery && (
+        <div className="flex items-center justify-between text-sm text-gray-600">
+          <span>
+            Found {filteredRoles.length} result{filteredRoles.length !== 1 ? 's' : ''} 
+            {isSearching ? ' (searching...)' : ''}
+          </span>
+          {filteredRoles.length > 0 && (
+            <span className="text-gray-500">Sorted by relevance</span>
+          )}
+        </div>
+      )}
 
       {/* Roles Table */}
       <Table
         columns={columns}
         data={filteredRoles}
-        emptyMessage="No roles found"
+        emptyMessage={debouncedSearchQuery ? `No results found for "${debouncedSearchQuery}"` : "No roles found"}
       />
+
 
       {/* Create/Edit Modal */}
       <Modal

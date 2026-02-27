@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { 
   Shield, CheckCircle, XCircle, Clock, User,
   FileText, Image, Search, Filter, Eye,
-  Download, MoreHorizontal, AlertTriangle
+  Download, MoreHorizontal, AlertTriangle, X
 } from 'lucide-react'
+
 import Button from '../../components/common/Button'
 import Input from '../../components/common/Input'
 import Modal from '../../components/common/Modal'
@@ -21,9 +22,12 @@ const UserVerifications = () => {
   const [filterStatus, setFilterStatus] = useState('pending')
   const [filterType, setFilterType] = useState('all')
   const [searchQuery, setSearchQuery] = useState('')
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [selectedVerification, setSelectedVerification] = useState(null)
+  const [isSearching, setIsSearching] = useState(false)
+
   const [isDetailOpen, setIsDetailOpen] = useState(false)
   const [isActionModalOpen, setIsActionModalOpen] = useState(false)
   const [actionType, setActionType] = useState('')
@@ -46,9 +50,21 @@ const UserVerifications = () => {
     'Other'
   ]
 
+  // Debounce search query
+  useEffect(() => {
+    setIsSearching(true)
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery)
+      setIsSearching(false)
+    }, 500) // 500ms debounce
+
+    return () => clearTimeout(timer)
+  }, [searchQuery])
+
   useEffect(() => {
     fetchVerifications()
-  }, [currentPage, filterStatus, filterType])
+  }, [currentPage, filterStatus, filterType, debouncedSearchQuery])
+
 
   const fetchVerifications = async () => {
     try {
@@ -57,7 +73,7 @@ const UserVerifications = () => {
         page: currentPage,
         status: filterStatus,
         type: filterType !== 'all' ? filterType : undefined,
-        search: searchQuery || undefined
+        search: debouncedSearchQuery || undefined
       })
       setVerifications(response.data?.verifications || [])
       setTotalPages(response.data?.pagination?.totalPages || 1)
@@ -67,6 +83,90 @@ const UserVerifications = () => {
       setLoading(false)
     }
   }
+
+  // Advanced search algorithm - filters and ranks results
+  const filteredVerifications = useMemo(() => {
+    if (!debouncedSearchQuery.trim()) return verifications
+
+    const query = debouncedSearchQuery.toLowerCase().trim()
+    const queryWords = query.split(/\s+/).filter(word => word.length > 0)
+    
+    return verifications.filter(verification => {
+      const user = verification.user || {}
+      const searchFields = [
+        user.name?.toLowerCase() || '',
+        user.email?.toLowerCase() || '',
+        user._id?.toLowerCase() || '',
+        verification.type?.toLowerCase() || '',
+        verification.status?.toLowerCase() || '',
+        verification._id?.toLowerCase() || ''
+      ]
+      
+      const searchText = searchFields.join(' ')
+      
+      // Check if all query words are present in search fields
+      return queryWords.every(word => searchText.includes(word))
+    }).sort((a, b) => {
+      // Ranking algorithm: prioritize exact matches and name matches
+      const aUser = a.user || {}
+      const bUser = b.user || {}
+      const aName = aUser.name?.toLowerCase() || ''
+      const bName = bUser.name?.toLowerCase() || ''
+      const aEmail = aUser.email?.toLowerCase() || ''
+      const bEmail = bUser.email?.toLowerCase() || ''
+      
+      const queryLower = query.toLowerCase()
+      
+      // Exact name match gets highest priority
+      if (aName === queryLower && bName !== queryLower) return -1
+      if (bName === queryLower && aName !== queryLower) return 1
+      
+      // Name starts with query gets second priority
+      const aNameStarts = aName.startsWith(queryLower)
+      const bNameStarts = bName.startsWith(queryLower)
+      if (aNameStarts && !bNameStarts) return -1
+      if (bNameStarts && !aNameStarts) return 1
+      
+      // Email starts with query gets third priority
+      const aEmailStarts = aEmail.startsWith(queryLower)
+      const bEmailStarts = bEmail.startsWith(queryLower)
+      if (aEmailStarts && !bEmailStarts) return -1
+      if (bEmailStarts && !aEmailStarts) return 1
+      
+      // Name contains query gets fourth priority
+      const aNameContains = aName.includes(queryLower)
+      const bNameContains = bName.includes(queryLower)
+      if (aNameContains && !bNameContains) return -1
+      if (bNameContains && !aNameContains) return 1
+      
+      // Default: sort by date (newest first)
+      return new Date(b.createdAt) - new Date(a.createdAt)
+    })
+  }, [verifications, debouncedSearchQuery])
+
+  const clearSearch = () => {
+    setSearchQuery('')
+    setDebouncedSearchQuery('')
+  }
+
+  const highlightMatch = (text, query) => {
+    if (!query.trim() || !text) return text
+    
+    const queryLower = query.toLowerCase()
+    const textLower = text.toLowerCase()
+    
+    if (!textLower.includes(queryLower)) return text
+    
+    const parts = text.split(new RegExp(`(${query})`, 'gi'))
+    return parts.map((part, index) => 
+      part.toLowerCase() === queryLower ? (
+        <mark key={index} className="bg-yellow-200 text-gray-900 px-0.5 rounded">
+          {part}
+        </mark>
+      ) : part
+    )
+  }
+
 
   const handleApprove = async () => {
     try {
@@ -219,15 +319,25 @@ const UserVerifications = () => {
       <div className="bg-white p-4 rounded-lg border border-gray-200 space-y-4">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isSearching ? 'text-primary-500 animate-pulse' : 'text-gray-400'}`} />
             <Input
               type="text"
-              placeholder="Search by user name or email..."
+              placeholder="Search by user name, email, ID, or type..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 pr-10"
             />
+            {searchQuery && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-colors"
+                title="Clear search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
           </div>
+
           <select
             value={filterStatus}
             onChange={(e) => setFilterStatus(e.target.value)}
@@ -251,14 +361,51 @@ const UserVerifications = () => {
         </div>
       </div>
 
+      {/* Search Results Info */}
+      {debouncedSearchQuery && (
+        <div className="flex items-center justify-between text-sm text-gray-600">
+          <span>
+            Found {filteredVerifications.length} result{filteredVerifications.length !== 1 ? 's' : ''} 
+            {isSearching ? ' (searching...)' : ''}
+          </span>
+          {filteredVerifications.length > 0 && (
+            <span className="text-gray-500">
+              Sorted by relevance
+            </span>
+          )}
+        </div>
+      )}
+
       {/* Verifications Table */}
       <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
         <Table
-          columns={columns}
-          data={verifications}
-          emptyMessage="No verifications found"
+          columns={columns.map(col => {
+            if (col.key === 'user') {
+              return {
+                ...col,
+                render: (v) => (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+                      <User className="w-5 h-5 text-primary-600" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-900">
+                        {highlightMatch(v.user?.name, debouncedSearchQuery)}
+                      </p>
+                      <p className="text-sm text-gray-500">
+                        {highlightMatch(v.user?.email, debouncedSearchQuery)}
+                      </p>
+                    </div>
+                  </div>
+                )
+              }
+            }
+            return col
+          })}
+          data={filteredVerifications}
+          emptyMessage={debouncedSearchQuery ? `No results found for "${debouncedSearchQuery}"` : "No verifications found"}
         />
-        {verifications.length > 0 && (
+        {filteredVerifications.length > 0 && (
           <div className="p-4 border-t border-gray-200">
             <Pagination
               currentPage={currentPage}
@@ -268,6 +415,7 @@ const UserVerifications = () => {
           </div>
         )}
       </div>
+
 
       {/* Detail Modal */}
       <Modal
