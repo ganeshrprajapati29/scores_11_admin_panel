@@ -4,12 +4,13 @@ import {
   User, Activity, AlertTriangle, Info, CheckCircle,
   XCircle, RefreshCw, Trash2
 } from 'lucide-react'
-import { Button } from '../../components/common/Button'
-import { Input } from '../../components/common/Input'
-import { Table } from '../../components/common/Table'
-import { Loader } from '../../components/common/Loader'
-import { Pagination } from '../../components/common/Pagination'
-import { adminService } from '../../services/admin.service'
+import Button from '../../components/common/Button'
+import Input from '../../components/common/Input'
+import Table from '../../components/common/Table'
+import Loader from '../../components/common/Loader'
+import Pagination from '../../components/common/Pagination'
+import adminService from '../../services/admin.service'
+
 import { toast } from 'react-hot-toast'
 import { formatDate } from '../../utils/formatDate'
 

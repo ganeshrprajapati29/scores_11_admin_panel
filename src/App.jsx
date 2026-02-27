@@ -45,6 +45,21 @@ import PlayerProfilesList from './pages/profiles/PlayerProfilesList'
 import ContestsList from './pages/contests/ContestsList'
 import CreateContest from './pages/contests/CreateContest'
 import LeaderboardList from './pages/leaderboard/LeaderboardList'
+
+// Admin Pages
+import RoleManagement from './pages/admin/RoleManagement'
+import SystemLogs from './pages/admin/SystemLogs'
+import BackupRestore from './pages/admin/BackupRestore'
+import EmailTemplates from './pages/admin/EmailTemplates'
+import Analytics from './pages/admin/Analytics'
+import ContentModeration from './pages/admin/ContentModeration'
+import FinancialOverview from './pages/admin/FinancialOverview'
+import UserVerifications from './pages/admin/UserVerifications'
+import APIManagement from './pages/admin/APIManagement'
+import MobileAppManager from './pages/admin/MobileAppManager'
+import StoreManager from './pages/admin/StoreManager'
+import ContestManager from './pages/admin/ContestManager'
+
 import './App.css'
 
 function App() {
@@ -75,6 +90,7 @@ function App() {
             <Route path="players/:id/edit" element={<CreatePlayer />} />
             <Route path="matches" element={<MatchesList />} />
             <Route path="matches/create" element={<CreateMatch />} />
+            <Route path="matches/live" element={<LiveControl />} />
             <Route path="matches/:id/edit" element={<CreateMatch />} />
             <Route path="matches/:id/live" element={<LiveControl />} />
             <Route path="tournaments" element={<TournamentList />} />
@@ -117,6 +133,20 @@ function App() {
             <Route path="performance" element={<PerformanceList />} />
             <Route path="profiles" element={<PlayerProfilesList />} />
             <Route path="settings" element={<Settings />} />
+            
+            {/* Admin Routes */}
+            <Route path="admin/roles" element={<RoleManagement />} />
+            <Route path="admin/verifications" element={<UserVerifications />} />
+            <Route path="admin/logs" element={<SystemLogs />} />
+            <Route path="admin/backups" element={<BackupRestore />} />
+            <Route path="admin/email-templates" element={<EmailTemplates />} />
+            <Route path="admin/api" element={<APIManagement />} />
+            <Route path="admin/analytics" element={<Analytics />} />
+            <Route path="admin/finance" element={<FinancialOverview />} />
+            <Route path="admin/moderation" element={<ContentModeration />} />
+            <Route path="admin/mobile-app" element={<MobileAppManager />} />
+            <Route path="admin/store-manager" element={<StoreManager />} />
+            <Route path="admin/contest-manager" element={<ContestManager />} />
           </Route>
         </Routes>
         

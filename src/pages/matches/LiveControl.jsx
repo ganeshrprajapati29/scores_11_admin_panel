@@ -31,9 +31,14 @@ const LiveControl = () => {
   }, [id])
 
   const fetchMatch = async () => {
+    if (!id) {
+      setLoading(false)
+      return
+    }
     try {
       setLoading(true)
       const matchRes = await matchesAPI.getById(id)
+
       const matchData = matchRes.data
       
       setMatch(matchData)
@@ -171,6 +176,28 @@ const LiveControl = () => {
     )
   }
 
+  if (!id) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Link to="/matches" className="p-2 hover:bg-gray-100 rounded-lg">
+            <ArrowLeft size={20} />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold text-gray-800">Live Matches</h1>
+            <p className="text-gray-500">Select a match to control live scoring</p>
+          </div>
+        </div>
+        <div className="bg-white rounded-xl p-8 shadow-sm border border-gray-100 text-center">
+          <p className="text-gray-500 mb-4">No match selected. Please select a match from the matches list.</p>
+          <Link to="/matches" className="btn-primary inline-block">
+            View All Matches
+          </Link>
+        </div>
+      </div>
+    )
+  }
+
   if (!match) {
     return (
       <div className="text-center py-12">
@@ -181,6 +208,7 @@ const LiveControl = () => {
       </div>
     )
   }
+
 
   const currentBattingTeam = currentInnings === 1 ? match.team1 : match.team2
   const currentBowlingTeam = currentInnings === 1 ? match.team2 : match.team1

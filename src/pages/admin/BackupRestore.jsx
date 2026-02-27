@@ -4,12 +4,13 @@ import {
   CheckCircle, AlertTriangle, RefreshCw, FileArchive,
   Calendar, HardDrive, Play, RotateCcw
 } from 'lucide-react'
-import { Button } from '../../components/common/Button'
-import { Modal } from '../../components/common/Modal'
-import { Table } from '../../components/common/Table'
-import { Loader } from '../../components/common/Loader'
-import { ConfirmDialog } from '../../components/common/ConfirmDialog'
-import { adminService } from '../../services/admin.service'
+import Button from '../../components/common/Button'
+import Modal from '../../components/common/Modal'
+import Table from '../../components/common/Table'
+import Loader from '../../components/common/Loader'
+import ConfirmDialog from '../../components/common/ConfirmDialog'
+import adminService from '../../services/admin.service'
+
 import { toast } from 'react-hot-toast'
 import { formatDate } from '../../utils/formatDate'
 
