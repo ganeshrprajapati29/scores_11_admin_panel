@@ -39,6 +39,7 @@ const menuGroups = [
     items: [
       { name: 'All Users', path: '/users', icon: Users, description: 'Manage all users' },
       { name: 'Players', path: '/players', icon: Users2, description: 'Player profiles' },
+      { name: 'Player Profiles', path: '/profiles', icon: UserCircle, description: 'Player profiles list' },
       { name: 'Verifications', path: '/admin/verifications', icon: UserCheck, description: 'KYC & verification' },
       { name: 'Roles & Permissions', path: '/admin/roles', icon: Lock, description: 'Access control' },
     ]
