@@ -7,62 +7,90 @@ import toast from 'react-hot-toast'
 const CreatePlayer = () => {
   const { id } = useParams()
   const navigate = useNavigate()
+
   const [loading, setLoading] = useState(false)
   const [initialLoading, setInitialLoading] = useState(!!id)
+
+  // ✅ EXACT backend schema
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
+    playerName: '',
+    jerseyNumber: '',
     role: 'batsman',
+    battingStyle: 'right-hand bat',
+    bowlingStyle: 'none',
     team: '',
     isActive: true
   })
 
+  // ================= FETCH PLAYER (EDIT MODE) =================
   useEffect(() => {
-    if (id) {
-      fetchPlayer()
+    if (!id) return
+
+    const fetchPlayer = async () => {
+      try {
+        setInitialLoading(true)
+
+        const res = await playersAPI.getById(id)
+        const data = res?.data?.data ?? res?.data ?? {}
+
+        setFormData({
+          playerName: data.playerName || '',
+          jerseyNumber: data.jerseyNumber || '',
+          role: data.role || 'batsman',
+          battingStyle: data.battingStyle || 'right-hand bat',
+          bowlingStyle: data.bowlingStyle || 'none',
+          team: data.team?._id || data.team || '',
+          isActive: data.isActive ?? true
+        })
+      } catch {
+        toast.error('Failed to load player')
+      } finally {
+        setInitialLoading(false)
+      }
     }
+
+    fetchPlayer()
   }, [id])
 
-  const fetchPlayer = async () => {
-    try {
-      setInitialLoading(true)
-      const response = await playersAPI.getById(id)
-      setFormData({
-        name: response.data?.name || '',
-        email: response.data?.email || '',
-        phone: response.data?.phone || '',
-        role: response.data?.role || 'batsman',
-        team: response.data?.team?._id || '',
-        isActive: response.data?.isActive ?? true
-      })
-    } catch (error) {
-      toast.error('Failed to fetch player')
-      navigate('/players')
-    } finally {
-      setInitialLoading(false)
-    }
-  }
-
+  // ================= SUBMIT =================
   const handleSubmit = async (e) => {
     e.preventDefault()
+
+    if (!formData.playerName.trim()) {
+      toast.error('Player name is required')
+      return
+    }
+
+    const payload = {
+      playerName: formData.playerName.trim(),
+      role: formData.role,
+      battingStyle: formData.battingStyle,
+      bowlingStyle: formData.bowlingStyle,
+      isActive: formData.isActive,
+      ...(formData.jerseyNumber && { jerseyNumber: Number(formData.jerseyNumber) }),
+      ...(formData.team && { team: formData.team })
+    }
+
     try {
       setLoading(true)
+
       if (id) {
-        await playersAPI.update(id, formData)
+        await playersAPI.update(id, payload)
         toast.success('Player updated successfully')
       } else {
-        await playersAPI.create(formData)
+        await playersAPI.create(payload)
         toast.success('Player created successfully')
       }
+
       navigate('/players')
-    } catch (error) {
-      toast.error(error.message || 'Failed to save player')
+    } catch (err) {
+      toast.error(err?.response?.data?.message || 'Validation error')
     } finally {
       setLoading(false)
     }
   }
 
+  // ================= LOADER =================
   if (initialLoading) {
     return (
       <div className="flex items-center justify-center h-96">
@@ -71,53 +99,127 @@ const CreatePlayer = () => {
     )
   }
 
+  // ================= UI =================
   return (
     <div className="space-y-6">
+      {/* HEADER */}
       <div className="flex items-center gap-4">
-        <button onClick={() => navigate('/players')} className="p-2 hover:bg-gray-100 rounded-lg">
-          <ArrowLeft size={20} className="text-gray-600" />
+        <button
+          onClick={() => navigate('/players')}
+          className="p-2 hover:bg-gray-100 rounded-lg"
+        >
+          <ArrowLeft size={20} />
         </button>
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{id ? 'Edit Player' : 'Create Player'}</h1>
-          <p className="text-gray-500 mt-1">{id ? 'Update player information' : 'Add a new player'}</p>
-        </div>
+        <h1 className="text-2xl font-bold">
+          {id ? 'Edit Player' : 'Create Player'}
+        </h1>
       </div>
 
-      <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Name</label>
-              <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="input w-full" required />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-              <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} className="input w-full" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-              <input type="tel" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} className="input w-full" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
-              <select value={formData.role} onChange={(e) => setFormData({...formData, role: e.target.value})} className="input w-full">
-                <option value="batsman">Batsman</option>
-                <option value="bowler">Bowler</option>
-                <option value="all-rounder">All Rounder</option>
-                <option value="wicket-keeper">Wicket Keeper</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-              <select value={formData.isActive ? 'true' : 'false'} onChange={(e) => setFormData({...formData, isActive: e.target.value === 'true'})} className="input w-full">
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
-              </select>
-            </div>
-          </div>
-          <div className="flex justify-end gap-3">
-            <button type="button" onClick={() => navigate('/players')} className="btn-secondary">Cancel</button>
-            <button type="submit" disabled={loading} className="btn-primary inline-flex items-center gap-2">
+      {/* FORM */}
+      <div className="bg-white p-6 rounded-xl shadow border">
+        <form
+          onSubmit={handleSubmit}
+          className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        >
+          <input
+            className="input w-full"
+            placeholder="Player Name *"
+            value={formData.playerName}
+            onChange={(e) =>
+              setFormData({ ...formData, playerName: e.target.value })
+            }
+            required
+          />
+
+          <input
+            type="number"
+            className="input w-full"
+            placeholder="Jersey Number"
+            value={formData.jerseyNumber}
+            onChange={(e) =>
+              setFormData({ ...formData, jerseyNumber: e.target.value })
+            }
+          />
+
+          <select
+            className="input w-full"
+            value={formData.role}
+            onChange={(e) =>
+              setFormData({ ...formData, role: e.target.value })
+            }
+          >
+            <option value="batsman">Batsman</option>
+            <option value="bowler">Bowler</option>
+            <option value="all-rounder">All Rounder</option>
+            <option value="wicket-keeper">Wicket Keeper</option>
+          </select>
+
+          {/* ✅ EXACT ENUM */}
+          <select
+            className="input w-full"
+            value={formData.battingStyle}
+            onChange={(e) =>
+              setFormData({ ...formData, battingStyle: e.target.value })
+            }
+          >
+            <option value="right-hand bat">Right Hand Bat</option>
+            <option value="left-hand bat">Left Hand Bat</option>
+          </select>
+
+          {/* ✅ EXACT ENUM */}
+          <select
+            className="input w-full"
+            value={formData.bowlingStyle}
+            onChange={(e) =>
+              setFormData({ ...formData, bowlingStyle: e.target.value })
+            }
+          >
+            <option value="none">None</option>
+            <option value="right-arm fast">Right Arm Fast</option>
+            <option value="right-arm medium">Right Arm Medium</option>
+            <option value="left-arm fast">Left Arm Fast</option>
+            <option value="left-arm medium">Left Arm Medium</option>
+            <option value="off-spin">Off Spin</option>
+            <option value="leg-spin">Leg Spin</option>
+          </select>
+
+          <input
+            className="input w-full"
+            placeholder="Team ObjectId (optional)"
+            value={formData.team}
+            onChange={(e) =>
+              setFormData({ ...formData, team: e.target.value })
+            }
+          />
+
+          <select
+            className="input w-full"
+            value={formData.isActive ? 'true' : 'false'}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                isActive: e.target.value === 'true'
+              })
+            }
+          >
+            <option value="true">Active</option>
+            <option value="false">Inactive</option>
+          </select>
+
+          <div className="col-span-full flex justify-end gap-3">
+            <button
+              type="button"
+              onClick={() => navigate('/players')}
+              className="btn-secondary"
+            >
+              Cancel
+            </button>
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary flex items-center gap-2"
+            >
               <Save size={18} />
               {loading ? 'Saving...' : 'Save'}
             </button>

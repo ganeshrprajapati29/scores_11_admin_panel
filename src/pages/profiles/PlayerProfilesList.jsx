@@ -269,4 +269,4 @@ const PlayerProfilesList = () => {
   )
 }
 
-export default PlayerProfilesList
+export default PlayerProfilesList                           

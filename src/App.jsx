@@ -61,6 +61,7 @@ import StoreManager from './pages/admin/StoreManager'
 import ContestManager from './pages/admin/ContestManager'
 
 import './App.css'
+import CreateProfile from './pages/profiles/CreateProfile'
 
 function App() {
   return (
@@ -132,6 +133,7 @@ function App() {
             <Route path="reviews" element={<ReviewsList />} />
             <Route path="performance" element={<PerformanceList />} />
             <Route path="profiles" element={<PlayerProfilesList />} />
+            <Route path="/profiles/create" element={<CreateProfile />} />
             <Route path="settings" element={<Settings />} />
             
             {/* Admin Routes */}
