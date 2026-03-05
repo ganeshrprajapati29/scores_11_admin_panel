@@ -151,6 +151,7 @@ function App() {
             <Route path="admin/mobile-app" element={<MobileAppManager />} />
             <Route path="admin/store-manager" element={<StoreManager />} />
             <Route path="admin/contest-manager" element={<ContestManager />} />
+            <Route path="admin/users/create" element={<CreateUser />} />
           </Route>
         </Routes>
         

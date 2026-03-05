@@ -95,16 +95,34 @@ const RoleManagement = () => {
   }
 
   const handleDelete = async () => {
-    try {
-      await adminService.deleteRole(selectedRole._id)
-      toast.success('Role deleted successfully')
-      setIsDeleteDialogOpen(false)
-      setSelectedRole(null)
-      fetchRoles()
-    } catch (error) {
-      toast.error(error.message || 'Failed to delete role')
+  try {
+
+    if (!selectedRole) {
+      toast.error("No role selected")
+      return
     }
+
+    await adminService.deleteRole(selectedRole._id)
+
+    toast.success("Role deleted successfully")
+
+    setIsDeleteDialogOpen(false)
+    setSelectedRole(null)
+
+    fetchRoles()
+
+  } catch (error) {
+
+    console.error(error)
+
+    toast.error(
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to delete role"
+    )
+
   }
+}
 
   const togglePermission = (permissionId) => {
     setFormData(prev => ({
@@ -116,14 +134,19 @@ const RoleManagement = () => {
   }
 
   const openEditModal = (role) => {
-    setSelectedRole(role)
-    setFormData({
-      name: role.name,
-      description: role.description,
-      permissions: role.permissions || []
-    })
-    setIsModalOpen(true)
-  }
+
+  if (!role) return   // safety check
+
+  setSelectedRole(role)
+
+  setFormData({
+    name: role?.name || '',
+    description: role?.description || '',
+    permissions: role?.permissions || []
+  })
+
+  setIsModalOpen(true)
+}
 
   const openCreateModal = () => {
     setSelectedRole(null)
@@ -210,18 +233,32 @@ const RoleManagement = () => {
         {role.permissions?.length || 0} permissions
       </span>
     )},
-    { key: 'users', title: 'Users', render: (role) => (
-      <div className="flex items-center gap-1 text-gray-600">
-        <Users className="w-4 h-4" />
-        <span>{role.userCount || 0}</span>
-      </div>
-    )},
-    { key: 'status', title: 'Status', render: (role) => (
-      <span className={`flex items-center gap-1 ${role.isActive ? 'text-green-600' : 'text-red-600'}`}>
-        {role.isActive ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-        {role.isActive ? 'Active' : 'Inactive'}
+
+    {
+  key: 'users',
+  title: 'Users',
+  render: (role) => (
+    <div className="flex items-center gap-1 text-gray-600">
+      <Users className="w-4 h-4" />
+      <span>{role?.userCount ?? 0}</span>
+    </div>
+  )
+},
+
+    {
+  key: 'status',
+  title: 'Status',
+  render: (role) => {
+    const isActive = role?.isActive ?? false
+
+    return (
+      <span className={`flex items-center gap-1 ${isActive ? 'text-green-600' : 'text-red-600'}`}>
+        {isActive ? <CheckCircle className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
+        {isActive ? 'Active' : 'Inactive'}
       </span>
-    )},
+    )
+  }
+},
     { key: 'actions', title: 'Actions', render: (role) => (
       <div className="flex items-center gap-2">
         <button

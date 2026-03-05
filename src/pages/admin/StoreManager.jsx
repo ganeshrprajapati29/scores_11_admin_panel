@@ -76,10 +76,16 @@ const StoreManager = () => {
       refunded: 'bg-gray-100 text-gray-700'
     }
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status] || styles.pending}`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </span>
-    )
+  <span
+    className={`px-2 py-1 rounded-full text-xs font-medium ${
+      styles?.[status] || styles?.pending
+    }`}
+  >
+    {(status
+      ? status.charAt(0).toUpperCase() + status.slice(1)
+      : "Pending")}
+  </span>
+)
   }
 
   const orderColumns = [
@@ -99,9 +105,15 @@ const StoreManager = () => {
       <span className="font-medium text-gray-900">${o.total?.toLocaleString()}</span>
     )},
     { key: 'status', title: 'Status', render: (o) => getStatusBadge(o.status) },
-    { key: 'date', title: 'Date', render: (o) => (
-      <span className="text-sm text-gray-600">{formatDate(o.createdAt, 'MMM DD, YYYY')}</span>
-    )},
+   {
+  key: 'date',
+  title: 'Date',
+  render: (o) => (
+    <span className="text-sm text-gray-600">
+      {o?.createdAt ? formatDate(o.createdAt, 'MMM DD, YYYY') : "-"}
+    </span>
+  )
+},
     { key: 'actions', title: 'Actions', render: (o) => (
       <button
         onClick={() => {

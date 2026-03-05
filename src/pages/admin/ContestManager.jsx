@@ -145,10 +145,16 @@ const ContestManager = () => {
       cancelled: 'bg-red-100 text-red-700'
     }
     return (
-      <span className={`px-2 py-1 rounded-full text-xs font-medium ${styles[status] || styles.upcoming}`}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </span>
-    )
+  <span
+    className={`px-2 py-1 rounded-full text-xs font-medium ${
+      styles?.[status] || styles?.upcoming
+    }`}
+  >
+    {(status
+      ? status.charAt(0).toUpperCase() + status.slice(1)
+      : "Upcoming")}
+  </span>
+)
   }
 
   const contestColumns = [
@@ -164,18 +170,32 @@ const ContestManager = () => {
     { key: 'prizePool', title: 'Prize Pool', render: (c) => (
       <span className="font-medium text-green-600">${c.prizePool?.toLocaleString()}</span>
     )},
-    { key: 'entries', title: 'Entries', render: (c) => (
-      <div className="text-sm">
-        <span className="font-medium">{c.currentEntries || 0}</span>
-        <span className="text-gray-500"> / {c.maxEntries}</span>
-        <div className="w-20 h-1.5 bg-gray-200 rounded-full mt-1">
-          <div 
-            className="h-full bg-primary-500 rounded-full" 
-            style={{ width: `${Math.min((c.currentEntries / c.maxEntries) * 100, 100)}%` }}
-          />
-        </div>
+
+{
+  key: 'entries',
+  title: 'Entries',
+  render: (c) => (
+    <div className="text-sm">
+      <span className="font-medium">{c?.currentEntries ?? 0}</span>
+      <span className="text-gray-500"> / {c?.maxEntries ?? 0}</span>
+
+      <div className="w-20 h-1.5 bg-gray-200 rounded-full mt-1">
+        <div
+          className="h-full bg-primary-500 rounded-full"
+          style={{
+            width: `${
+              c?.maxEntries
+                ? Math.min((c?.currentEntries ?? 0) / c.maxEntries * 100, 100)
+                : 0
+            }%`
+          }}
+        />
       </div>
-    )},
+    </div>
+  )
+},
+
+
     { key: 'status', title: 'Status', render: (c) => getStatusBadge(c.status) },
     { key: 'startTime', title: 'Start', render: (c) => (
       <span className="text-sm text-gray-600">{formatDate(c.startTime, 'MMM DD, HH:mm')}</span>
@@ -188,24 +208,29 @@ const ContestManager = () => {
         >
           <Edit2 className="w-4 h-4" />
         </button>
-        {c.status === 'upcoming' && (
-          <button
-            onClick={() => handleUpdateStatus(c._id, 'live')}
-            className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
-            title="Start Contest"
-          >
-            <Play className="w-4 h-4" />
-          </button>
-        )}
-        {c.status === 'live' && (
-          <button
-            onClick={() => handleUpdateStatus(c._id, 'completed')}
-            className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-            title="End Contest"
-          >
-            <Pause className="w-4 h-4" />
-          </button>
-        )}
+
+
+        {c?.status === 'upcoming' && (
+  <button
+    onClick={() => handleUpdateStatus(c?._id, 'live')}
+    className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+    title="Start Contest"
+  >
+    <Play className="w-4 h-4" />
+  </button>
+)}
+
+
+        {c?.status === 'live' && (
+  <button
+    onClick={() => handleUpdateStatus(c?._id, 'completed')}
+    className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+    title="End Contest"
+  >
+    <Pause className="w-4 h-4" />
+  </button>
+)}
+
         <button
           onClick={() => {
             setSelectedContest(c)

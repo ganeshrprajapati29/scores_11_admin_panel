@@ -179,35 +179,52 @@ const MobileAppManager = () => {
         )}
       </div>
     )},
-    { key: 'details', title: 'Details', render: (b) => (
-      <div>
-        <p className="font-medium text-gray-900">{b.title}</p>
-        <p className="text-sm text-gray-500">{b.subtitle}</p>
-        <div className="flex items-center gap-2 mt-1">
-          <span className="text-xs px-2 py-0.5 bg-primary-100 text-primary-700 rounded">
-            {b.actionType}
+
+
+    {
+  key: 'details',
+  title: 'Details',
+  render: (b) => (
+    <div>
+      <p className="font-medium text-gray-900">{b?.title || "-"}</p>
+      <p className="text-sm text-gray-500">{b?.subtitle || "-"}</p>
+
+      <div className="flex items-center gap-2 mt-1">
+        <span className="text-xs px-2 py-0.5 bg-primary-100 text-primary-700 rounded">
+          {b?.actionType || "-"}
+        </span>
+
+        {b?.actionValue && (
+          <span className="text-xs text-gray-500 truncate max-w-xs">
+            {b?.actionValue}
           </span>
-          {b.actionValue && (
-            <span className="text-xs text-gray-500 truncate max-w-xs">
-              {b.actionValue}
-            </span>
-          )}
-        </div>
-      </div>
-    )},
-    { key: 'schedule', title: 'Schedule', render: (b) => (
-      <div className="text-sm text-gray-600">
-        {b.startDate && (
-          <p>From: {formatDate(b.startDate, 'MMM DD, YYYY')}</p>
-        )}
-        {b.endDate && (
-          <p>To: {formatDate(b.endDate, 'MMM DD, YYYY')}</p>
-        )}
-        {!b.startDate && !b.endDate && (
-          <span className="text-gray-400">Always active</span>
         )}
       </div>
-    )},
+    </div>
+  )
+},
+
+    
+    {
+  key: 'schedule',
+  title: 'Schedule',
+  render: (b) => (
+    <div className="text-sm text-gray-600">
+      {b?.startDate && (
+        <p>From: {formatDate(b.startDate, 'MMM DD, YYYY')}</p>
+      )}
+
+      {b?.endDate && (
+        <p>To: {formatDate(b.endDate, 'MMM DD, YYYY')}</p>
+      )}
+
+      {!b?.startDate && !b?.endDate && (
+        <span className="text-gray-400">Always active</span>
+      )}
+    </div>
+  )
+},
+
     { key: 'actions', title: 'Actions', render: (b) => (
       <div className="flex items-center gap-1">
         <button

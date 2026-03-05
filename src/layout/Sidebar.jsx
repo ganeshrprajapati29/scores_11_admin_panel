@@ -118,7 +118,7 @@ const menuGroups = [
     color: 'from-rose-500 to-rose-600',
     badge: 'PRO',
     items: [
-      { name: 'Mobile App Manager', path: '/admin/mobile-app', icon: Smartphone, description: 'App configuration' },
+      { name: 'Mobile App Manager', path: 'admin/mobile-app', icon: Smartphone, description: 'App configuration' },
       { name: 'Store Manager', path: '/admin/store-manager', icon: Store, description: 'E-commerce control' },
       { name: 'Contest Manager', path: '/admin/contest-manager', icon: Gamepad2, description: 'Contest engine' },
     ]
