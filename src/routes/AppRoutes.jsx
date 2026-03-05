@@ -16,6 +16,9 @@ import UsersList from '../pages/users/UsersList'
 import ViewUser from '../pages/users/ViewUser'
 import CreateUser from '../pages/users/CreateUser'
 import EditUser from '../pages/users/EditUser'
+import VerifiedUsers from '../pages/users/VerifiedUsers'
+import Scorers from '../pages/users/Scorers'
+import SuspendedUsers from '../pages/users/SuspendedUsers'
 
 // Players
 import PlayersList from '../pages/players/PlayersList'
@@ -101,6 +104,7 @@ import Reports from '../pages/reports/Reports'
 
 // Settings
 import Settings from '../pages/settings/Settings'
+import FeatureToggles from '../pages/settings/FeatureToggles'
 
 // Admin Pages
 import RoleManagement from '../pages/admin/RoleManagement'
@@ -115,6 +119,9 @@ import APIManagement from '../pages/admin/APIManagement'
 import MobileAppManager from '../pages/admin/MobileAppManager'
 import StoreManager from '../pages/admin/StoreManager'
 import ContestManager from '../pages/admin/ContestManager'
+
+// Banners
+import BannerManagement from '../pages/banners/BannerManagement'
 
 const AppRoutes = () => {
   return (
@@ -137,6 +144,9 @@ const AppRoutes = () => {
         <Route path="/users/create" element={<CreateUser />} />
         <Route path="/users/:id/edit" element={<EditUser />} />
         <Route path="/users/:id" element={<ViewUser />} />
+        <Route path="/users/verified" element={<VerifiedUsers />} />
+        <Route path="/users/scorers" element={<Scorers />} />
+        <Route path="/users/suspended" element={<SuspendedUsers />} />
         
         {/* Admin User Routes */}
         <Route path="/admin/users" element={<UsersList />} />
@@ -256,6 +266,14 @@ const AppRoutes = () => {
         
         {/* Content Admin */}
         <Route path="/admin/moderation" element={<ContentModeration />} />
+        
+{/* Banner Management */}
+        <Route path="/banners" element={<BannerManagement />} />
+        <Route path="/admin/banners" element={<BannerManagement />} />
+        
+        {/* Feature Toggles */}
+        <Route path="/settings/features" element={<FeatureToggles />} />
+        <Route path="/admin/features" element={<FeatureToggles />} />
         
       </Route>
       

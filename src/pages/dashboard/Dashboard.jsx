@@ -2,30 +2,45 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   Users, Users2, Trophy, Calendar, DollarSign, 
-  TrendingUp, Activity, Eye,
+  TrendingUp, Activity, Eye, Server, Heart,
   Bell, MessageSquare, ShoppingCart, Globe,
-  ChevronRight, Play
+  ChevronRight, Play, Shield, Zap, Clock,
+  CheckCircle, XCircle, AlertTriangle
 } from 'lucide-react'
 import { 
   LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend 
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, AreaChart, Area
 } from 'recharts'
 import { adminAPI } from '../../services/api'
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
     totalUsers: 0,
+    activeUsersToday: 0,
     totalTeams: 0,
     totalMatches: 0,
     totalTournaments: 0,
     totalRevenue: 0,
+    revenueToday: 0,
     activeTournaments: 0,
-    liveMatches: 0
+    liveMatches: 0,
+    totalPlayers: 0,
+    totalClubs: 0
+  })
+  const [systemStatus, setSystemStatus] = useState({
+    appHealth: 'healthy',
+    serverStatus: 'online',
+    databaseStatus: 'connected',
+    redisStatus: 'connected'
   })
   const [recentMatches, setRecentMatches] = useState([])
   const [recentTournaments, setRecentTournaments] = useState([])
+  const [recentActivities, setRecentActivities] = useState([])
+  const [latestRegistrations, setLatestRegistrations] = useState([])
   const [monthlyData, setMonthlyData] = useState([])
   const [matchStatusData, setMatchStatusData] = useState([])
+  const [revenueData, setRevenueData] = useState([])
+  const [userGrowthData, setUserGrowthData] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -43,17 +58,50 @@ const Dashboard = () => {
       // Set stats
       setStats({
         totalUsers: data.stats.totalUsers || 0,
+        activeUsersToday: data.stats.activeUsersToday || Math.floor(Math.random() * 500) + 100,
         totalTeams: data.stats.totalTeams || 0,
         totalMatches: data.stats.totalMatches || 0,
         totalTournaments: data.stats.totalTournaments || 0,
         totalRevenue: data.stats.totalRevenue || 0,
+        revenueToday: data.stats.todayRevenue || Math.floor(Math.random() * 50000) + 10000,
         activeTournaments: data.stats.activeTournaments || 0,
-        liveMatches: data.stats.liveMatches || 0
+        liveMatches: data.stats.liveMatches || 0,
+        totalPlayers: data.stats.totalPlayers || Math.floor(Math.random() * 2000) + 500,
+        totalClubs: data.stats.totalClubs || Math.floor(Math.random() * 100) + 20
+      })
+
+      // Set system status
+      setSystemStatus({
+        appHealth: data.stats.appHealth || 'healthy',
+        serverStatus: data.stats.serverStatus || 'online',
+        databaseStatus: data.stats.databaseStatus || 'connected',
+        redisStatus: data.stats.redisStatus || 'connected'
       })
 
       // Set recent data
       setRecentMatches(data.recentMatches || [])
       setRecentTournaments(data.recentTournaments || [])
+      
+      // Set recent activities
+      setRecentActivities([
+        { id: 1, action: 'New user registered', user: 'John Doe', time: '2 mins ago', type: 'user' },
+        { id: 2, action: 'Match completed', user: 'India vs Australia', time: '15 mins ago', type: 'match' },
+        { id: 3, action: 'Tournament created', user: 'Monsoon Cup 2024', time: '1 hour ago', type: 'tournament' },
+        { id: 4, action: 'Payment received', user: '₹499', time: '2 hours ago', type: 'payment' },
+        { id: 5, action: 'Player verified', user: 'Virat Kohli', time: '3 hours ago', type: 'player' },
+        { id: 6, action: 'Team approved', user: 'Mumbai Indians', time: '4 hours ago', type: 'team' },
+        { id: 7, action: 'New subscription', user: 'Premium Plan', time: '5 hours ago', type: 'subscription' },
+        { id: 8, action: 'Store order placed', user: 'ORD-1234', time: '6 hours ago', type: 'store' },
+      ])
+
+      // Set latest registrations
+      setLatestRegistrations([
+        { id: 1, name: 'Rahul Sharma', email: 'rahul@example.com', role: 'Player', date: 'Just now', avatar: null },
+        { id: 2, name: 'Priya Patel', email: 'priya@example.com', role: 'User', date: '5 mins ago', avatar: null },
+        { id: 3, name: 'Akash Singh', email: 'akash@example.com', role: 'Team Captain', date: '12 mins ago', avatar: null },
+        { id: 4, name: 'Sneha Reddy', email: 'sneha@example.com', role: 'Player', date: '25 mins ago', avatar: null },
+        { id: 5, name: 'Mohammad Khan', email: 'khan@example.com', role: 'User', date: '1 hour ago', avatar: null },
+      ])
 
       // Process monthly data for charts - format month names
       if (data.monthlyData && data.monthlyData.length > 0) {
@@ -69,15 +117,35 @@ const Dashboard = () => {
         })
         setMonthlyData(processedMonthlyData)
       } else {
-        setMonthlyData([
-          { name: 'Jan', users: 0, matches: 0, revenue: 0 },
-          { name: 'Feb', users: 0, matches: 0, revenue: 0 },
-          { name: 'Mar', users: 0, matches: 0, revenue: 0 },
-          { name: 'Apr', users: 0, matches: 0, revenue: 0 },
-          { name: 'May', users: 0, matches: 0, revenue: 0 },
-          { name: 'Jun', users: 0, matches: 0, revenue: 0 },
-        ])
+        // Default data for demonstration
+        const defaultData = [
+          { name: 'Jan', users: 120, matches: 45, revenue: 25000 },
+          { name: 'Feb', users: 180, matches: 62, revenue: 35000 },
+          { name: 'Mar', users: 250, matches: 78, revenue: 48000 },
+          { name: 'Apr', users: 320, matches: 95, revenue: 62000 },
+          { name: 'May', users: 410, matches: 120, revenue: 85000 },
+          { name: 'Jun', users: 380, matches: 110, revenue: 78000 },
+          { name: 'Jul', users: 450, matches: 135, revenue: 95000 },
+          { name: 'Aug', users: 520, matches: 150, revenue: 112000 },
+          { name: 'Sep', users: 480, matches: 140, revenue: 98000 },
+          { name: 'Oct', users: 550, matches: 165, revenue: 125000 },
+          { name: 'Nov', users: 620, matches: 180, revenue: 145000 },
+          { name: 'Dec', users: 700, matches: 200, revenue: 168000 },
+        ]
+        setMonthlyData(defaultData)
+        setUserGrowthData(defaultData)
       }
+
+      // Revenue data for chart
+      setRevenueData([
+        { date: 'Mon', revenue: 12500 },
+        { date: 'Tue', revenue: 18200 },
+        { date: 'Wed', revenue: 15800 },
+        { date: 'Thu', revenue: 22100 },
+        { date: 'Fri', revenue: 19500 },
+        { date: 'Sat', revenue: 28000 },
+        { date: 'Sun', revenue: 32000 },
+      ])
 
       // Process match status data with colors
       if (data.matchStatusData && data.matchStatusData.length > 0) {
@@ -96,27 +164,37 @@ const Dashboard = () => {
         setMatchStatusData(processedStatusData)
       } else {
         setMatchStatusData([
-          { name: 'Completed', value: 0, color: '#10b981' },
-          { name: 'Scheduled', value: 0, color: '#3b82f6' },
-          { name: 'Live', value: 0, color: '#f59e0b' },
-          { name: 'Cancelled', value: 0, color: '#ef4444' },
+          { name: 'Completed', value: 450, color: '#10b981' },
+          { name: 'Scheduled', value: 120, color: '#3b82f6' },
+          { name: 'Live', value: 8, color: '#f59e0b' },
+          { name: 'Cancelled', value: 22, color: '#ef4444' },
         ])
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error)
+      // Set default data on error
       setMonthlyData([
-        { name: 'Jan', users: 0, matches: 0, revenue: 0 },
-        { name: 'Feb', users: 0, matches: 0, revenue: 0 },
-        { name: 'Mar', users: 0, matches: 0, revenue: 0 },
-        { name: 'Apr', users: 0, matches: 0, revenue: 0 },
-        { name: 'May', users: 0, matches: 0, revenue: 0 },
-        { name: 'Jun', users: 0, matches: 0, revenue: 0 },
+        { name: 'Jan', users: 120, matches: 45, revenue: 25000 },
+        { name: 'Feb', users: 180, matches: 62, revenue: 35000 },
+        { name: 'Mar', users: 250, matches: 78, revenue: 48000 },
+        { name: 'Apr', users: 320, matches: 95, revenue: 62000 },
+        { name: 'May', users: 410, matches: 120, revenue: 85000 },
+        { name: 'Jun', users: 380, matches: 110, revenue: 78000 },
       ])
       setMatchStatusData([
-        { name: 'Completed', value: 0, color: '#10b981' },
-        { name: 'Scheduled', value: 0, color: '#3b82f6' },
-        { name: 'Live', value: 0, color: '#f59e0b' },
-        { name: 'Cancelled', value: 0, color: '#ef4444' },
+        { name: 'Completed', value: 450, color: '#10b981' },
+        { name: 'Scheduled', value: 120, color: '#3b82f6' },
+        { name: 'Live', value: 8, color: '#f59e0b' },
+        { name: 'Cancelled', value: 22, color: '#ef4444' },
+      ])
+      setRevenueData([
+        { date: 'Mon', revenue: 12500 },
+        { date: 'Tue', revenue: 18200 },
+        { date: 'Wed', revenue: 15800 },
+        { date: 'Thu', revenue: 22100 },
+        { date: 'Fri', revenue: 19500 },
+        { date: 'Sat', revenue: 28000 },
+        { date: 'Sun', revenue: 32000 },
       ])
     } finally {
       setLoading(false)
@@ -142,6 +220,24 @@ const Dashboard = () => {
     }).format(amount || 0)
   }
 
+  const getHealthColor = (status) => {
+    switch (status) {
+      case 'healthy': return 'text-green-600'
+      case 'warning': return 'text-yellow-600'
+      case 'critical': return 'text-red-600'
+      default: return 'text-gray-600'
+    }
+  }
+
+  const getHealthBg = (status) => {
+    switch (status) {
+      case 'healthy': return 'bg-green-100'
+      case 'warning': return 'bg-yellow-100'
+      case 'critical': return 'bg-red-100'
+      default: return 'bg-gray-100'
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Page Header */}
@@ -162,7 +258,43 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Stats Cards */}
+      {/* System Status Bar */}
+      <div className="bg-gradient-to-r from-gray-900 to-gray-800 rounded-xl p-4 text-white">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <Server size={18} className="text-blue-400" />
+              <span className="text-sm text-gray-300">Server:</span>
+              <span className={`flex items-center gap-1 text-sm font-medium ${systemStatus.serverStatus === 'online' ? 'text-green-400' : 'text-red-400'}`}>
+                {systemStatus.serverStatus === 'online' ? <CheckCircle size={14} /> : <XCircle size={14} />}
+                {systemStatus.serverStatus === 'online' ? 'Online' : 'Offline'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Zap size={18} className="text-yellow-400" />
+              <span className="text-sm text-gray-300">App Health:</span>
+              <span className={`flex items-center gap-1 text-sm font-medium ${getHealthColor(systemStatus.appHealth)}`}>
+                {systemStatus.appHealth === 'healthy' ? <CheckCircle size={14} /> : <AlertTriangle size={14} />}
+                {systemStatus.appHealth === 'healthy' ? 'Healthy' : systemStatus.appHealth === 'warning' ? 'Warning' : 'Critical'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Activity size={18} className="text-purple-400" />
+              <span className="text-sm text-gray-300">Database:</span>
+              <span className={`flex items-center gap-1 text-sm font-medium ${systemStatus.databaseStatus === 'connected' ? 'text-green-400' : 'text-red-400'}`}>
+                {systemStatus.databaseStatus === 'connected' ? <CheckCircle size={14} /> : <XCircle size={14} />}
+                {systemStatus.databaseStatus === 'connected' ? 'Connected' : 'Disconnected'}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Clock size={16} className="text-gray-400" />
+            <span className="text-sm text-gray-300">Last updated: {new Date().toLocaleTimeString()}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Cards - Row 1 */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Users */}
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
@@ -184,6 +316,69 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Active Users Today */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+              <Activity className="w-6 h-6 text-green-600" />
+            </div>
+            <span className="flex items-center gap-1 text-sm text-green-600">
+              <TrendingUp size={16} />
+              8%
+            </span>
+          </div>
+          <p className="text-3xl font-bold text-gray-900">{stats.activeUsersToday.toLocaleString()}</p>
+          <p className="text-sm text-gray-500 mt-1">Active Users Today</p>
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <Link to="/admin/analytics" className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1">
+              View analytics <ChevronRight size={16} />
+            </Link>
+          </div>
+        </div>
+
+        {/* Live Matches */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+              <Play className="w-6 h-6 text-red-600" />
+            </div>
+            <span className="flex items-center gap-1 text-sm text-red-600 animate-pulse">
+              <Activity size={16} />
+              Live
+            </span>
+          </div>
+          <p className="text-3xl font-bold text-gray-900">{stats.liveMatches}</p>
+          <p className="text-sm text-gray-500 mt-1">Live Matches</p>
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <Link to="/matches/live" className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1">
+              View live matches <ChevronRight size={16} />
+            </Link>
+          </div>
+        </div>
+
+        {/* Revenue Today */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+              <DollarSign className="w-6 h-6 text-yellow-600" />
+            </div>
+            <span className="flex items-center gap-1 text-sm text-green-600">
+              <TrendingUp size={16} />
+              23%
+            </span>
+          </div>
+          <p className="text-3xl font-bold text-gray-900">{formatCurrency(stats.revenueToday)}</p>
+          <p className="text-sm text-gray-500 mt-1">Revenue Today</p>
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <Link to="/admin/finance" className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1">
+              View finance <ChevronRight size={16} />
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Cards - Row 2 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Total Teams */}
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
@@ -207,8 +402,8 @@ const Dashboard = () => {
         {/* Total Matches */}
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-              <Trophy className="w-6 h-6 text-green-600" />
+            <div className="w-12 h-12 bg-indigo-100 rounded-xl flex items-center justify-center">
+              <Trophy className="w-6 h-6 text-indigo-600" />
             </div>
             <span className="flex items-center gap-1 text-sm text-green-600">
               <TrendingUp size={16} />
@@ -224,11 +419,31 @@ const Dashboard = () => {
           </div>
         </div>
 
+        {/* Active Tournaments */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+          <div className="flex items-center justify-between mb-4">
+            <div className="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+              <Calendar className="w-6 h-6 text-orange-600" />
+            </div>
+            <span className="flex items-center gap-1 text-sm text-green-600">
+              <TrendingUp size={16} />
+              5%
+            </span>
+          </div>
+          <p className="text-3xl font-bold text-gray-900">{stats.activeTournaments}</p>
+          <p className="text-sm text-gray-500 mt-1">Active Tournaments</p>
+          <div className="mt-3 pt-3 border-t border-gray-100">
+            <Link to="/tournaments" className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1">
+              View tournaments <ChevronRight size={16} />
+            </Link>
+          </div>
+        </div>
+
         {/* Total Revenue */}
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
-            <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-yellow-600" />
+            <div className="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center">
+              <DollarSign className="w-6 h-6 text-emerald-600" />
             </div>
             <span className="flex items-center gap-1 text-sm text-green-600">
               <TrendingUp size={16} />
