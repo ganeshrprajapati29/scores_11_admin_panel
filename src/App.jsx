@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast'
 import DashboardLayout from './layout/DashboardLayout'
 import ProtectedRoute from './layout/ProtectedRoute'
 import Login from './pages/auth/Login'
+import SearchResults from './pages/search/SearchResults'
 import Dashboard from './pages/dashboard/Dashboard'
 import UsersList from './pages/users/UsersList'
 import ViewUser from './pages/users/ViewUser'
@@ -77,6 +78,7 @@ function App() {
           }>
             <Route index element={<Dashboard />} />
             <Route path="dashboard" element={<Dashboard />} />
+            <Route path="search" element={<SearchResults />} />
             <Route path="users" element={<UsersList />} />
             <Route path="users/create" element={<CreateUser />} />
             <Route path="users/:id" element={<ViewUser />} />

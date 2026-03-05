@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   Search, Plus, Users, Trophy, MapPin, 
   Calendar, Award, Trash2, Edit, Eye, 
-  CheckCircle, XCircle, Shield, UserPlus
+  CheckCircle, XCircle, Shield, UserPlus, X
 } from 'lucide-react'
 import { teamsAPI } from '../../services/api'
 import toast from 'react-hot-toast'
+import useDebounce from '../../hooks/useDebounce'
 
 const TeamsList = () => {
   const [teams, setTeams] = useState([])
@@ -19,18 +20,17 @@ const TeamsList = () => {
   })
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
+  
+  // Debounce search term - wait 300ms after user stops typing
+  const debouncedSearch = useDebounce(search, 300)
 
-  useEffect(() => {
-    fetchTeams()
-  }, [pagination.page, pagination.limit, statusFilter])
-
-  const fetchTeams = async () => {
+  const fetchTeams = useCallback(async () => {
     try {
       setLoading(true)
       const params = {
         page: pagination.page,
         limit: pagination.limit,
-        ...(search && { search }),
+        ...(debouncedSearch && { search: debouncedSearch }),
         ...(statusFilter && { isActive: statusFilter })
       }
       const response = await teamsAPI.getAll(params)
@@ -44,12 +44,25 @@ const TeamsList = () => {
     } finally {
       setLoading(false)
     }
+  }, [pagination.page, pagination.limit, debouncedSearch, statusFilter])
+
+  useEffect(() => {
+    fetchTeams()
+  }, [fetchTeams])
+
+  // Reset to page 1 when search term changes
+  useEffect(() => {
+    if (debouncedSearch !== '') {
+      setPagination(prev => ({ ...prev, page: 1 }))
+    }
+  }, [debouncedSearch])
+
+  const handleSearchChange = (e) => {
+    setSearch(e.target.value)
   }
 
-  const handleSearch = (e) => {
-    e.preventDefault()
-    setPagination(prev => ({ ...prev, page: 1 }))
-    fetchTeams()
+  const clearSearch = () => {
+    setSearch('')
   }
 
   const handleDelete = async (id) => {
@@ -93,10 +106,16 @@ const TeamsList = () => {
           <h1 className="text-2xl font-bold text-gray-900">Teams Management</h1>
           <p className="text-gray-500 mt-1">Manage all cricket teams in the system</p>
         </div>
-        <Link to="/teams/create" className="btn-primary inline-flex items-center gap-2">
-          <Plus size={18} />
-          Create New Team
-        </Link>
+        <div className="flex gap-2">
+          <Link to="/leaderboard/teams" className="btn-secondary inline-flex items-center gap-2">
+            <Trophy size={18} />
+            Team Rankings
+          </Link>
+          <Link to="/teams/create" className="btn-primary inline-flex items-center gap-2">
+            <Plus size={18} />
+            Create New Team
+          </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}
@@ -155,14 +174,14 @@ const TeamsList = () => {
 
       {/* Search and Filters */}
       <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
-        <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-4">
+        <div className="flex flex-col md:flex-row gap-4">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
             <input
               type="text"
-              placeholder="Search teams by name..."
+              placeholder="Search teams by name... (typing triggers automatic search)"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={handleSearchChange}
               className="input pl-10 w-full"
             />
           </div>
@@ -175,10 +194,7 @@ const TeamsList = () => {
             <option value="true">Active</option>
             <option value="false">Inactive</option>
           </select>
-          <button type="submit" className="btn-primary">
-            Search
-          </button>
-        </form>
+        </div>
       </div>
 
       {/* Teams Grid */}

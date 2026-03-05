@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { 
   Menu, Bell, Search, User, LogOut, Settings, 
-  ChevronDown, Moon, Sun, HelpCircle
+  ChevronDown, Users, Trophy, Calendar, Activity
 } from 'lucide-react'
 import useAuthStore from '../store/authStore'
+import useDebounce from '../hooks/useDebounce'
+import { searchAPI } from '../services/search.service'
 
 const Navbar = ({ onMenuClick, isSidebarOpen }) => {
   const { user, logout } = useAuthStore()
@@ -12,16 +14,28 @@ const Navbar = ({ onMenuClick, isSidebarOpen }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const searchRef = useRef(null)
 
   const handleLogout = () => {
     logout()
     navigate('/login')
   }
 
-  const handleSearch = (e) => {
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value)
+  }
+
+  // Handle search submit - go directly to search results page
+  const handleSearchSubmit = (e) => {
     e.preventDefault()
-    if (searchQuery.trim()) {
-      navigate(`/search?q=${searchQuery}`)
+    if (searchQuery && searchQuery.trim().length >= 2) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`)
+    }
+  }
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit(e)
     }
   }
 
@@ -45,19 +59,26 @@ const Navbar = ({ onMenuClick, isSidebarOpen }) => {
             <Menu size={20} className="text-gray-600" />
           </button>
 
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="hidden md:block">
-            <div className="relative">
+          {/* Search Bar - Direct to Search Page */}
+          <div className="hidden md:block" ref={searchRef}>
+            <form onSubmit={handleSearchSubmit} className="relative">
               <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search..."
+                placeholder="Search users, teams, players, matches..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-64 pl-10 pr-4 py-2 bg-gray-100 border-none rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                onChange={handleSearchChange}
+                onKeyDown={handleKeyDown}
+                className="w-80 pl-10 pr-24 py-2 bg-gray-100 border-none rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
               />
-            </div>
-          </form>
+              <button
+                type="submit"
+                className="absolute right-1 top-1/2 -translate-y-1/2 px-4 py-1.5 bg-primary-600 text-white text-sm font-medium rounded-md hover:bg-primary-700 transition-colors"
+              >
+                Search
+              </button>
+            </form>
+          </div>
         </div>
 
         {/* Right side */}
@@ -140,14 +161,6 @@ const Navbar = ({ onMenuClick, isSidebarOpen }) => {
                   >
                     <Settings size={16} />
                     Settings
-                  </Link>
-                  <Link
-                    to="/help"
-                    className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                    onClick={() => setDropdownOpen(false)}
-                  >
-                    <HelpCircle size={16} />
-                    Help
                   </Link>
                   <hr className="my-1" />
                   <button

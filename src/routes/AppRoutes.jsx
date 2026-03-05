@@ -5,6 +5,9 @@ import ProtectedRoute from '../layout/ProtectedRoute'
 // Auth
 import Login from '../pages/auth/Login'
 
+// Search
+import SearchResults from '../pages/search/SearchResults'
+
 // Dashboard
 import Dashboard from '../pages/dashboard/Dashboard'
 
@@ -37,6 +40,10 @@ import CreateContest from '../pages/contests/CreateContest'
 
 // Leaderboard
 import LeaderboardList from '../pages/leaderboard/LeaderboardList'
+import PlayerLeaderboard from '../pages/leaderboard/PlayerLeaderboard'
+import TeamLeaderboard from '../pages/leaderboard/TeamLeaderboard'
+import PlayerDetails from '../pages/players/PlayerDetails'
+import AssociationDetails from '../pages/associations/AssociationDetails'
 
 // Player Profiles
 import PlayerProfilesList from '../pages/profiles/PlayerProfilesList'
@@ -122,6 +129,9 @@ const AppRoutes = () => {
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<Dashboard />} />
         
+        {/* Search */}
+        <Route path="/search" element={<SearchResults />} />
+        
         {/* ========== USER MANAGEMENT ========== */}
         <Route path="/users" element={<UsersList />} />
         <Route path="/users/create" element={<CreateUser />} />
@@ -153,8 +163,9 @@ const AppRoutes = () => {
         {/* Players */}
         <Route path="/players" element={<PlayersList />} />
         <Route path="/players/create" element={<CreatePlayer />} />
-        <Route path="/players/:id" element={<CreatePlayer />} />
+        <Route path="/players/:id/details" element={<PlayerDetails />} />
         <Route path="/players/:id/edit" element={<CreatePlayer />} />
+        <Route path="/players/:id" element={<CreatePlayer />} />
         
         {/* Contests */}
         <Route path="/contests" element={<ContestsList />} />
@@ -162,6 +173,8 @@ const AppRoutes = () => {
         
         {/* Leaderboard */}
         <Route path="/leaderboard" element={<LeaderboardList />} />
+        <Route path="/leaderboard/players" element={<PlayerLeaderboard />} />
+        <Route path="/leaderboard/teams" element={<TeamLeaderboard />} />
         
         {/* Player Profiles */}
         <Route path="/profiles" element={<PlayerProfilesList />} />
@@ -201,6 +214,7 @@ const AppRoutes = () => {
         {/* Associations */}
         <Route path="/associations" element={<AssociationList />} />
         <Route path="/associations/create" element={<CreateAssociation />} />
+        <Route path="/associations/:id" element={<AssociationDetails />} />
         
         {/* Awards */}
         <Route path="/awards" element={<AwardsList />} />

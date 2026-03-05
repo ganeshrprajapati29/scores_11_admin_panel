@@ -217,7 +217,7 @@ const PlayersList = () => {
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-2">
                         <Link
-                          to={`/players/${player._id}`}
+                          to={`/players/${player._id}/details`}
                           className="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                           title="View Details"
                         >

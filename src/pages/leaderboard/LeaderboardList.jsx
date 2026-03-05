@@ -88,10 +88,20 @@ const LeaderboardList = () => {
           <h1 className="text-2xl font-bold text-gray-900">Leaderboard Management</h1>
           <p className="text-gray-500 mt-1">Manage all leaderboards in the system</p>
         </div>
-        <Link to="/leaderboard/create" className="btn-primary inline-flex items-center gap-2">
-          <Plus size={18} />
-          Create Leaderboard
-        </Link>
+        <div className="flex gap-2">
+          <Link to="/leaderboard/players" className="btn-secondary inline-flex items-center gap-2">
+            <Users size={18} />
+            Player Rankings
+          </Link>
+          <Link to="/leaderboard/teams" className="btn-secondary inline-flex items-center gap-2">
+            <Trophy size={18} />
+            Team Rankings
+          </Link>
+          <Link to="/leaderboard/create" className="btn-primary inline-flex items-center gap-2">
+            <Plus size={18} />
+            Create Leaderboard
+          </Link>
+        </div>
       </div>
 
       {/* Stats Cards */}
