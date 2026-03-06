@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { 
-  Search, Plus, Trophy, Users, Calendar, DollarSign,
+  Search, Plus, Trophy, Users, Calendar, IndianRupee,
   Trash2, Edit, Eye, RefreshCw
 } from 'lucide-react'
 import { contestsAPI } from '../../services/api'
@@ -181,13 +181,13 @@ const ContestsList = () => {
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <DollarSign size={14} />
+                        <IndianRupee size={14} />
                         {contest.entryFee || 0}
                       </div>
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-1 text-sm text-gray-600">
-                        <DollarSign size={14} />
+                        <IndianRupee size={14} />
                         {contest.prizePool || 0}
                       </div>
                     </td>

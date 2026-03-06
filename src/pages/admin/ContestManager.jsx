@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { 
-  Trophy, Users, DollarSign, Calendar, Clock, 
+  Trophy, Users, IndianRupee, Calendar, Clock, 
   CheckCircle, XCircle, AlertTriangle, TrendingUp,
   Filter, Search, Plus, Eye, Edit2, Trash2, Play, Pause
 } from 'lucide-react'
@@ -269,7 +269,7 @@ const ContestManager = () => {
         <nav className="flex gap-8">
           {[
             { id: 'contests', label: 'Contests', icon: Trophy },
-            { id: 'prize-pools', label: 'Prize Pools', icon: DollarSign },
+            { id: 'prize-pools', label: 'Prize Pools', icon: IndianRupee },
             { id: 'stats', label: 'Statistics', icon: TrendingUp },
           ].map((tab) => (
             <button
@@ -359,7 +359,7 @@ const ContestManager = () => {
               { title: 'Total Contests', value: stats.totalContests || 0, icon: Trophy },
               { title: 'Live Contests', value: stats.liveContests || 0, icon: Clock },
               { title: 'Total Entries', value: stats.totalEntries || 0, icon: Users },
-              { title: 'Total Prize Distributed', value: `$${stats.totalPrizeDistributed?.toLocaleString() || 0}`, icon: DollarSign },
+              { title: 'Total Prize Distributed', value: `₹${stats.totalPrizeDistributed?.toLocaleString() || 0}`, icon: IndianRupee },
             ].map((stat, index) => (
               <div key={index} className="bg-white p-6 rounded-lg border border-gray-200">
                 <stat.icon className="w-8 h-8 text-primary-500 mb-2" />
@@ -438,7 +438,7 @@ const ContestManager = () => {
 
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Entry Fee ($) *</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Entry Fee (₹) *</label>
               <Input
                 type="number"
                 value={contestForm.entryFee}

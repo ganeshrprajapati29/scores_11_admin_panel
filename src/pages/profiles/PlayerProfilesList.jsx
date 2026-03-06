@@ -9,7 +9,7 @@ import toast from 'react-hot-toast'
 
 const PlayerProfilesList = () => {
   const [profiles, setProfiles] = useState([])
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true) 
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 10,

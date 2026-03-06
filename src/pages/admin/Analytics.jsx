@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { 
-  BarChart3, TrendingUp, Users, DollarSign, 
+  BarChart3, TrendingUp, Users, IndianRupee, 
   Activity, Calendar, Download, Filter,
   ArrowUp, ArrowDown, Target, Globe
 } from 'lucide-react'
@@ -138,10 +138,10 @@ const Analytics = () => {
         />
         <StatCard
           title="Revenue"
-          value={`$${analyticsData.revenueStats?.total?.toLocaleString() || '0'}`}
+          value={`₹${analyticsData.revenueStats?.total?.toLocaleString() || '0'}`}
           change="+8.2%"
           changeType="positive"
-          icon={DollarSign}
+          icon={IndianRupee}
           color="bg-green-500"
         />
         <StatCard

@@ -48,7 +48,7 @@ const OrdersList = () => {
                   <tr key={order._id} className="border-t border-gray-100">
                     <td className="py-3 px-4 text-gray-800">#{order.orderNumber || order._id}</td>
                     <td className="py-3 px-4 text-gray-600">{order.user?.name || 'N/A'}</td>
-                    <td className="py-3 px-4 text-gray-800 font-medium">${order.total}</td>
+                    <td className="py-3 px-4 text-gray-800 font-medium">₹{order.total}</td>
                     <td className="py-3 px-4"><span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(order.status)}`}>{order.status || 'pending'}</span></td>
                     <td className="py-3 px-4 text-gray-600">{order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</td>
                   </tr>

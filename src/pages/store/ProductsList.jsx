@@ -252,22 +252,24 @@ const ProductsList = () => {
                   )}
                 </div>
 
-                {/* Actions */}
                 <div className="flex items-center gap-2">
-                  <Link
-                    to={`/store/products/${product._id}`}
-                    className="flex-1 btn-secondary text-center text-sm py-2 flex items-center justify-center gap-1"
-                  >
-                    <Eye size={14} />
-                    View
-                  </Link>
-                  <button
-                    onClick={() => handleDelete(product._id)}
-                    className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                  >
-                    <Trash2 size={16} />
-                  </button>
-                </div>
+
+  <Link
+    to={`/store/products/${product._id}`}
+    className="flex-1 btn-secondary text-center text-sm py-2 flex items-center justify-center gap-1"
+  >
+    <Eye size={14} />
+    View
+  </Link>
+
+  <button
+    onClick={() => handleDelete(product._id)}
+    className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+  >
+    <Trash2 size={16} />
+  </button>
+
+</div>
               </div>
             </div>
           ))

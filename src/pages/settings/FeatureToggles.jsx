@@ -1,10 +1,19 @@
 import { useState, useEffect } from 'react'
 import { 
-  Toggle, Search, Plus, Edit, Trash2, 
-  MoreVertical, CheckCircle, XCircle, AlertTriangle,
-  Zap, CreditCard, Users, Sparkles, FlaskConical
-} from 'lucide-react'
-
+  Search,
+  Plus,
+  Edit,
+  Trash2,
+  MoreVertical,
+  CheckCircle,
+  XCircle,
+  AlertTriangle,
+  Zap,
+  CreditCard,
+  Users,
+  Sparkles,
+  FlaskConical
+} from "lucide-react";
 const FeatureToggles = () => {
   const [features, setFeatures] = useState([])
   const [loading, setLoading] = useState(true)

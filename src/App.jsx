@@ -63,6 +63,8 @@ import ContestManager from './pages/admin/ContestManager'
 
 import './App.css'
 import CreateProfile from './pages/profiles/CreateProfile'
+import BannerManagement from './pages/banners/BannerManagement'
+import FeatureToggles from './pages/settings/FeatureToggles'
 
 function App() {
   return (
@@ -113,6 +115,7 @@ function App() {
             <Route path="community/posts" element={<PostsList />} />
             <Route path="community/reported" element={<ReportedPosts />} />
             <Route path="store/products" element={<ProductsList />} />
+            
             <Route path="store/products/add" element={<AddProduct />} />
             <Route path="store/products/:id/edit" element={<AddProduct />} />
             <Route path="store/add-product" element={<AddProduct />} />
@@ -137,6 +140,8 @@ function App() {
             <Route path="profiles" element={<PlayerProfilesList />} />
             <Route path="/profiles/create" element={<CreateProfile />} />
             <Route path="settings" element={<Settings />} />
+            <Route path="banners" element={<BannerManagement />} />
+            <Route path="settings/features" element={<FeatureToggles />} />
             
             {/* Admin Routes */}
             <Route path="admin/roles" element={<RoleManagement />} />

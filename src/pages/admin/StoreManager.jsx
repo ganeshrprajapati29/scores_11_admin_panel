@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { 
   ShoppingBag, Package, Truck, CreditCard, Users, 
-  TrendingUp, DollarSign, Box, AlertCircle, CheckCircle,
+  TrendingUp, IndianRupee, Box, AlertCircle, CheckCircle,
   Clock, XCircle, Eye, Download, Filter, Search,
   ChevronDown, ChevronUp, MoreHorizontal
 } from 'lucide-react'
@@ -102,7 +102,7 @@ const StoreManager = () => {
       <span className="text-sm text-gray-600">{o.items?.length || 0} items</span>
     )},
     { key: 'total', title: 'Total', render: (o) => (
-      <span className="font-medium text-gray-900">${o.total?.toLocaleString()}</span>
+      <span className="font-medium text-gray-900">₹{o.total?.toLocaleString()}</span>
     )},
     { key: 'status', title: 'Status', render: (o) => getStatusBadge(o.status) },
    {
@@ -179,9 +179,9 @@ const StoreManager = () => {
             {[
               { 
                 title: 'Total Revenue', 
-                value: `$${storeData.overview?.totalRevenue?.toLocaleString() || '0'}`, 
+                value: `₹${storeData.overview?.totalRevenue?.toLocaleString() || '0'}`, 
                 change: '+12.5%', 
-                icon: DollarSign,
+                icon: IndianRupee,
                 color: 'bg-green-500'
               },
               { 
@@ -263,7 +263,7 @@ const StoreManager = () => {
                     <p className="text-sm text-gray-500">{product.category}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium text-gray-900">${product.revenue?.toLocaleString()}</p>
+                    <p className="font-medium text-gray-900">₹{product.revenue?.toLocaleString()}</p>
                     <p className="text-sm text-gray-500">{product.sold} sold</p>
                   </div>
                 </div>
@@ -343,7 +343,6 @@ const StoreManager = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-lg font-bold text-gray-900">${product.price}</span>
                     <span className={`text-sm ${product.stock > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}
                     </span>
                   </div>
                 </div>
@@ -421,7 +420,7 @@ const StoreManager = () => {
                       <p className="font-medium text-gray-900\">{item.name}</p>
                       <p className="text-sm text-gray-500\">Qty: {item.quantity}</p>
                     </div>
-                    <p className="font-medium text-gray-900\">${(item.price * item.quantity).toLocaleString()}</p>
+                    <p className="font-medium text-gray-900\">₹{(item.price * item.quantity).toLocaleString()}</p>
                   </div>
                 ))}
               </div>
@@ -432,19 +431,19 @@ const StoreManager = () => {
               <div className="space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600\">Subtotal</span>
-                  <span className="font-medium text-gray-900\">${selectedOrder.subtotal?.toLocaleString()}</span>
+                  <span className="font-medium text-gray-900\">₹{selectedOrder.subtotal?.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600\">Shipping</span>
-                  <span className="font-medium text-gray-900\">${selectedOrder.shipping?.toLocaleString()}</span>
+                  <span className="font-medium text-gray-900\">₹{selectedOrder.shipping?.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-600\">Tax</span>
-                  <span className="font-medium text-gray-900\">${selectedOrder.tax?.toLocaleString()}</span>
+                  <span className="font-medium text-gray-900\">₹{selectedOrder.tax?.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between text-lg font-bold pt-2 border-t border-gray-200">
                   <span className="text-gray-900\">Total</span>
-                  <span className="text-gray-900\">${selectedOrder.total?.toLocaleString()}</span>
+                  <span className="text-gray-900\">₹{selectedOrder.total?.toLocaleString()}</span>
                 </div>
               </div>
             </div>

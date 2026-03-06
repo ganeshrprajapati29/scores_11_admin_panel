@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { 
-  DollarSign, TrendingUp, TrendingDown, CreditCard,
+  IndianRupee, TrendingUp, TrendingDown, CreditCard,
   Wallet, Users, ArrowUpRight, ArrowDownRight,
   Download, Calendar, Filter, PieChart as PieChartIcon,
   BarChart3, Activity, Search, X
@@ -252,16 +252,16 @@ const FinancialOverview = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Total Revenue"
-          value={`$${financialData.overview?.totalRevenue?.toLocaleString() || '0'}`}
+          value={`₹${financialData.overview?.totalRevenue?.toLocaleString() || '0'}`}
           change="+15.3%"
           changeType="positive"
-          icon={DollarSign}
+          icon={IndianRupee}
           color="bg-green-500"
           subtitle="All time revenue"
         />
         <StatCard
           title="This Month"
-          value={`$${financialData.overview?.monthlyRevenue?.toLocaleString() || '0'}`}
+          value={`₹${financialData.overview?.monthlyRevenue?.toLocaleString() || '0'}`}
           change="+8.2%"
           changeType="positive"
           icon={TrendingUp}
@@ -279,7 +279,7 @@ const FinancialOverview = () => {
         />
         <StatCard
           title="Wallet Balance"
-          value={`$${financialData.overview?.totalWalletBalance?.toLocaleString() || '0'}`}
+          value={`₹${financialData.overview?.totalWalletBalance?.toLocaleString() || '0'}`}
           icon={Wallet}
           color="bg-orange-500"
           subtitle="User wallets total"

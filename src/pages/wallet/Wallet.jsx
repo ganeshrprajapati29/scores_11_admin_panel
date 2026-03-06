@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { 
-  DollarSign, TrendingUp, TrendingDown, CreditCard, 
+  IndianRupee, TrendingUp, TrendingDown, CreditCard, 
   Download, Filter, RefreshCw, ChevronRight,
   Wallet as WalletIcon, ArrowUpRight, ArrowDownLeft, Search
 } from 'lucide-react'
@@ -92,7 +92,7 @@ const Wallet = () => {
     switch (type) {
       case 'credit': return <ArrowDownLeft size={18} className="text-green-600" />
       case 'debit': return <ArrowUpRight size={18} className="text-red-600" />
-      default: return <DollarSign size={18} className="text-gray-600" />
+      default: return <IndianRupee size={18} className="text-gray-600" />
     }
   }
 
@@ -118,7 +118,7 @@ const Wallet = () => {
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-              <DollarSign className="w-6 h-6 text-green-600" />
+              <IndianRupee className="w-6 h-6 text-green-600" />
             </div>
             <div>
               <p className="text-sm text-gray-500">Total Balance</p>
@@ -201,7 +201,7 @@ const Wallet = () => {
           </div>
         ) : transactions.length === 0 ? (
           <div className="p-12 text-center">
-            <DollarSign className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+            <IndianRupee className="w-16 h-16 text-gray-300 mx-auto mb-4" />
             <p className="text-gray-500 text-lg">No transactions found</p>
           </div>
         ) : (
