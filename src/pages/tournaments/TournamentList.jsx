@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   Search, Plus, Trophy, Calendar, MapPin, 
-  Users, DollarSign, Flag, Trash2, Edit, 
+  Users, IndianRupee, Flag, Trash2, Edit, 
   Eye, Play, Pause, CheckCircle, XCircle, Filter, Clock
 } from 'lucide-react'
 import { tournamentsAPI } from '../../services/api'
@@ -29,27 +29,43 @@ const TournamentList = () => {
   }, [pagination.page, pagination.limit, filters.status, filters.type])
 
   const fetchTournaments = async () => {
-    try {
-      setLoading(true)
-      const params = {
-        page: pagination.page,
-        limit: pagination.limit,
-        ...(filters.search && { search: filters.search }),
-        ...(filters.status && { status: filters.status }),
-        ...(filters.type && { type: filters.type })
-      }
-      const response = await tournamentsAPI.getAll(params)
-      setTournaments(response.data || [])
-      if (response.pagination) {
-        setPagination(prev => ({ ...prev, ...response.pagination }))
-      }
-    } catch (error) {
-      toast.error('Failed to fetch tournaments')
-      console.error(error)
-    } finally {
-      setLoading(false)
+  try {
+    setLoading(true);
+
+    const params = {
+      page: pagination.page,
+      limit: pagination.limit,
+      ...(filters.search && { search: filters.search }),
+      ...(filters.status && { status: filters.status }),
+      ...(filters.type && { type: filters.type })
+    };
+
+    const response = await tournamentsAPI.getAll(params);
+
+    const tournamentsData =
+      response?.data?.data ||
+      response?.data?.tournaments ||
+      response?.data ||
+      [];
+
+    setTournaments(tournamentsData);
+
+    if (response?.data?.pagination) {
+      setPagination((prev) => ({
+        ...prev,
+        ...response.data.pagination
+      }));
     }
+
+  } catch (error) {
+    console.error("Fetch tournaments error:", error);
+    toast.error(
+      error?.response?.data?.message || "Failed to fetch tournaments"
+    );
+  } finally {
+    setLoading(false);
   }
+};
 
   const handleSearch = (e) => {
     e.preventDefault()
@@ -69,14 +85,28 @@ const TournamentList = () => {
   }
 
   const handleStatusChange = async (tournament, newStatus) => {
-    try {
-      await tournamentsAPI.updateStatus(tournament._id, newStatus)
-      toast.success('Tournament status updated successfully')
-      fetchTournaments()
-    } catch (error) {
-      toast.error(error.message || 'Failed to update status')
+  try {
+    if (!tournament?._id) {
+      toast.error("Tournament ID missing")
+      return
     }
+
+    let statusToSend = newStatus
+
+    if (tournament.status === "draft" && newStatus === "registration_open") {
+      statusToSend = "published"
+    }
+
+    await tournamentsAPI.updateStatus(tournament._id, statusToSend)
+
+    toast.success("Tournament status updated successfully")
+    fetchTournaments()
+
+  } catch (error) {
+    console.error("Status update error:", error)
+    toast.error(error?.response?.data?.message || "Failed to update status")
   }
+}
 
   const getStatusConfig = (status) => {
     switch (status) {
@@ -332,7 +362,7 @@ const TournamentList = () => {
                     </div>
                     {tournament.entryFee > 0 && (
                       <div className="flex items-center gap-2 text-sm text-gray-600">
-                        <DollarSign size={14} className="text-gray-400" />
+                        <IndianRupee size={14} className="text-gray-400" />
                         <span>Entry Fee: ₹{tournament.entryFee.toLocaleString()}</span>
                       </div>
                     )}

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { 
-  Search, Plus, FileText, User, Calendar, 
-  Eye, Heart, MessageCircle, Trash2, Edit, 
+import axios from "axios";
+import {
+  Search, Plus, FileText, User, Calendar,
+  Eye, Heart, MessageCircle, Trash2, Edit,
   EyeOff, Globe, Archive, MoreVertical, Filter, Tag
 } from 'lucide-react'
 import { blogsAPI } from '../../services/api'
@@ -58,36 +59,58 @@ const BlogList = () => {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this blog?')) return
-    try {
-      await blogsAPI.delete(id)
-      toast.success('Blog deleted successfully')
-      fetchBlogs()
-    } catch (error) {
-      toast.error(error.message || 'Failed to delete blog')
-    }
+  if (!window.confirm("Are you sure you want to delete this blog?")) return;
+
+  try {
+    await axios.delete(`/api/v1/blogs/${id}`);
+
+    setBlogs((prev) => prev.filter((blog) => blog._id !== id));
+
+    toast.success("Blog deleted successfully");
+  } catch (error) {
+    console.error("Delete error:", error);
+    toast.error("Failed to delete blog");
   }
+};
+
 
   const handlePublish = async (id) => {
-    try {
-      await blogsAPI.publish(id)
-      toast.success('Blog published successfully')
-      fetchBlogs()
-    } catch (error) {
-      toast.error(error.message || 'Failed to publish blog')
-    }
-  }
+  try {
+    await axios.patch(`/api/v1/blogs/${id}/publish`);
 
-  const handleUnpublish = async (id) => {
-    try {
-      await blogsAPI.unpublish(id)
-      toast.success('Blog unpublished successfully')
-      fetchBlogs()
-    } catch (error) {
-      toast.error(error.message || 'Failed to unpublish blog')
-    }
-  }
+    setBlogs((prev) =>
+      prev.map((blog) =>
+        blog._id === id ? { ...blog, status: "published" } : blog
+      )
+    );
 
+    toast.success("Blog published successfully");
+  } catch (error) {
+    console.error("Publish error:", error);
+    toast.error("Failed to publish blog");
+  }
+};
+
+
+
+ const handleUnpublish = async (id) => {
+  try {
+    const res = await axios.patch(`/api/v1/blogs/${id}/unpublish`);
+
+    setBlogs((prevBlogs) =>
+      prevBlogs.map((blog) =>
+        blog._id === id ? { ...blog, status: "draft" } : blog
+      )
+    );
+
+    toast.success("Blog unpublished successfully");
+  } catch (error) {
+    console.log("Full Error:", error);
+    console.log("Server Error:", error?.response);
+
+    toast.error(error?.response?.data?.message || "Failed to unpublish blog");
+  }
+};
   const getStatusConfig = (status) => {
     switch (status) {
       case 'published':
@@ -288,7 +311,7 @@ const BlogList = () => {
                       <FileText className="w-12 h-12 text-white/50" />
                     </div>
                   )}
-                  
+
                   {/* Featured Badge */}
                   {blog.featured && (
                     <div className="absolute top-3 left-3">
@@ -317,7 +340,7 @@ const BlogList = () => {
                 {/* Content */}
                 <div className="p-5">
                   <h3 className="font-semibold text-gray-900 text-lg mb-2 line-clamp-2">{blog.title}</h3>
-                  
+
                   {blog.excerpt && (
                     <p className="text-gray-500 text-sm mb-4 line-clamp-2">{blog.excerpt}</p>
                   )}
@@ -369,22 +392,26 @@ const BlogList = () => {
 
                   {/* Actions */}
                   <div className="flex items-center gap-2">
+
                     <Link
-                      to={`/blogs/${blog._id}`}
+                      to={`/blogs/${blog?._id}`}
                       className="flex-1 btn-secondary text-center text-sm py-2 flex items-center justify-center gap-1"
                     >
                       <Eye size={14} />
                       View
                     </Link>
-                    {blog.status === 'draft' ? (
+
+                    {blog?.status === "draft" && (
                       <button
-                        onClick={() => handlePublish(blog._id)}
+                        onClick={() => handlePublish(blog?._id)}
                         className="flex-1 btn-primary text-center text-sm py-2 flex items-center justify-center gap-1"
                       >
                         <Globe size={14} />
                         Publish
                       </button>
-                    ) : blog.status === 'published' ? (
+                    )}
+
+                    {blog?.status === "published" && blog?._id && (
                       <button
                         onClick={() => handleUnpublish(blog._id)}
                         className="flex-1 btn-secondary text-center text-sm py-2 flex items-center justify-center gap-1"
@@ -392,13 +419,15 @@ const BlogList = () => {
                         <EyeOff size={14} />
                         Unpublish
                       </button>
-                    ) : null}
+                    )}
+
                     <button
-                      onClick={() => handleDelete(blog._id)}
+                      onClick={() => handleDelete(blog?._id)}
                       className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Trash2 size={16} />
                     </button>
+
                   </div>
                 </div>
               </div>
