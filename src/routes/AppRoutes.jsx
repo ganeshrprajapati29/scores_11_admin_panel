@@ -267,7 +267,7 @@ const AppRoutes = () => {
         {/* Content Admin */}
         <Route path="/admin/moderation" element={<ContentModeration />} />
         
-{/* Banner Management */}
+      {/* Banner Management */}
         <Route path="/banners" element={<BannerManagement />} />
         <Route path="/admin/banners" element={<BannerManagement />} />
         

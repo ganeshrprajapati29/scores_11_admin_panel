@@ -10,18 +10,64 @@ const AssociationDetails = () => {
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    const fetchAssociation = async () => {
-      try {
-        const response = await axios.get(`/api/associations/${id}`);
-        setAssociation(response.data.data);
-        setLoading(false);
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch association details');
-        setLoading(false);
+  const fetchAssociation = async () => {
+    if (!id) {
+      console.log("No ID found in URL");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      setError(null);
+
+      console.log("Fetching Association with ID:", id);
+
+      const res = await axios.get(`/api/v1/associations/${id}`);
+
+      // ✅ Backend response check
+      if (!res) {
+        console.log("No response from backend");
+        setError("No response from server");
+        return;
       }
-    };
-    fetchAssociation();
-  }, [id]);
+
+      console.log("Full API Response:", res);
+      console.log("Response Data:", res.data);
+      console.log("Response Status:", res.status);
+
+      if (res.status === 200 && res?.data?.success) {
+        console.log("Association Data:", res.data.data);
+        setAssociation(res.data.data);
+      } else {
+        console.log("Backend responded but success false");
+        setError(res?.data?.message || "Association not found");
+      }
+
+    } catch (err) {
+      console.error("Fetch Association Error:", err);
+
+      if (err.response) {
+        console.log("Backend Error Response:", err.response.data);
+        console.log("Backend Status Code:", err.response.status);
+      } else if (err.request) {
+        console.log("Request sent but no response received");
+      } else {
+        console.log("Axios Error:", err.message);
+      }
+
+      setError(
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to fetch association details"
+      );
+
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchAssociation();
+}, [id]);
 
   if (loading) {
     return (
@@ -30,7 +76,7 @@ const AssociationDetails = () => {
       </div>
     );
   }
-
+  
   if (error) {
     return (
       <div className="p-6">

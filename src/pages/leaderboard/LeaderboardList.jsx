@@ -97,10 +97,11 @@ const LeaderboardList = () => {
             <Trophy size={18} />
             Team Rankings
           </Link>
-          <Link to="/leaderboard/create" className="btn-primary inline-flex items-center gap-2">
-            <Plus size={18} />
-            Create Leaderboard
-          </Link>
+
+          <Link to="/leaderboard/teams" className="btn-primary inline-flex items-center gap-2">
+  <Plus size={18} />
+  Create Leaderboard
+</Link>
         </div>
       </div>
 

@@ -8,22 +8,72 @@ const AssociationList = () => {
   const [associations, setAssociations] = useState([])
   const [loading, setLoading] = useState(true)
 
-  useEffect(() => { fetchAssociations() }, [])
+ useEffect(() => {
+  fetchAssociations();
+}, []);
 
-  const fetchAssociations = async () => {
-    try {
-      setLoading(true)
-      const response = await associationsAPI.getAll({ limit: 50 })
-      setAssociations(response.data || [])
-    } catch (error) { toast.error('Failed to fetch') } 
-    finally { setLoading(false) }
-  }
+const fetchAssociations = async () => {
+  try {
+    setLoading(true);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm('Delete this association?')) return
-    try { await associationsAPI.delete(id); toast.success('Deleted'); fetchAssociations(); } 
-    catch (error) { toast.error('Failed') }
+    const response = await associationsAPI.getAll({ limit: 50 });
+
+    console.log("API Response:", response);
+
+    if (!response) {
+      setAssociations([]);
+      return;
+    }
+
+    // handle both array and object responses
+    const data = Array.isArray(response?.data)
+      ? response.data
+      : response?.data?.data || [];
+
+    setAssociations(data);
+
+  } catch (error) {
+    console.error("Fetch Associations Error:", error);
+
+    toast.error(
+      error?.response?.data?.message || "Failed to fetch associations"
+    );
+
+  } finally {
+    setLoading(false);
   }
+};
+
+
+ const handleDelete = async (id) => {
+  try {
+
+    if (!id) {
+      toast.error("Invalid Association ID");
+      return;
+    }
+
+    const confirmDelete = window.confirm("Delete this association?");
+    if (!confirmDelete) return;
+
+    await associationsAPI.delete(id);
+
+    toast.success("Association deleted successfully");
+
+    // UI update
+    setAssociations((prev) => prev.filter((item) => item._id !== id));
+
+    // optional refresh
+    fetchAssociations();
+
+  } catch (error) {
+    console.error("Delete Association Error:", error?.response || error);
+
+    toast.error(
+      error?.response?.data?.message || "Failed to delete association"
+    );
+  }
+};
 
   return (
     <div className="space-y-6">
