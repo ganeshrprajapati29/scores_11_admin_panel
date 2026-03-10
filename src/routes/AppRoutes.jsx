@@ -158,36 +158,48 @@ const AppRoutes = () => {
         {/* Teams */}
         <Route path="/teams" element={<TeamsList />} />
         <Route path="/teams/create" element={<CreateTeam />} />
+        <Route path="/teams/:id" element={<TeamsList />} />
+        <Route path="/teams/:id/edit" element={<CreateTeam />} />
+        <Route path="/teams/approvals" element={<TeamsList />} />
         
         {/* Matches - Order matters: static routes before dynamic */}
         <Route path="/matches" element={<MatchesList />} />
         <Route path="/matches/create" element={<CreateMatch />} />
         <Route path="/matches/live" element={<LiveControl />} />
+        <Route path="/matches/:id" element={<MatchesList />} />
         <Route path="/matches/:id/live" element={<LiveControl />} />
+        <Route path="/matches/:id/edit" element={<CreateMatch />} />
         
         {/* Tournaments */}
-
         <Route path="/tournaments" element={<TournamentList />} />
         <Route path="/tournaments/create" element={<CreateTournament />} />
+        <Route path="/tournaments/:id" element={<TournamentList />} />
+        <Route path="/tournaments/:id/edit" element={<CreateTournament />} />
         
         {/* Players */}
         <Route path="/players" element={<PlayersList />} />
         <Route path="/players/create" element={<CreatePlayer />} />
         <Route path="/players/:id/details" element={<PlayerDetails />} />
         <Route path="/players/:id/edit" element={<CreatePlayer />} />
-        <Route path="/players/:id" element={<CreatePlayer />} />
+        <Route path="/players/:id" element={<PlayersList />} />
         
         {/* Contests */}
         <Route path="/contests" element={<ContestsList />} />
         <Route path="/contests/create" element={<CreateContest />} />
+        <Route path="/contests/:id" element={<ContestsList />} />
+        <Route path="/contests/:id/edit" element={<CreateContest />} />
         
         {/* Leaderboard */}
         <Route path="/leaderboard" element={<LeaderboardList />} />
         <Route path="/leaderboard/players" element={<PlayerLeaderboard />} />
         <Route path="/leaderboard/teams" element={<TeamLeaderboard />} />
+        <Route path="/leaderboard/:id" element={<LeaderboardList />} />
+        <Route path="/leaderboard/:id/edit" element={<LeaderboardList />} />
         
         {/* Player Profiles */}
         <Route path="/profiles" element={<PlayerProfilesList />} />
+        <Route path="/profiles/:id" element={<PlayerProfilesList />} />
+        <Route path="/profiles/:id/edit" element={<PlayerProfilesList />} />
         
         {/* ========== COMMERCE & FINANCE ========== */}
         {/* Store */}
@@ -195,6 +207,8 @@ const AppRoutes = () => {
         <Route path="/store/products/add" element={<AddProduct />} />
         <Route path="/store/add-product" element={<AddProduct />} />
         <Route path="/store/orders" element={<OrdersList />} />
+        <Route path="/store/products/:id" element={<ProductsList />} />
+        <Route path="/store/products/:id/edit" element={<AddProduct />} />
         
         {/* Wallet */}
         <Route path="/wallet" element={<Wallet />} />
@@ -207,10 +221,12 @@ const AppRoutes = () => {
         {/* Blogs */}
         <Route path="/blogs" element={<BlogList />} />
         <Route path="/blogs/create" element={<CreateBlog />} />
+        <Route path="/blogs/:id" element={<BlogList />} />
         
         {/* News */}
         <Route path="/news" element={<NewsList />} />
         <Route path="/news/create" element={<CreateNews />} />
+        <Route path="/news/:id" element={<NewsList />} />
         
         {/* Community */}
         <Route path="/community/posts" element={<PostsList />} />
@@ -220,15 +236,20 @@ const AppRoutes = () => {
         {/* Clubs */}
         <Route path="/clubs" element={<ClubsList />} />
         <Route path="/clubs/create" element={<CreateClub />} />
+        <Route path="/clubs/:id" element={<ClubsList />} />
+        <Route path="/clubs/:id/edit" element={<CreateClub />} />
         
         {/* Associations */}
         <Route path="/associations" element={<AssociationList />} />
         <Route path="/associations/create" element={<CreateAssociation />} />
         <Route path="/associations/:id" element={<AssociationDetails />} />
+        <Route path="/associations/:id/edit" element={<CreateAssociation />} />
         
         {/* Awards */}
         <Route path="/awards" element={<AwardsList />} />
         <Route path="/awards/create" element={<CreateAward />} />
+        <Route path="/awards/:id" element={<AwardsList />} />
+        <Route path="/awards/:id/edit" element={<CreateAward />} />
         
         {/* ========== ANALYTICS & REPORTS ========== */}
         <Route path="/performance" element={<PerformanceList />} />

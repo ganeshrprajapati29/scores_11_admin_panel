@@ -52,6 +52,7 @@ const menuGroups = [
     color: 'from-amber-500 to-amber-600',
     items: [
       { name: 'Teams', path: '/teams', icon: Users2, description: 'Team management' },
+      { name: 'Team Approvals', path: '/teams/approvals', icon: Shield, description: 'Pending approvals' },
       { name: 'Matches', path: '/matches', icon: Calendar, description: 'Match scheduling' },
       { name: 'Tournaments', path: '/tournaments', icon: Trophy, description: 'Tournament setup' },
       { name: 'Contests', path: '/contests', icon: Target, description: 'Fantasy contests' },
@@ -118,7 +119,7 @@ const menuGroups = [
     color: 'from-rose-500 to-rose-600',
     badge: 'PRO',
     items: [
-      { name: 'Mobile App Manager', path: 'admin/mobile-app', icon: Smartphone, description: 'App configuration' },
+      { name: 'Mobile App Manager', path: '/admin/mobile-app', icon: Smartphone, description: 'App configuration' },
       { name: 'Store Manager', path: '/admin/store-manager', icon: Store, description: 'E-commerce control' },
       { name: 'Contest Manager', path: '/admin/contest-manager', icon: Gamepad2, description: 'Contest engine' },
     ]
@@ -136,6 +137,8 @@ const menuGroups = [
       { name: 'API Management', path: '/admin/api', icon: Code, description: 'API keys & webhooks' },
       { name: 'Backups', path: '/admin/backups', icon: Database, description: 'Data backup' },
       { name: 'Settings', path: '/settings', icon: Settings, description: 'System config' },
+      { name: 'Feature Toggles', path: '/settings/features', icon: Zap, description: 'Feature flags' },
+      { name: 'Banners', path: '/banners', icon: Flag, description: 'Banner management' },
     ]
   },
 ]
