@@ -1,19 +1,23 @@
-import { leaderboardAPI } from './api'
+import axios from "axios";
 
-export const leaderboardService = {
-  getAll: (params) => leaderboardAPI.getAll(params),
-  
-  getById: (id) => leaderboardAPI.getById(id),
-  
-  create: (data) => leaderboardAPI.create(data),
-  
-  update: (id, data) => leaderboardAPI.update(id, data),
-  
-  delete: (id) => leaderboardAPI.delete(id),
-  
-  getByUser: (userId) => leaderboardAPI.getByUser(userId),
-  
-  getByTournament: (tournamentId) => leaderboardAPI.getByTournament(tournamentId),
-}
+const API = axios.create({
+  baseURL: "/api/v1",
+});
 
-export default leaderboardService
+export const leaderboardAPI = {
+
+  getAll: (params) => API.get("/leaderboard", { params }),
+
+  getById: (id) => API.get(`/leaderboard/${id}`),
+
+  create: (data) => API.post("/leaderboard", data),
+
+  update: (id, data) => API.put(`/leaderboard/${id}`, data),
+
+  delete: (id) => API.delete(`/leaderboard/${id}`),   // ✅ correct
+
+  getByUser: (userId) => API.get(`/leaderboard/user/${userId}`),
+
+  getByTournament: (tournamentId) => API.get(`/leaderboard/tournament/${tournamentId}`),
+
+};
