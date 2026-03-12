@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { 
+import {
   Search, Plus, Trophy, Medal, Users, Crown,
   Trash2, Edit, Eye, RefreshCw
 } from 'lucide-react'
@@ -63,15 +63,27 @@ const LeaderboardList = () => {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this leaderboard?')) return
-    try {
-      await leaderboardAPI.delete(id)
-      toast.success('Leaderboard deleted successfully')
-      fetchLeaderboards()
-    } catch (error) {
-      toast.error(error.message || 'Failed to delete leaderboard')
-    }
+  if (!window.confirm("Are you sure you want to delete this leaderboard?")) return;
+
+  try {
+
+    console.log("Deleting ID:", id);
+
+    await leaderboardAPI.delete(id);   // ❌ slash mat lagao
+
+    toast.success("Leaderboard deleted successfully");
+
+    fetchLeaderboards();
+
+  } catch (error) {
+
+    console.error("Delete Error:", error);
+
+    toast.error(
+      error?.response?.data?.message || "Failed to delete leaderboard"
+    );
   }
+};
 
   const getRankIcon = (rank) => {
     if (rank === 1) return <Crown className="w-5 h-5 text-yellow-500" />
@@ -98,10 +110,10 @@ const LeaderboardList = () => {
             Team Rankings
           </Link>
 
-          <Link to="/leaderboard/teams" className="btn-primary inline-flex items-center gap-2">
-  <Plus size={18} />
-  Create Leaderboard
-</Link>
+          <Link to="/leaderboard/create" className="btn-primary inline-flex items-center gap-2">
+            <Plus size={18} />
+            Create Leaderboard
+          </Link>
         </div>
       </div>
 
@@ -232,11 +244,10 @@ const LeaderboardList = () => {
                       )}
                     </td>
                     <td className="py-4 px-6">
-                      <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${
-                        leaderboard.isActive 
+                      <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${leaderboard.isActive
                           ? 'bg-green-100 text-green-700 border-green-200'
                           : 'bg-red-100 text-red-700 border-red-200'
-                      }`}>
+                        }`}>
                         {leaderboard.isActive ? 'Active' : 'Inactive'}
                       </span>
                     </td>
