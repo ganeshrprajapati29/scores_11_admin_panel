@@ -191,12 +191,19 @@ const AppRoutes = () => {
         <Route path="/users/scorers" element={<Scorers />} />
         <Route path="/users/suspended" element={<SuspendedUsers />} />
         <Route path="/users/login-history" element={<LoginHistory />} />
+<<<<<<< Updated upstream
         <Route path="/users/reports" element={<UserReports />} />
         {/* Dynamic routes come after static routes */}
         <Route path="/users/:id" element={<ViewUser />} />
         <Route path="/users/:id/edit" element={<EditUser />} />
         <Route path="/users/:id/login-history" element={<LoginHistory />} />
         <Route path="/users/reports/:reportId/action" element={<UserReports />} />
+=======
+        <Route path="/users/:id/login-history" element={<LoginHistory />} />
+        <Route path="/users/reports" element={<UserReports />} />
+        <Route path="/users/reports/:reportId/action" element={<UserReports />} />
+        
+>>>>>>> Stashed changes
         
         
         {/* Admin User Routes - Order matters: static routes before dynamic */}
@@ -208,7 +215,13 @@ const AppRoutes = () => {
         <Route path="/admin/users/suspended" element={<SuspendedUsers />} />
         {/* Dynamic routes come after static routes */}
         <Route path="/admin/users/:id" element={<ViewUser />} />
+<<<<<<< Updated upstream
         <Route path="/admin/users/:id/edit" element={<EditUser />} />
+=======
+        <Route path="/admin/users/verified" element={<VerifiedUsers />} />
+        <Route path="/admin/users/scorers" element={<Scorers />} />
+        <Route path="/admin/users/suspended" element={<SuspendedUsers />} />
+>>>>>>> Stashed changes
         
         
         {/* ========== CRICKET OPERATIONS ========== */}
@@ -222,6 +235,12 @@ const AppRoutes = () => {
         {/* Dynamic routes come after static routes */}
         <Route path="/teams/:id" element={<TeamsList />} />
         <Route path="/teams/:id/edit" element={<CreateTeam />} />
+<<<<<<< Updated upstream
+=======
+        <Route path="/teams/approvals" element={<TeamsList />} />
+        <Route path="/teams/rankings" element={<TeamsList />} />
+        <Route path="/teams/search" element={<TeamsList />} />
+>>>>>>> Stashed changes
         <Route path="/teams/:id/players" element={<TeamsList />} />
         <Route path="/teams/:id/matches" element={<TeamsList />} />
         <Route path="/teams/:id/logo" element={<CreateTeam />} />
@@ -248,7 +267,10 @@ const AppRoutes = () => {
         {/* Dynamic routes come after static routes */}
         <Route path="/matches/:id" element={<MatchesList />} />
         <Route path="/matches/:id/edit" element={<CreateMatch />} />
+<<<<<<< Updated upstream
         <Route path="/matches/:id/live" element={<LiveControl />} />
+=======
+>>>>>>> Stashed changes
         <Route path="/matches/:id/score" element={<LiveControl />} />
         <Route path="/matches/:id/status" element={<LiveControl />} />
         <Route path="/matches/:id/teams" element={<MatchesList />} />
@@ -1052,7 +1074,11 @@ const AppRoutes = () => {
         {/* Analytics Admin */}
         <Route path="/admin/analytics" element={<Analytics />} />
         <Route path="/admin/finance" element={<FinancialOverview />} />
+<<<<<<< Updated upstream
         <Route path="/admin/subscriptions" element={<SubscribersList />} />
+=======
+        <Route path="/admin/subscriptions" element={<SubscriptionAnalytics />} />
+>>>>>>> Stashed changes
         <Route path="/admin/traffic" element={<TrafficAnalytics />} />
         <Route path="/admin/engagement" element={<EngagementAnalytics />} />
         <Route path="/admin/retention" element={<RetentionAnalytics />} />
