@@ -85,6 +85,7 @@ function App() {
             <Route path="users/create" element={<CreateUser />} />
             <Route path="users/:id" element={<ViewUser />} />
             <Route path="users/:id/edit" element={<EditUser />} />
+            <Route path="users/:id/toggle-status" element={<EditUser />} />
             <Route path="teams" element={<TeamsList />} />
             <Route path="teams/create" element={<CreateTeam />} />
             <Route path="teams/:id" element={<CreateTeam />} />

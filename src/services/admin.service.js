@@ -92,7 +92,18 @@ const adminService = {
   deleteContest: (id) => api.delete(`/admin/contests/${id}`),
   updateContestStatus: (id, status) => api.patch(`/admin/contests/${id}/status`, { status }),
   getPrizePools: () => api.get('/admin/contests/prize-pools'),
-  getContestStats: () => api.get('/admin/contests/stats')
+  getContestStats: () => api.get('/admin/contests/stats'),
+
+  // Player Management
+  getAllPlayers: (params) => api.get('/admin/players', { params }),
+  getPlayerStats: (params) => api.get('/admin/players/stats', { params }),
+  updatePlayerStats: (data) => api.put('/admin/players/update', data),
+  editPlayerStats: (id, data) => api.put(`/admin/players/${id}/stats`, data),
+  assignPlayerTeam: (id, teamId) => api.put(`/admin/players/${id}/team`, { teamId }),
+  verifyPlayer: (id, verified) => api.put(`/admin/players/${id}/verify`, { verified }),
+  mergePlayers: (data) => api.post('/admin/players/merge', data),
+  getDuplicatePlayers: () => api.get('/admin/players/duplicates'),
+  deletePlayer: (id) => api.delete(`/admin/players/${id}`)
 };
 
 export default adminService;

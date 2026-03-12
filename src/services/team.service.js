@@ -42,7 +42,7 @@ export const teamService = {
   },
 
   removePlayer: async (teamId, playerId) => {
-    const response = await api.delete(`/teams/${teamId}/players`, { data: { playerId } })
+    const response = await api.delete(`/teams/${teamId}/players/${playerId}`)
     return response
   },
 
