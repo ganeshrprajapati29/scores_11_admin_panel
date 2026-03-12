@@ -1,6 +1,6 @@
+import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, useLocation, matchPath } from 'react-router-dom'
 import { Toaster } from 'react-hot-toast'
-import { useEffect } from 'react'
 import DashboardLayout from './layout/DashboardLayout'
 import ProtectedRoute from './layout/ProtectedRoute'
 import Login from './pages/auth/Login'
