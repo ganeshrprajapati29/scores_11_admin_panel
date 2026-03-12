@@ -25,6 +25,45 @@ import UserReports from '../pages/users/UserReports'
 // Players
 import PlayersList from '../pages/players/PlayersList'
 import CreatePlayer from '../pages/players/CreatePlayer'
+import PlayerDetails from '../pages/players/PlayerDetails'
+import AdminPlayerDetails from '../pages/admin/AdminPlayerDetails'
+
+// Community
+import PostsList from '../pages/community/PostsList'
+import ReportedPosts from '../pages/community/ReportedPosts'
+import CreatePost from '../pages/community/CreatePost'
+import ReportedContent from '../pages/admin/ReportedContent'
+
+// Subscriptions
+import PlansList from '../pages/subscriptions/PlansList'
+import SubscribersList from '../pages/subscriptions/SubscribersList'
+import CreatePlan from '../pages/subscriptions/CreatePlan'
+import SubscriptionAnalytics from '../pages/admin/SubscriptionAnalytics'
+
+// Admin Pages
+import RoleManagement from '../pages/admin/RoleManagement'
+import PermissionManagement from '../pages/admin/PermissionManagement'
+import SystemLogs from '../pages/admin/SystemLogs'
+import BackupRestore from '../pages/admin/BackupRestore'
+import EmailTemplates from '../pages/admin/EmailTemplates'
+import Analytics from '../pages/admin/Analytics'
+import ContentModeration from '../pages/admin/ContentModeration'
+import FinancialOverview from '../pages/admin/FinancialOverview'
+import UserVerifications from '../pages/admin/UserVerifications'
+import APIManagement from '../pages/admin/APIManagement'
+import MobileAppManager from '../pages/admin/MobileAppManager'
+import StoreManager from '../pages/admin/StoreManager'
+import ContestManager from '../pages/admin/ContestManager'
+import AdminPlayersList from '../pages/admin/AdminPlayersList'
+import MergePlayers from '../pages/admin/MergePlayers'
+import TrafficAnalytics from '../pages/admin/TrafficAnalytics'
+import EngagementAnalytics from '../pages/admin/EngagementAnalytics'
+import RetentionAnalytics from '../pages/admin/RetentionAnalytics'
+import ChurnAnalytics from '../pages/admin/ChurnAnalytics'
+
+// Wallet
+import Wallet from '../pages/wallet/Wallet'
+import TransactionsList from '../pages/wallet/TransactionsList'
 
 // Teams
 import TeamsList from '../pages/teams/TeamsList'
@@ -52,6 +91,7 @@ import AssociationDetails from '../pages/associations/AssociationDetails'
 
 // Player Profiles
 import PlayerProfilesList from '../pages/profiles/PlayerProfilesList'
+import ProfileDetails from '../pages/profiles/ProfileDetails'
 
 // Blogs
 import BlogList from '../pages/blogs/BlogList'
@@ -144,38 +184,44 @@ const AppRoutes = () => {
         <Route path="/search" element={<SearchResults />} />
         
         {/* ========== USER MANAGEMENT ========== */}
+        {/* Static routes must come BEFORE dynamic :id route */}
         <Route path="/users" element={<UsersList />} />
         <Route path="/users/create" element={<CreateUser />} />
-        <Route path="/users/:id/edit" element={<EditUser />} />
-        <Route path="/users/:id" element={<ViewUser />} />
         <Route path="/users/verified" element={<VerifiedUsers />} />
         <Route path="/users/scorers" element={<Scorers />} />
         <Route path="/users/suspended" element={<SuspendedUsers />} />
         <Route path="/users/login-history" element={<LoginHistory />} />
-        <Route path="/users/:id/login-history" element={<LoginHistory />} />
         <Route path="/users/reports" element={<UserReports />} />
+        {/* Dynamic routes come after static routes */}
+        <Route path="/users/:id" element={<ViewUser />} />
+        <Route path="/users/:id/edit" element={<EditUser />} />
+        <Route path="/users/:id/login-history" element={<LoginHistory />} />
         <Route path="/users/reports/:reportId/action" element={<UserReports />} />
         
         
-        {/* Admin User Routes */}
+        {/* Admin User Routes - Order matters: static routes before dynamic */}
         <Route path="/admin/users" element={<UsersList />} />
         <Route path="/admin/users/create" element={<CreateUser />} />
-        <Route path="/admin/users/:id/edit" element={<EditUser />} />
-        <Route path="/admin/users/:id" element={<ViewUser />} />
+        {/* Static routes must come BEFORE dynamic :id route */}
         <Route path="/admin/users/verified" element={<VerifiedUsers />} />
         <Route path="/admin/users/scorers" element={<Scorers />} />
         <Route path="/admin/users/suspended" element={<SuspendedUsers />} />
+        {/* Dynamic routes come after static routes */}
+        <Route path="/admin/users/:id" element={<ViewUser />} />
+        <Route path="/admin/users/:id/edit" element={<EditUser />} />
         
         
         {/* ========== CRICKET OPERATIONS ========== */}
-        {/* Teams */}
+        {/* Teams - Order matters: static routes before dynamic */}
         <Route path="/teams" element={<TeamsList />} />
         <Route path="/teams/create" element={<CreateTeam />} />
-        <Route path="/teams/:id" element={<TeamsList />} />
-        <Route path="/teams/:id/edit" element={<CreateTeam />} />
+        {/* Static routes must come BEFORE dynamic :id route */}
         <Route path="/teams/approvals" element={<TeamsList />} />
         <Route path="/teams/rankings" element={<TeamsList />} />
         <Route path="/teams/search" element={<TeamsList />} />
+        {/* Dynamic routes come after static routes */}
+        <Route path="/teams/:id" element={<TeamsList />} />
+        <Route path="/teams/:id/edit" element={<CreateTeam />} />
         <Route path="/teams/:id/players" element={<TeamsList />} />
         <Route path="/teams/:id/matches" element={<TeamsList />} />
         <Route path="/teams/:id/logo" element={<CreateTeam />} />
@@ -197,10 +243,12 @@ const AppRoutes = () => {
         {/* Matches - Order matters: static routes before dynamic */}
         <Route path="/matches" element={<MatchesList />} />
         <Route path="/matches/create" element={<CreateMatch />} />
+        {/* Static routes must come BEFORE dynamic :id route */}
         <Route path="/matches/live" element={<LiveControl />} />
+        {/* Dynamic routes come after static routes */}
         <Route path="/matches/:id" element={<MatchesList />} />
-        <Route path="/matches/:id/live" element={<LiveControl />} />
         <Route path="/matches/:id/edit" element={<CreateMatch />} />
+        <Route path="/matches/:id/live" element={<LiveControl />} />
         <Route path="/matches/:id/score" element={<LiveControl />} />
         <Route path="/matches/:id/status" element={<LiveControl />} />
         <Route path="/matches/:id/teams" element={<MatchesList />} />
@@ -484,9 +532,11 @@ const AppRoutes = () => {
         <Route path="/leaderboard/awards/:id/logo" element={<AwardsList />} />
 
         
-        {/* Player Profiles */}
+        {/* Player Profiles - Order matters: static routes before dynamic */}
         <Route path="/profiles" element={<PlayerProfilesList />} />
-        <Route path="/profiles/:id" element={<PlayerProfilesList />} />
+        <Route path="/profiles/create" element={<PlayerProfilesList />} />
+        {/* Dynamic routes - MUST come after static routes */}
+        <Route path="/profiles/:id" element={<ProfileDetails />} />
         <Route path="/profiles/:id/edit" element={<PlayerProfilesList />} />
         <Route path="/profiles/:id/teams" element={<PlayerProfilesList />} />
         <Route path="/profiles/:id/matches" element={<PlayerProfilesList />} />
@@ -1002,7 +1052,7 @@ const AppRoutes = () => {
         {/* Analytics Admin */}
         <Route path="/admin/analytics" element={<Analytics />} />
         <Route path="/admin/finance" element={<FinancialOverview />} />
-        <Route path="/admin/subscriptions" element={<SubscriptionAnalytics />} />
+        <Route path="/admin/subscriptions" element={<SubscribersList />} />
         <Route path="/admin/traffic" element={<TrafficAnalytics />} />
         <Route path="/admin/engagement" element={<EngagementAnalytics />} />
         <Route path="/admin/retention" element={<RetentionAnalytics />} />
