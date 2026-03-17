@@ -61,11 +61,13 @@ import APIManagement from './pages/admin/APIManagement'
 import MobileAppManager from './pages/admin/MobileAppManager'
 import StoreManager from './pages/admin/StoreManager'
 import ContestManager from './pages/admin/ContestManager'
+import LiveScorecards from './pages/admin/LiveScorecards'
 
 import './App.css'
 import CreateProfile from './pages/profiles/CreateProfile'
 import BannerManagement from './pages/banners/BannerManagement'
 import FeatureToggles from './pages/settings/FeatureToggles'
+
 
 // Professional Logger Utility
 const Logger = {
@@ -406,6 +408,7 @@ function App() {
                 <Route path="admin/mobile-app" element={<MobileAppManager />} />
                 <Route path="admin/store-manager" element={<StoreManager />} />
                 <Route path="admin/contest-manager" element={<ContestManager />} />
+                <Route path="admin/scorecards" element={<LiveScorecards />} />
                 <Route path="admin/users/create" element={<CreateUser />} />
               </Route>
 

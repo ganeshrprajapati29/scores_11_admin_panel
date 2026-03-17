@@ -38,10 +38,29 @@ export const SocketProvider = ({ children }) => {
     }
   }, [])
 
+  const joinLiveMatchRooms = (matchIds) => {
+    if (socket && matchIds) {
+      matchIds.forEach(matchId => {
+        socket.emit('joinMatchRoom', `match:${matchId}`);
+      });
+    }
+  };
+
+  const leaveLiveMatchRooms = (matchIds) => {
+    if (socket && matchIds) {
+      matchIds.forEach(matchId => {
+        socket.emit('leaveMatchRoom', `match:${matchId}`);
+      });
+    }
+  };
+
   const value = {
     socket,
     connected,
+    joinLiveMatchRooms,
+    leaveLiveMatchRooms,
   }
+
 
   return (
     <SocketContext.Provider value={value}>

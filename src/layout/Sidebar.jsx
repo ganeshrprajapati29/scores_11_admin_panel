@@ -56,11 +56,13 @@ const menuGroups = [
       { name: 'Teams', path: '/teams', icon: Users2, description: 'Team management' },
       { name: 'Team Approvals', path: '/teams/approvals', icon: Shield, description: 'Pending approvals' },
       { name: 'Matches', path: '/matches', icon: Calendar, description: 'Match scheduling' },
+      { name: 'Scorecards', path: '/admin/scorecards', icon: Activity, description: 'Live scorecards' },
       { name: 'Tournaments', path: '/tournaments', icon: Trophy, description: 'Tournament setup' },
       { name: 'Contests', path: '/contests', icon: Target, description: 'Fantasy contests' },
       { name: 'Live Scoring', path: '/matches/live', icon: Activity, description: 'Real-time scoring' },
     ]
   },
+
   {
     id: 'commerce',
     name: 'Commerce & Finance',

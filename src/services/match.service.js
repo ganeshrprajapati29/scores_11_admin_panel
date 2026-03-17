@@ -39,7 +39,18 @@ export const matchService = {
   updateMatchStatus: async (id, status) => {
     const response = await api.patch(`/matches/${id}/status`, { status })
     return response
+  },
+
+  getLiveMatches: async () => {
+    const response = await api.get('/matches/live')
+    return response.data;
+  },
+
+  getLiveScorecards: async () => {
+    const response = await api.get('/matches/live')
+    return response.data;
   }
 }
 
 export default matchService
+
