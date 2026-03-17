@@ -147,15 +147,51 @@ const menuGroups = [
   },
 ]
 
+import usePermission from '../hooks/usePermission'
+import { useMemo } from 'react'
+
 const Sidebar = ({ isOpen, onClose, isMobile }) => {
   const location = useLocation()
+  const permission = usePermission()
+  const { role, canAccessAdmin, canAccessSuperAdmin: canManageAdminResources, loading, canManagePlayers, canManageWallet, canViewAnalytics } = permission
   const [openGroups, setOpenGroups] = useState(['core-admin'])
   const [isCollapsed, setIsCollapsed] = useState(false)
+
+// Filter menu groups by role permissions
+  const filteredMenuGroups = useMemo(() => {
+    if (loading) return []
+    
+    return menuGroups.map(group => ({
+      ...group,
+      items: group.items?.filter(item => {
+        // Always show non-admin items
+        if (!item.path.startsWith('/admin/')) return true
+        
+        // Admin items - check permissions
+        if (item.name.includes('Player Management') || item.path === '/admin/players') {
+          return canManagePlayers()
+        }
+        if (item.name.includes('Roles')) {
+          return canManageAdminResources()
+        }
+        if (item.name.includes('Financial')) {
+          return canManageWallet()
+        }
+        if (item.name.includes('Analytics')) {
+          return canViewAnalytics()
+        }
+        if (item.path.startsWith('/admin/')) {
+          return canAccessAdmin()
+        }
+        return true
+      }) || []
+    })).filter(group => group.type === 'single' || group.items.length > 0)
+  }, [role, canAccessAdmin, canManagePlayers, canManageWallet, canViewAnalytics, canManageAdminResources, loading])
 
   // Auto-expand group based on current route
   useEffect(() => {
     const currentPath = location.pathname
-    menuGroups.forEach(group => {
+    filteredMenuGroups.forEach(group => {
       if (group.type === 'dropdown') {
         const isActive = group.items.some(item => 
           currentPath === item.path || currentPath.startsWith(item.path + '/')
@@ -165,7 +201,7 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
         }
       }
     })
-  }, [location.pathname])
+  }, [location.pathname, filteredMenuGroups])
 
   const toggleGroup = (groupName) => {
     setOpenGroups(prev => 
@@ -219,7 +255,7 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
         <ul className="space-y-1.5">
-          {menuGroups.map((group) => (
+          {filteredMenuGroups.map((group) => (
             <li key={group.id} className="group">
               {group.type === 'single' ? (
                 // Single Item

@@ -25,13 +25,24 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status
+    if (status === 401) {
       localStorage.removeItem('token')
       window.location.href = '/login'
+      return Promise.reject(error)
     }
+    
+    if (status === 403) {
+      toast.error('Access denied. Insufficient permissions for this action.')
+      return Promise.reject(error)
+    }
+    
     return Promise.reject(error.response?.data || error)
   }
 )
+
+// Import toast for 403 handling
+import { toast } from 'react-hot-toast'
 
 // Auth API
 export const authAPI = {

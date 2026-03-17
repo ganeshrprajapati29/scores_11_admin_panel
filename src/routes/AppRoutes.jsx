@@ -175,6 +175,9 @@ const AppRoutes = () => {
       
       {/* Protected Routes with Dashboard Layout */}
       <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+        {/* Admin Routes - Protected by AdminProtectedRoute inside DashboardLayout */}
+        <Route path="/admin/*" element={<Navigate to="/admin/roles" replace />} />
+        <Route path="/admin" element={<Navigate to="/admin/roles" replace />} />
         
         {/* Dashboard - Default Route */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />

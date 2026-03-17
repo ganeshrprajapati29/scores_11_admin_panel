@@ -64,6 +64,10 @@ import StoreManager from './pages/admin/StoreManager'
 import ContestManager from './pages/admin/ContestManager'
 import LiveScorecards from './pages/admin/LiveScorecards'
 
+import AdminPlayersList from './pages/admin/AdminPlayersList'
+import MergePlayers from './pages/admin/MergePlayers'
+import AdminPlayerDetails from './pages/admin/AdminPlayerDetails'
+
 import './App.css'
 import CreateProfile from './pages/profiles/CreateProfile'
 import BannerManagement from './pages/banners/BannerManagement'
@@ -419,6 +423,15 @@ function App() {
                 <Route path="admin/store-manager" element={<StoreManager />} />
                 <Route path="admin/contest-manager" element={<ContestManager />} />
                 <Route path="admin/scorecards" element={<LiveScorecards />} />
+                
+                {/* Player Management Admin */}
+                <Route path="admin/players" element={<AdminPlayersList />} />
+                <Route path="admin/players/merge" element={<MergePlayers />} />
+                <Route path="admin/players/:id" element={<AdminPlayerDetails />} />
+                <Route path="admin/players/:id/edit" element={<AdminPlayerDetails />} />
+                <Route path="admin/players/:id/merge" element={<MergePlayers />} />
+                <Route path="admin/players/:id/*" element={<AdminPlayerDetails />} />
+                
                 <Route path="admin/users/create" element={<CreateUser />} />
               </Route>
 

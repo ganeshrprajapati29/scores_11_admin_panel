@@ -1,18 +1,38 @@
-import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Navbar from './Navbar'
+import usePermission from '../hooks/usePermission'
+import AdminProtectedRoute from './AdminProtectedRoute'
+import Loader from '../components/common/Loader'
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
+  const location = useLocation()
+  const { loading } = usePermission()
+
+  // Mobile detection
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024)
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
+  }, [])
 
   const toggleSidebar = () => {
-    if (isMobile) {
-      setSidebarOpen(!sidebarOpen)
-    } else {
-      setSidebarOpen(!sidebarOpen)
-    }
+    setSidebarOpen(!sidebarOpen)
+  }
+
+  // Show loader during permission check
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <Loader size="lg" />
+      </div>
+    )
   }
 
   return (
@@ -42,12 +62,14 @@ const DashboardLayout = () => {
           isSidebarOpen={sidebarOpen}
         />
 
-        {/* Page Content */}
-        <main className="p-6 mt-16">
-          <div className="animate-fade-in">
+      {/* Page Content */}
+      <main className="p-6 mt-16">
+        <div className="animate-fade-in">
+          <AdminProtectedRoute>
             <Outlet />
-          </div>
-        </main>
+          </AdminProtectedRoute>
+        </div>
+      </main>
       </div>
 
       {/* Mobile sidebar overlay */}

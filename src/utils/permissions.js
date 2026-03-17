@@ -1,3 +1,14 @@
+export const ROLES = {
+  USER: 'user',
+  ADMIN: 'admin',
+  MODERATOR: 'moderator',
+  PLAYER: 'player',
+  CAPTAIN: 'captain',
+  MANAGER: 'manager',
+  SCORER: 'scorer',
+  UMPIRE: 'umpire'
+}
+
 // Permission utilities
 
 const ROLE_PERMISSIONS = {

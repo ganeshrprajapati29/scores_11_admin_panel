@@ -5,7 +5,12 @@ import {
   Calendar, Trophy, Target, Activity, Shield, AlertTriangle,
   Users, Clock, CheckCircle, XCircle, MoreVertical
 } from 'lucide-react'
-import { playerService } from '../../services/player.service'
+import adminService from '../../services/admin.service'
+const playerService = {
+  getById: (id) => adminService.getPlayer(id),
+  delete: (id) => adminService.deletePlayer(id),
+  verify: (id) => adminService.verifyPlayer(id)
+}
 
 const AdminPlayerDetails = () => {
   const { id } = useParams()
