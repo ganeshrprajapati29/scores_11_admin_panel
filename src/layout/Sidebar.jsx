@@ -39,7 +39,7 @@ const menuGroups = [
     items: [
       { name: 'All Users', path: '/users', icon: Users, description: 'Manage all users' },
       { name: 'Players', path: '/players', icon: Users2, description: 'Player profiles' },
-      { name: 'Player Profiles', path: '/profiles', icon: UserCircle, description: 'Player profiles list' },
+      // { name: 'Player Profiles', path: '/profiles', icon: UserCircle, description: 'Player profiles list' },
       { name: 'Player Management', path: '/admin/players', icon: Shield, description: 'Admin player control' },
       { name: 'Merge Duplicates', path: '/admin/players/merge', icon: Users, description: 'Merge duplicate players' },
       { name: 'Verifications', path: '/admin/verifications', icon: UserCheck, description: 'KYC & verification' },

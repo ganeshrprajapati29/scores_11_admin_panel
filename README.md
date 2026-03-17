@@ -256,7 +256,7 @@ frontend/
 - Running backend server (typically at `http://localhost:5000`)
 
 ### Installation
-
+  
 ```
 bash
 # 1. Navigate to frontend directory

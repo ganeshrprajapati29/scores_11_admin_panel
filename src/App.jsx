@@ -14,6 +14,7 @@ import TeamsList from './pages/teams/TeamsList'
 import CreateTeam from './pages/teams/CreateTeam'
 import PlayersList from './pages/players/PlayersList'
 import CreatePlayer from './pages/players/CreatePlayer'
+import PlayerDetails from './pages/players/PlayerDetails'
 import MatchesList from './pages/matches/MatchesList'
 import CreateMatch from './pages/matches/CreateMatch'
 import LiveControl from './pages/matches/LiveControl'
@@ -303,6 +304,12 @@ function App() {
                 <Route path="users/:id/edit" element={<EditUser />} />
                 <Route path="users/:id/toggle-status" element={<EditUser />} />
                 
+                {/* Admin User Routes */}
+                <Route path="admin/users" element={<UsersList />} />
+                <Route path="admin/users/create" element={<CreateUser />} />
+                <Route path="admin/users/:id" element={<ViewUser />} />
+                <Route path="admin/users/:id/edit" element={<EditUser />} />
+                
                 {/* Team Routes */}
                 <Route path="teams" element={<TeamsList />} />
                 <Route path="teams/create" element={<CreateTeam />} />
@@ -312,11 +319,14 @@ function App() {
                 {/* Player Routes */}
                 <Route path="players" element={<PlayersList />} />
                 <Route path="players/create" element={<CreatePlayer />} />
-                <Route path="players/:id" element={<CreatePlayer />} />
+                <Route path="players/:id" element={<PlayerDetails />} />
+                <Route path="players/:id/details" element={<PlayerDetails />} />
                 <Route path="players/:id/edit" element={<CreatePlayer />} />
                 
                 {/* Match Routes */}
                 <Route path="matches" element={<MatchesList />} />
+
+
                 <Route path="matches/create" element={<CreateMatch />} />
                 <Route path="matches/live" element={<LiveControl />} />
                 <Route path="matches/:id/edit" element={<CreateMatch />} />

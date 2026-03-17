@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { 
   Search, Plus, Users, Mail, Phone, Trophy,
@@ -19,11 +19,7 @@ const PlayersList = () => {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
 
-  useEffect(() => {
-    fetchPlayers()
-  }, [pagination.page, pagination.limit, statusFilter])
-
-  const fetchPlayers = async () => {
+  const fetchPlayers = useCallback(async () => {
     try {
       setLoading(true)
       const params = {
@@ -43,12 +39,15 @@ const PlayersList = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [pagination.page, pagination.limit, search, statusFilter])
+
+  useEffect(() => {
+    fetchPlayers()
+  }, [fetchPlayers])
 
   const handleSearch = (e) => {
     e.preventDefault()
     setPagination(prev => ({ ...prev, page: 1 }))
-    fetchPlayers()
   }
 
   const handleDelete = async (id) => {
@@ -61,6 +60,13 @@ const PlayersList = () => {
       toast.error(error.message || 'Failed to delete player')
     }
   }
+
+  const handlePageChange = (newPage) => {
+    setPagination(prev => ({ ...prev, page: newPage }))
+  }
+
+  const getEmail = (player) => player.user?.email || player.email || 'N/A'
+  const getPhone = (player) => player.user?.phone || player.phone || 'N/A'
 
   return (
     <div className="space-y-6">
@@ -128,7 +134,7 @@ const PlayersList = () => {
               <option value="inactive">Inactive</option>
             </select>
           </div>
-          <button type="submit" className="btn-primary">
+          <button type="submit" className="btn-primary px-6">
             Search
           </button>
           <button type="button" onClick={fetchPlayers} className="btn-secondary inline-flex items-center gap-2">
@@ -142,13 +148,14 @@ const PlayersList = () => {
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
         {loading ? (
           <div className="p-12 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-            <p className="text-gray-500 mt-4">Loading players...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto mb-4"></div>
+            <p className="text-gray-500">Loading players...</p>
           </div>
         ) : players.length === 0 ? (
           <div className="p-12 text-center">
             <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">No players found</p>
+            <p className="text-gray-500 text-lg font-medium">No players found</p>
+            <p className="text-gray-400 mt-1">{search ? 'Try adjusting your search' : 'Get started by adding a player'}</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -160,7 +167,7 @@ const PlayersList = () => {
                   <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Role</th>
                   <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Team</th>
                   <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Status</th>
-                  <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Actions</th>
+                  <th className="text-center py-4 px-6 text-sm font-semibold text-gray-600">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -168,42 +175,43 @@ const PlayersList = () => {
                   <tr key={player._id} className="hover:bg-gray-50 transition-colors">
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-white font-semibold">
-                          {player.avatar ? (
+                        <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-lg">
+                          {player.avatar?.url ? (
                             <img src={player.avatar.url} alt={player.name} className="w-12 h-12 rounded-full object-cover" />
                           ) : (
-                            player.name?.charAt(0).toUpperCase()
+                            (player.playerName || player.user?.name || 'P').charAt(0).toUpperCase()
                           )}
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900">{player.name}</p>
-                          <p className="text-sm text-gray-500">ID: {player._id?.slice(-8)}</p>
+                          <p className="font-medium text-gray-900">
+                            {player.playerName || player.user?.name || 'Unknown Player'}
+                          </p>
+                          <p className="text-xs text-gray-500 font-mono">ID: {player._id?.slice(-8)}</p>
                         </div>
                       </div>
                     </td>
                     <td className="py-4 px-6">
                       <div className="space-y-1">
-                        {player.email && (
-                          <div className="flex items-center gap-2 text-sm text-gray-600">
-                            <Mail size={14} className="text-gray-400" />
-                            {player.email}
-                          </div>
-                        )}
-                        {player.phone && (
-                          <div className="flex items-center gap-2 text-sm text-gray-500">
-                            <Phone size={14} className="text-gray-400" />
-                            {player.phone}
-                          </div>
-                        )}
+                        <div className="flex items-center gap-2 text-sm text-gray-600">
+                          <Mail size={14} className="text-gray-400 flex-shrink-0" />
+                          <span className="truncate">{getEmail(player)}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-gray-500">
+                          <Phone size={14} className="text-gray-400 flex-shrink-0" />
+                          <span>{getPhone(player)}</span>
+                        </div>
                       </div>
                     </td>
                     <td className="py-4 px-6">
-                      <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200">
+                      <span className="px-3 py-1.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200 capitalize">
                         {player.role || 'Batsman'}
                       </span>
                     </td>
                     <td className="py-4 px-6">
-                      <p className="text-sm text-gray-600">{player.team?.name || 'Not Assigned'}</p>
+                      <p className="text-sm font-medium text-gray-900">{player.team?.name || 'Not Assigned'}</p>
+                      {player.team?.shortName && (
+                        <p className="text-xs text-gray-500">{player.team.shortName}</p>
+                      )}
                     </td>
                     <td className="py-4 px-6">
                       <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${
@@ -218,22 +226,22 @@ const PlayersList = () => {
                       <div className="flex items-center gap-2">
                         <Link
                           to={`/players/${player._id}/details`}
-                          className="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
+                          className="p-2.5 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-xl transition-all duration-200"
                           title="View Details"
                         >
                           <Eye size={18} />
                         </Link>
                         <Link
                           to={`/players/${player._id}/edit`}
-                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit Player"
+                          className="p-2.5 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-xl transition-all duration-200"
+                          title="Edit"
                         >
                           <Edit size={18} />
                         </Link>
                         <button
                           onClick={() => handleDelete(player._id)}
-                          className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete Player"
+                          className="p-2.5 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all duration-200"
+                          title="Delete"
                         >
                           <Trash2 size={18} />
                         </button>
@@ -251,20 +259,24 @@ const PlayersList = () => {
       {pagination.totalPages > 1 && (
         <div className="flex items-center justify-between bg-white rounded-xl p-4 shadow-sm border border-gray-100">
           <p className="text-sm text-gray-500">
-            Showing {((pagination.page - 1) * pagination.limit) + 1} to {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} players
+            Showing {Math.min(((pagination.page - 1) * pagination.limit) + 1, pagination.total)} to{' '}
+            {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} players
           </p>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setPagination(prev => ({ ...prev, page: prev.page - 1 }))}
+              onClick={() => handlePageChange(pagination.page - 1)}
               disabled={pagination.page === 1}
-              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             >
               Previous
             </button>
+            <span className="px-3 py-2 text-sm font-medium text-gray-700">
+              Page {pagination.page} of {pagination.totalPages}
+            </span>
             <button
-              onClick={() => setPagination(prev => ({ ...prev, page: prev.page + 1 }))}
-              disabled={pagination.page === pagination.totalPages}
-              className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={() => handlePageChange(pagination.page + 1)}
+              disabled={pagination.page >= pagination.totalPages}
+              className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium"
             >
               Next
             </button>
@@ -276,3 +288,4 @@ const PlayersList = () => {
 }
 
 export default PlayersList
+
