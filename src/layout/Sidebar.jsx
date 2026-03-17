@@ -1,4 +1,4 @@
-import { NavLink, useLocation } from 'react-router-dom'
+import { Outlet, NavLink, useLocation } from 'react-router-dom'
 import { useState, useEffect } from 'react'
 import {
   LayoutDashboard, Users, Users2, Calendar, Trophy,
@@ -330,6 +330,8 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
         </ul>
       </nav>
 
+      
+
       {/* Bottom Section */}
       <div className="p-4 border-t border-gray-100 bg-gradient-to-b from-white to-gray-50/50">
         {/* Quick Actions */}
@@ -366,10 +368,17 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
             </button>
           )}
         </div>
+        
       </div>
 
+      
+
     </div>
+
+    
   )
 }
+
+
 
 export default Sidebar

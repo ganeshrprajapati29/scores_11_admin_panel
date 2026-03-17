@@ -17,28 +17,62 @@ const ViewUser = () => {
   const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('overview') // overview, cricket, stats, activity
 
-  useEffect(() => {
-    // Check if id is invalid
-    if (!id || id === 'create' || id === 'undefined' || id === 'edit') {
-      navigate('/admin/users')
+ const fetchUser = async () => {
+  try {
+
+    setLoading(true)
+
+    console.log("User ID:", id)
+
+    const response = await usersAPI.getById(id)
+
+    console.log("API Response:", response)
+
+    // Safe response handling
+    const userData =
+      response?.data?.user ||
+      response?.data?.data ||
+      response?.data ||
+      response ||
+      null
+
+    console.log("User Data:", userData)
+
+    if (!userData) {
+      toast.error("User not found")
+      navigate("/admin/users")
       return
     }
-    fetchUser()
-  }, [id])
 
-  const fetchUser = async () => {
-    try {
-      setLoading(true)
-      const response = await usersAPI.getById(id)
-      setUser(response.data || response)
-    } catch (error) {
-      console.error('Fetch user error:', error)
-      toast.error(error.response?.data?.message || 'Failed to fetch user')
-      navigate('/admin/users')
-    } finally {
-      setLoading(false)
-    }
+    setUser(userData)
+
+  } catch (error) {
+
+    console.error("Fetch user error:", error)
+
+    toast.error(
+      error?.response?.data?.message || "Failed to fetch user"
+    )
+
+    navigate("/admin/users")
+
+  } finally {
+
+    setLoading(false)
+
   }
+}
+
+useEffect(() => {
+
+  if (!id || id === "undefined") {
+    navigate("/admin/users")
+    return
+  }
+
+  fetchUser()
+
+}, [id])
 
   const handleStatusToggle = async () => {
     try {

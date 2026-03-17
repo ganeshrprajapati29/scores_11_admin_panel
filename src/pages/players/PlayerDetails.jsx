@@ -19,7 +19,7 @@ const PlayerDetails = () => {
         setLoading(false);
       }
     };
-    fetchPlayer();
+    fetchPlayer(); 
   }, [id]);
 
   if (loading) {

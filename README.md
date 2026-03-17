@@ -115,7 +115,7 @@ frontend/
 │   │   ├── DashboardLayout.jsx    # Main dashboard layout
 │   │   ├── Navbar.jsx             # Top navigation bar
 │   │   ├── Sidebar.jsx            # Side navigation
-│   │   └── ProtectedRoute.jsx     # Route protection
+│   │   └── Protected.jsx     # Route protection
 │   │
 │   ├── 📂 pages/                   # Page components (30+ pages)
 │   │   ├── auth/                  # Authentication pages

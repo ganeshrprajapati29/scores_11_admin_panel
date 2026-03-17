@@ -154,7 +154,7 @@ const Analytics = () => {
         />
         <StatCard
           title="Engagement Rate"
-          value={`${analyticsData.engagementStats?.rate?.toFixed(1) || '0'}%`}
+          value={` ${analyticsData.engagementStats?.rate?.toFixed(1) || '0'}%`}
           change="+5.7%"
           changeType="positive"
           icon={Target}
