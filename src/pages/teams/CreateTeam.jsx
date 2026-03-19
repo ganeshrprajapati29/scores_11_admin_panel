@@ -5,53 +5,101 @@ import { teamsAPI } from '../../services/api'
 import toast from 'react-hot-toast'
 
 const CreateTeam = () => {
+
   const navigate = useNavigate()
+
   const [loading, setLoading] = useState(false)
+
   const [formData, setFormData] = useState({
-    name: '',
-    shortName: '',
-    description: '',
-    city: '',
-    state: '',
-    country: '',
-    foundedYear: '',
-    teamType: 'club',
+    name: "",
+    shortName: "",
+    description: "",
+    city: "",
+    state: "",
+    country: "",
+    foundedYear: "",
+    teamType: "club",
     logo: null
   })
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    setFormData(prev => ({ ...prev, [name]: value }))
+
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value
+    }))
   }
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0]
+
+    const file = e.target.files?.[0]
+
     if (file) {
-      setFormData(prev => ({ ...prev, logo: file }))
+      setFormData((prev) => ({
+        ...prev,
+        logo: file
+      }))
     }
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+ const handleSubmit = async (e) => {
 
-    try {
-      const data = new FormData()
-      Object.keys(formData).forEach(key => {
-        if (formData[key]) {
-          data.append(key, formData[key])
-        }
-      })
+  e.preventDefault();
 
-      await teamsAPI.create(data)
-      toast.success('Team created successfully')
-      navigate('/teams')
-    } catch (error) {
-      toast.error(error.message || 'Failed to create team')
-    } finally {
-      setLoading(false)
-    }
+  if (!formData.name?.trim()) {
+    toast.error("Team name is required");
+    return;
   }
+
+  setLoading(true);
+
+  try {
+
+    const data = new FormData();
+
+    data.append("name", formData.name.trim());
+    data.append("teamType", formData.teamType || "club");
+
+    if (formData.shortName) data.append("shortName", formData.shortName);
+    if (formData.description) data.append("description", formData.description);
+    if (formData.city) data.append("city", formData.city);
+    if (formData.state) data.append("state", formData.state);
+    if (formData.country) data.append("country", formData.country);
+
+    if (formData.foundedYear) {
+      data.append("foundedYear", parseInt(formData.foundedYear));
+    }
+
+    if (formData.logo instanceof File) {
+      data.append("logo", formData.logo);
+    }
+
+    const response = await teamsAPI.create(data);
+
+    toast.success(
+      response?.data?.message || "Team created successfully"
+    );
+
+    navigate("/teams");
+
+  } catch (error) {
+
+    console.error("FULL ERROR:", error?.response?.data || error);
+
+    toast.error(
+      error?.response?.data?.message ||
+      error?.response?.data?.error ||
+      "Failed to create team"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+
+};
 
   return (
     <div className="space-y-6">

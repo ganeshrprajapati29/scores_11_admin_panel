@@ -24,119 +24,108 @@ const CreateUser = () => {
     return () => clearTimeout(timer)
   }, [])
   
-  const [formData, setFormData] = useState({
-    // Basic Information
-    email: '',
-    password: '',
-    username: '',
-    fullName: '',
-    phone: '',
-    dateOfBirth: '',
-    gender: 'prefer-not-to-say',
-    bio: '',
-    
-    // Role
-    role: 'user',
-    
-    // Location
-    location: {
-      city: '',
-      state: '',
-      country: '',
-      coordinates: [0, 0]
+ const [formData, setFormData] = useState({
+  // Basic Information
+  name: "",
+  email: "",
+  password: "",
+  phone: "",
+  username: "",
+  fullName: "",
+  dateOfBirth: "",
+  gender: "prefer-not-to-say",
+  bio: "",
+
+  // Role
+  role: "user",
+
+  // Location
+  location: {
+    city: "",
+    state: "",
+    country: "",
+    coordinates: [0, 0],
+  },
+
+  // Cricket Profile
+  cricketProfile: {
+    playerType: "",
+    battingStyle: "",
+    bowlingStyle: "none",
+    preferredRole: [],
+    battingAverage: "",
+    bowlingAverage: "",
+    highestScore: "",
+    bestBowlingFigures: {
+      wickets: "",
+      runs: "",
     },
-    
-    // Cricket Profile
-    cricketProfile: {
-      playerType: '',
-      battingStyle: '',
-      bowlingStyle: 'none',
-      preferredRole: [],
-      battingAverage: 0,
-      bowlingAverage: 0,
-      highestScore: 0,
-      bestBowlingFigures: {
-        wickets: 0,
-        runs: 0
-      },
-      matchesPlayed: 0,
-      totalRuns: 0,
-      totalWickets: 0,
-      centuries: 0,
-      halfCenturies: 0,
-      fiveWicketHauls: 0
+    matchesPlayed: "",
+    totalRuns: "",
+    totalWickets: "",
+    centuries: "",
+    halfCenturies: "",
+    fiveWicketHauls: "",
+  },
+
+  // Stats
+  stats: {
+    matchesPlayed: "",
+    matchesWon: "",
+    matchesLost: "",
+    tournamentsPlayed: "",
+    tournamentsWon: "",
+    manOfTheMatch: "",
+    manOfTheSeries: "",
+  },
+
+  // Preferences
+  preferences: {
+    notifications: {
+      email: true,
+      push: true,
+      sms: false,
     },
-    
-    // Stats
-    stats: {
-      matchesPlayed: 0,
-      matchesWon: 0,
-      matchesLost: 0,
-      tournamentsPlayed: 0,
-      tournamentsWon: 0,
-      manOfTheMatch: 0,
-      manOfTheSeries: 0
+    privacy: {
+      showProfile: true,
+      showStats: true,
+      showLocation: false,
     },
-    
-    // Preferences
-    preferences: {
-      notifications: {
-        email: true,
-        push: true,
-        sms: false
-      },
-      privacy: {
-        showProfile: true,
-        showStats: true,
-        showLocation: false
-      },
-      language: 'en',
-      theme: 'system'
-    },
-    
-    // Account Status
-    isEmailVerified: false,
-    isPhoneVerified: false,
-    isActive: true,
-    
-    // Referral
-    referralCode: ''
-  })
+    language: "en",
+    theme: "system",
+  },
+
+  // Account Status
+  isEmailVerified: false,
+  isPhoneVerified: false,
+  isActive: true,
+
+  // Referral
+  referralCode: "",
+});
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target
-    
-    if (name.includes('.')) {
-      // Handle nested objects
-      const [parent, child] = name.split('.')
-      setFormData(prev => ({
-        ...prev,
-        [parent]: {
-          ...prev[parent],
-          [child]: type === 'checkbox' ? checked : value
-        }
-      }))
-    } else if (name.includes('[')) {
-      // Handle array fields
-      const match = name.match(/(\w+)\[(\w+)\]\.(\w+)/)
-      if (match) {
-        const [_, parent, index, child] = match
-        setFormData(prev => ({
-          ...prev,
-          [parent]: {
-            ...prev[parent],
-            [child]: value
-          }
-        }))
-      }
-    } else {
-      // Handle top-level fields
-      setFormData(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value
-      }))
+  const { name, value, type, checked } = e.target;
+
+  const fieldValue = type === "checkbox" ? checked : value;
+
+  const keys = name.split(".");
+
+  setFormData((prev) => {
+    const newState = { ...prev };
+
+    let current = newState;
+
+    for (let i = 0; i < keys.length - 1; i++) {
+      current[keys[i]] = { ...current[keys[i]] };
+      current = current[keys[i]];
     }
-  }
+
+    current[keys[keys.length - 1]] = fieldValue;
+
+    return newState;
+  });
+};
 
   const handlePreferredRoleChange = (role) => {
     setFormData(prev => {
@@ -155,25 +144,58 @@ const CreateUser = () => {
     })
   }
 
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      setLoading(true)
-      
-      // Auto-generate username if not provided
-      if (!formData.username) {
-        formData.username = formData.email.split('@')[0] + Math.floor(Math.random() * 1000)
-      }
-      
-      await usersAPI.create(formData)
-      toast.success('User created successfully')
-      navigate('/users')
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to create user')
-    } finally {
-      setLoading(false)
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  try {
+    setLoading(true);
+
+    // Basic validation
+    if (!formData.fullName || !formData.email || !formData.password) {
+      toast.error("Name, Email and Password are required");
+      setLoading(false);
+      return;
     }
+
+    // Safe username generate
+    const username =
+      formData.username?.trim() ||
+      (formData.email?.split("@")[0] + Math.floor(Math.random() * 1000));
+
+    // Clean payload
+    const payload = {
+      name: formData.fullName.trim(),
+      username: username,
+      email: formData.email.trim(),
+      password: formData.password,
+      phone: formData.phone?.trim() || ""
+    };
+
+    console.log("Sending Payload:", payload);
+
+    const response = await usersAPI.create(payload);
+
+    console.log("API Response:", response);
+
+    toast.success("User created successfully 🎉");
+
+    navigate("/users");
+
+  } catch (error) {
+
+    console.log("FULL ERROR:", error);
+    console.log("ERROR RESPONSE:", error.response?.data);
+
+    toast.error(
+      error.response?.data?.message ||
+      error.response?.data?.error ||
+      "Failed to create user"
+    );
+
+  } finally {
+    setLoading(false);
   }
+};
 
   // Show loading spinner during initial load
   if (initialLoading) {

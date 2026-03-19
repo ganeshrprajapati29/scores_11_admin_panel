@@ -180,13 +180,13 @@ useEffect(() => {
           </div>
         </div>
         <div className="flex items-center gap-3">
-          <Link
+          {/* <Link
             to={`/admin/users/${id}/edit`}
             className="btn-secondary inline-flex items-center gap-2"
           >
             <Edit size={18} />
             Edit User
-          </Link>
+          </Link> */}
           <button
             onClick={handleDelete}
             className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 inline-flex items-center gap-2"
@@ -198,100 +198,116 @@ useEffect(() => {
       </div>
 
       {/* Profile Header Card */}
-      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-        {/* Cover Photo */}
-        <div className="h-32 bg-gradient-to-r from-primary-600 to-secondary-600 relative">
-          {user.coverPhoto?.url && (
-            <img 
-              src={user.coverPhoto.url} 
-              alt="Cover" 
-              className="w-full h-full object-cover opacity-50"
-            />
-          )}
-        </div>
-        
-        {/* Profile Info */}
-        <div className="px-6 pb-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 -mt-12">
-            {/* Avatar */}
-            <div className="relative">
-              <div className="w-24 h-24 rounded-xl bg-white p-1 shadow-lg">
-                <div className="w-full h-full rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-bold text-3xl overflow-hidden">
-                  {user.avatar?.url ? (
-                    <img 
-                      src={user.avatar.url} 
-                      alt={user.fullName || user.name} 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    getInitials(user.fullName || user.name)
-                  )}
-                </div>
-              </div>
-              {user.isEmailVerified && (
-                <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1 border-2 border-white">
-                  <CheckCircle size={14} className="text-white" />
-                </div>
-              )}
-            </div>
+     <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
 
-            {/* Basic Info */}
-            <div className="flex-1">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3 mb-2">
-                <h2 className="text-2xl font-bold text-gray-900">
-                  {user.fullName || user.name || 'N/A'}
-                </h2>
-                <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${getRoleBadgeColor(user.role)}`}>
-                  {user.role?.charAt(0).toUpperCase() + user.role?.slice(1)}
-                </span>
-                <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${levelDetails.color}`}>
-                  {levelDetails.icon} {levelDetails.label} (Lvl {user.level || 1})
-                </span>
-              </div>
-              
-              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500">
-                <span className="flex items-center gap-1">
-                  <Mail size={14} />
-                  {user.email}
-                </span>
-                {user.username && (
-                  <span className="flex items-center gap-1">
-                    <User size={14} />
-                    @{user.username}
-                  </span>
-                )}
-                {user.phone && (
-                  <span className="flex items-center gap-1">
-                    <Phone size={14} />
-                    {user.phone}
-                  </span>
-                )}
-              </div>
-            </div>
+  {/* Cover Photo */}
+  <div className="h-28 sm:h-32 bg-gradient-to-r from-primary-600 to-secondary-600 relative">
+    {user.coverPhoto?.url && (
+      <img
+        src={user.coverPhoto.url}
+        alt="Cover"
+        className="w-full h-full object-cover opacity-50"
+      />
+    )}
+  </div>
 
-            {/* Status Badge */}
-            <div className="flex flex-col items-end gap-2">
-              <span className={`px-4 py-2 rounded-lg text-sm font-medium ${
-                user.isActive 
-                  ? 'bg-green-100 text-green-700' 
-                  : 'bg-red-100 text-red-700'
-              }`}>
-                {user.isActive ? 'Active Account' : 'Inactive Account'}
-              </span>
-              <button
-                onClick={handleStatusToggle}
-                className={`text-sm font-medium ${
-                  user.isActive 
-                    ? 'text-red-600 hover:text-red-700' 
-                    : 'text-green-600 hover:text-green-700'
-                }`}
-              >
-                {user.isActive ? 'Deactivate Account' : 'Activate Account'}
-              </button>
-            </div>
+  {/* Profile Info */}
+  <div className="px-4 sm:px-6 pb-6">
+    <div className="flex flex-col sm:flex-row sm:items-end gap-4 sm:gap-6 -mt-10 sm:-mt-12">
+
+      {/* Avatar */}
+      <div className="relative mx-auto sm:mx-0">
+        <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl bg-white p-1 shadow-lg">
+          <div className=" p-5 w-full h-full rounded-lg bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-bold text-xl sm:text-2xl overflow-hidden">
+            {user.avatar?.url ? (
+              <img
+                src={user.avatar.url} 
+                alt={user.fullName || user.name}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              getInitials(user.fullName || user.name)
+            )}
           </div>
         </div>
+
+        {user.isEmailVerified && (
+          <div className="absolute -bottom-1 -right-1 bg-green-500 rounded-full p-1 border-2 border-white">
+            <CheckCircle size={14} className="text-white" />
+          </div>
+        )}
       </div>
+
+      {/* Basic Info */}
+      <div className="flex-1 text-center sm:text-left pt-5">
+
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2 pt-5">
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 break-words pt-5">
+            {user.fullName || user.name || 'N/A'}
+          </h2> 
+
+          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getRoleBadgeColor(user.role)}`}>
+            {user.role?.charAt(0).toUpperCase() + user.role?.slice(1)}
+          </span>
+
+          <span className={`px-3 py-1 rounded-full text-xs font-medium ${levelDetails.color}`}>
+            {levelDetails.icon} {levelDetails.label} (Lvl {user.level || 1})
+          </span>
+        </div>
+
+        <div className="flex flex-col sm:flex-row flex-wrap items-center sm:items-start gap-2 sm:gap-4 text-sm text-gray-500">
+
+          <span className="flex items-center gap-1 break-all">
+            <Mail size={14} />
+            {user.email}
+          </span>
+
+          {user.username && (
+            <span className="flex items-center gap-1">
+              <User size={14} />
+              @{user.username}
+            </span>
+          )}
+
+          {user.phone && (
+            <span className="flex items-center gap-1">
+              <Phone size={14} />
+              {user.phone}
+            </span>
+          )}
+
+        </div>
+      </div>
+
+      {/* Status Badge */}
+      <div className="flex flex-col items-center sm:items-end gap-2 w-full sm:w-auto">
+
+        <span
+          className={`px-4 py-2 rounded-lg text-sm font-medium ${
+            user.isActive
+              ? 'bg-green-100 text-green-700'
+              : 'bg-red-100 text-red-700'
+          }`}
+        >
+          {user.isActive ? 'Active Account' : 'Inactive Account'}
+        </span>
+
+        <button
+          onClick={handleStatusToggle}
+          className={`text-sm font-medium ${
+            user.isActive
+              ? 'text-red-600 hover:text-red-700'
+              : 'text-green-600 hover:text-green-700'
+          }`}
+        >
+          {user.isActive ? 'Deactivate Account' : 'Activate Account'}
+        </button>
+
+      </div>
+
+    </div>
+  </div>
+</div>
 
       {/* Tabs */}
       <div className="border-b border-gray-200 bg-white rounded-t-lg">

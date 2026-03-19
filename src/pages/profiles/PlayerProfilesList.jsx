@@ -31,43 +31,49 @@ const PlayerProfilesList = () => {
 
   try {
 
-    setLoading(true)
+    setLoading(true);
 
     const params = {
       page: pagination.page,
       limit: pagination.limit,
-      ...(search && { search }),
-      ...(statusFilter && { status: statusFilter })
-    }
+      ...(search ? { search } : {}),
+      ...(statusFilter ? { status: statusFilter } : {})
+    };
 
-    const response = await playerProfilesAPI.getAll(params)
+    const response = await playerProfilesAPI.getAll(params);
 
-    console.log("API response:", response)
+    console.log("API response:", response);
 
-    // Correct extraction
-    const profilesData = response?.data?.data ?? []
+    const profilesData = response?.data?.data || [];
+    const total = response?.data?.pagination?.total || profilesData.length;
+    const totalPages =
+      response?.data?.pagination?.totalPages ||
+      Math.ceil(total / pagination.limit);
 
-    setProfiles(profilesData)
+    setProfiles(profilesData);
 
-    setPagination(prev => ({
+    setPagination((prev) => ({
       ...prev,
-      total: profilesData.length,
-      totalPages: Math.ceil(profilesData.length / prev.limit) || 1
-    }))
+      total,
+      totalPages
+    }));
 
   } catch (error) {
 
-    console.error("Fetch Profiles Error:", error)
+    console.error("Fetch Profiles Error:", error);
 
-    toast.error("Failed to fetch player profiles")
+    toast.error(
+      error.response?.data?.message ||
+      "Failed to fetch player profiles"
+    );
 
   } finally {
 
-    setLoading(false)
+    setLoading(false);
 
   }
 
-}
+};
 
   const handleSearch = (e) => {
 

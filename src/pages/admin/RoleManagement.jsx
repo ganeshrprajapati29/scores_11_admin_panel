@@ -76,31 +76,61 @@ const RoleManagement = () => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    try {
-      if (selectedRole) {
-        await adminService.updateRole(selectedRole._id, formData)
-        toast.success('Role updated successfully')
-      } else {
-        await adminService.createRole(formData)
-        toast.success('Role created successfully')
-      }
-      setIsModalOpen(false)
-      setSelectedRole(null)
-      setFormData({ name: '', description: '', permissions: [] })
-      fetchRoles()
-    } catch (error) {
-      toast.error(error.message || 'Failed to save role')
-    }
-  }
+  e.preventDefault();
 
-  const handleDelete = async () => {
   try {
 
-    if (!selectedRole) {
-      toast.error("No role selected")
-      return
+    if (!formData.name) {
+      toast.error("Role name is required");
+      return;
     }
+
+    if (selectedRole && selectedRole._id) {
+
+      await adminService.updateRole(selectedRole._id, formData);
+
+      toast.success("Role updated successfully");
+
+    } else {
+
+      await adminService.createRole(formData);
+
+      toast.success("Role created successfully");
+
+    }
+
+    // Reset form
+    setIsModalOpen(false);
+    setSelectedRole(null);
+    setFormData({
+      name: "",
+      description: "",
+      permissions: []
+    });
+
+    fetchRoles();
+
+  } catch (error) {
+
+    console.error("Role save error:", error);
+
+    toast.error(
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to save role"
+    );
+
+  }
+};
+
+  const handleDelete = async () => {
+
+  if (!selectedRole?._id) {
+    toast.error("Role not selected")
+    return
+  }
+
+  try {
 
     await adminService.deleteRole(selectedRole._id)
 
@@ -117,11 +147,11 @@ const RoleManagement = () => {
 
     toast.error(
       error?.response?.data?.message ||
-      error?.message ||
-      "Failed to delete role"
+      "Delete failed"
     )
 
   }
+
 }
 
   const togglePermission = (permissionId) => {
@@ -319,18 +349,19 @@ const RoleManagement = () => {
         </div>
       </div>
 
-      {/* Search Results Info */}
       {debouncedSearchQuery && (
-        <div className="flex items-center justify-between text-sm text-gray-600">
-          <span>
-            Found {filteredRoles.length} result{filteredRoles.length !== 1 ? 's' : ''} 
-            {isSearching ? ' (searching...)' : ''}
-          </span>
-          {filteredRoles.length > 0 && (
-            <span className="text-gray-500">Sorted by relevance</span>
-          )}
-        </div>
-      )}
+  <div className="flex items-center justify-between text-sm text-gray-600">
+    <span>
+      Found {filteredRoles?.length || 0} result
+      {filteredRoles?.length !== 1 ? "s" : ""}
+      {isSearching ? " (searching...)" : ""}
+    </span>
+
+    {filteredRoles?.length > 0 && (
+      <span className="text-gray-500">Sorted by relevance</span>
+    )}
+  </div>
+)}
 
       {/* Roles Table */}
       <Table

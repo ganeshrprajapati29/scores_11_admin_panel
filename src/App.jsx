@@ -68,6 +68,7 @@ import FeatureToggles from './pages/settings/FeatureToggles'
 import AdminPlayersList from './pages/admin/AdminPlayersList'
 import PlayerDetails from './pages/players/PlayerDetails'
 import MergePlayers from './pages/admin/MergePlayers'
+import AdminPlayerDetails from './pages/admin/AdminPlayerDetails'
 
 function App() {
   return (
@@ -161,10 +162,15 @@ function App() {
             <Route path="admin/store-manager" element={<StoreManager />} />
             <Route path="admin/contest-manager" element={<ContestManager />} />
             <Route path="admin/users/create" element={<CreateUser />} />
-             <Route path="/admin/players" element={<AdminPlayersList />} />
-             <Route path="/players/:id/details" element={<PlayerDetails />} />
-             <Route path="/admin/users/:id" element={<ViewUser />} />
-             <Route path="/admin/players/merge" element={<MergePlayers />} />
+            <Route path="/admin/players" element={<AdminPlayersList />} />
+            <Route path="/players/:id/details" element={<PlayerDetails />} />
+            <Route path="/leaderboard/players/:id/teams" element={<AdminPlayerDetails />} />
+            <Route path="/admin/users/:id" element={<ViewUser />} />
+            <Route path="/admin/users/:id/edit" element={<ViewUser />} />
+            <Route path="/admin/players/merge" element={<MergePlayers />} />
+
+            <Route path="/teams/:id" element={<TeamsList />} />
+            <Route path="/matches/:id" element={<MatchesList />} />
 
              
           </Route>

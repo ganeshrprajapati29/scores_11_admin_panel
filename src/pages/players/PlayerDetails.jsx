@@ -8,27 +8,57 @@ const PlayerDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  useEffect(() => {
-    const fetchPlayer = async () => {
-      try {
-        const response = await axios.get(`/api/players/${id}`);
-        setPlayer(response.data.data);
-        setLoading(false);
-      } catch (err) {
-        setError(err.response?.data?.message || 'Failed to fetch player details');
-        setLoading(false);
-      }
-    };
-    fetchPlayer(); 
-  }, [id]);
+ useEffect(() => {
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
+  const fetchPlayer = async () => {
+
+    if (!id) return;
+
+    try {
+
+      setLoading(true);
+
+      const response = await axios.get(`/api/players/${id}`);
+
+      console.log("PLAYER API RESPONSE:", response.data);
+
+      const playerData =
+        response?.data?.data ||
+        response?.data?.player ||
+        response?.data ||
+        null;
+
+      setPlayer(playerData);
+
+    } catch (err) {
+
+      console.error("PLAYER FETCH ERROR:", err);
+
+      setError(
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to fetch player details"
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
+  fetchPlayer();
+
+}, [id]);
+
+if (loading) {
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  );
+}
 
   if (error) {
     return (
@@ -218,11 +248,11 @@ const PlayerDetails = () => {
           Edit Player
         </Link>
         <Link
-          to={`/leaderboard/players?player=${id}`}
-          className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
-        >
-          View in Leaderboard
-        </Link>
+  to={`/leaderboard/players/${id}/teams`}
+  className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+>
+  View in Leaderboard
+</Link>
       </div>
     </div>
   );
