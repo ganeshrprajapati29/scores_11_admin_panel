@@ -94,21 +94,41 @@ const BlogList = () => {
 
 
  const handleUnpublish = async (id) => {
-  try {
-    const res = await axios.patch(`/api/v1/blogs/${id}/unpublish`);
+  if (!id) {
+    toast.error("Invalid blog ID");
+    return;
+  }
 
-    setBlogs((prevBlogs) =>
-      prevBlogs.map((blog) =>
-        blog._id === id ? { ...blog, status: "draft" } : blog
-      )
+  try {
+    const response = await axios.patch(
+      `http://localhost:5000/api/v1/blogs/${id}/unpublish`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
     );
 
-    toast.success("Blog unpublished successfully");
-  } catch (error) {
-    console.log("Full Error:", error);
-    console.log("Server Error:", error?.response);
+    if (response?.data) {
+      setBlogs((prevBlogs) =>
+        prevBlogs.map((blog) =>
+          blog._id === id ? { ...blog, status: "draft" } : blog
+        )
+      );
 
-    toast.error(error?.response?.data?.message || "Failed to unpublish blog");
+      toast.success(response.data.message || "Blog unpublished successfully");
+    }
+
+  } catch (error) {
+    console.error("Unpublish Error:", error);
+
+    const message =
+      error?.response?.data?.message ||
+      error?.message ||
+      "Failed to unpublish blog";
+
+    toast.error(message);
   }
 };
   const getStatusConfig = (status) => {
@@ -411,15 +431,15 @@ const BlogList = () => {
                       </button>
                     )}
 
-                    {blog?.status === "published" && blog?._id && (
-                      <button
-                        onClick={() => handleUnpublish(blog._id)}
-                        className="flex-1 btn-secondary text-center text-sm py-2 flex items-center justify-center gap-1"
-                      >
-                        <EyeOff size={14} />
-                        Unpublish
-                      </button>
-                    )}
+                    {blog?.status?.toLowerCase() === "published" && blog?._id && (
+  <button
+    onClick={() => handleUnpublish(blog._id)}
+    className="flex-1 btn-secondary text-center text-sm py-2 flex items-center justify-center gap-1"
+  >
+    <EyeOff size={14} />
+    Unpublish
+  </button>
+)}
 
                     <button
                       onClick={() => handleDelete(blog?._id)}

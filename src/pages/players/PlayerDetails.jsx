@@ -11,6 +11,7 @@ const PlayerDetails = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+<<<<<<< HEAD
   useEffect(() => {
     const fetchPlayer = async () => {
       try {
@@ -36,6 +37,66 @@ const PlayerDetails = () => {
         <div className="text-center">
           <Loader2 className="animate-spin mx-auto h-12 w-12 text-primary-600" />
           <p className="mt-4 text-gray-600">Loading player details...</p>
+=======
+ useEffect(() => {
+
+  const fetchPlayer = async () => {
+
+    if (!id) return;
+
+    try {
+
+      setLoading(true);
+
+      const response = await axios.get(`/api/players/${id}`);
+
+      console.log("PLAYER API RESPONSE:", response.data);
+
+      const playerData =
+        response?.data?.data ||
+        response?.data?.player ||
+        response?.data ||
+        null;
+
+      setPlayer(playerData);
+
+    } catch (err) {
+
+      console.error("PLAYER FETCH ERROR:", err);
+
+      setError(
+        err?.response?.data?.message ||
+        err.message ||
+        "Failed to fetch player details"
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+
+  };
+
+  fetchPlayer();
+
+}, [id]);
+
+if (loading) {
+  return (
+    <div className="flex items-center justify-center h-screen">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+  );
+}
+
+  if (error) {
+    return (
+      <div className="p-6">
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+          <p>{error}</p>
+          <Link to="/players" className="text-red-700 underline">Back to Players</Link>
+>>>>>>> origin/sumit
         </div>
       </div>
     );
@@ -203,12 +264,29 @@ const PlayerDetails = () => {
           </div>
         </div>
 
+<<<<<<< HEAD
         {/* Statistics */}
         <div className="space-y-6">
           <BattingStatsCard stats={player.battingStats || {}} />
           <BowlingStatsCard stats={player.bowlingStats || {}} />
           <FieldingStatsCard stats={player.fieldingStats || {}} />
         </div>
+=======
+      {/* Action Buttons */}
+      <div className="mt-6 flex gap-4">
+        <Link
+          to={`/players/${id}/edit`}
+          className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+        >
+          Edit Player
+        </Link>
+        <Link
+  to={`/leaderboard/players/${id}/teams`}
+  className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+>
+  View in Leaderboard
+</Link>
+>>>>>>> origin/sumit
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { 
-  Search, Plus, Users, Mail, Phone, MapPin, 
-  Calendar, Shield, MoreVertical, Trash2, Edit, 
+import {
+  Search, Plus, Users, Mail, Phone, MapPin,
+  Calendar, Shield, MoreVertical, Trash2, Edit,
   Eye, CheckCircle, XCircle, Filter, Award,
   User, Star, Activity, Trophy, Download
 } from 'lucide-react'
@@ -38,7 +38,9 @@ const UsersList = () => {
 
   const fetchUsers = async () => {
     try {
+
       setLoading(true)
+
       const params = {
         page: pagination.page,
         limit: pagination.limit,
@@ -48,26 +50,43 @@ const UsersList = () => {
         ...(filters.role && { role: filters.role }),
         ...(filters.level && { level: filters.level }),
         ...(filters.playerType && { playerType: filters.playerType }),
-        ...(filters.isActive && { isActive: filters.isActive === 'true' })
+        ...(filters.isActive && { isActive: filters.isActive === "true" })
       }
-      
+
       const response = await usersAPI.getAll(params)
-      
-      // Handle different response structures
-      const usersData = response.data?.users || response.data || response.users || []
-      const paginationData = response.data?.pagination || response.pagination || {}
-      
+
+      // safer response handling
+      const usersData = Array.isArray(response.data?.users)
+        ? response.data.users
+        : Array.isArray(response.data)
+          ? response.data
+          : []
+
+      const paginationData = response.data?.pagination || {}
+
       setUsers(usersData)
+
       setPagination(prev => ({
         ...prev,
-        total: paginationData.total || usersData.length || 0,
-        pages: paginationData.pages || Math.ceil((paginationData.total || usersData.length) / pagination.limit) || 1
+        total: paginationData.total ?? usersData.length ?? 0,
+        pages:
+          paginationData.pages ??
+          Math.ceil((paginationData.total ?? usersData.length ?? 0) / prev.limit) ??
+          1
       }))
+
     } catch (error) {
-      console.error('Fetch users error:', error)
-      toast.error(error.response?.data?.message || 'Failed to fetch users')
+
+      console.error("Fetch users error:", error)
+
+      toast.error(
+        error?.response?.data?.message || "Failed to fetch users"
+      )
+
     } finally {
+
       setLoading(false)
+
     }
   }
 
@@ -84,7 +103,7 @@ const UsersList = () => {
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this user?')) return
-    
+
     try {
       await usersAPI.delete(id)
       toast.success('User deleted successfully')
@@ -100,9 +119,9 @@ const UsersList = () => {
       toast.error('No users selected')
       return
     }
-    
+
     if (!window.confirm(`Are you sure you want to delete ${selectedUsers.length} users?`)) return
-    
+
     try {
       // API should support bulk delete
       await Promise.all(selectedUsers.map(id => usersAPI.delete(id)))
@@ -132,7 +151,7 @@ const UsersList = () => {
       setExportLoading(true)
       // API should support export
       const response = await usersAPI.export(filters)
-      
+
       // Create download link
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement('a')
@@ -141,7 +160,7 @@ const UsersList = () => {
       document.body.appendChild(link)
       link.click()
       link.remove()
-      
+
       toast.success('Users exported successfully')
     } catch (error) {
       console.error('Export error:', error)
@@ -182,8 +201,8 @@ const UsersList = () => {
   }
 
   const getStatusBadgeColor = (isActive) => {
-    return isActive 
-      ? 'bg-green-100 text-green-700 border-green-200' 
+    return isActive
+      ? 'bg-green-100 text-green-700 border-green-200'
       : 'bg-red-100 text-red-700 border-red-200'
   }
 
@@ -245,7 +264,7 @@ const UsersList = () => {
             </div>
           </div>
         </div>
-        
+
         <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
@@ -498,9 +517,9 @@ const UsersList = () => {
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-semibold text-sm overflow-hidden flex-shrink-0">
                             {user.avatar?.url ? (
-                              <img 
-                                src={user.avatar.url} 
-                                alt={user.fullName || user.name} 
+                              <img
+                                src={user.avatar.url}
+                                alt={user.fullName || user.name}
                                 className="w-full h-full object-cover"
                               />
                             ) : (
@@ -582,7 +601,7 @@ const UsersList = () => {
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-1">
                           <Link
-                            to={`/admin/users/${user._id}`}
+                            to={`/admin/users/${user?._id}`}
                             className="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
                             title="View Details"
                           >
@@ -597,11 +616,10 @@ const UsersList = () => {
                           </Link>
                           <button
                             onClick={() => handleStatusToggle(user)}
-                            className={`p-2 rounded-lg transition-colors ${
-                              user.isActive 
-                                ? 'text-gray-500 hover:text-red-600 hover:bg-red-50' 
+                            className={`p-2 rounded-lg transition-colors ${user.isActive
+                                ? 'text-gray-500 hover:text-red-600 hover:bg-red-50'
                                 : 'text-gray-500 hover:text-green-600 hover:bg-green-50'
-                            }`}
+                              }`}
                             title={user.isActive ? 'Deactivate' : 'Activate'}
                           >
                             {user.isActive ? <XCircle size={18} /> : <CheckCircle size={18} />}
@@ -654,11 +672,10 @@ const UsersList = () => {
                   <button
                     key={pageNum}
                     onClick={() => setPagination(prev => ({ ...prev, page: pageNum }))}
-                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${
-                      pagination.page === pageNum
+                    className={`w-10 h-10 rounded-lg text-sm font-medium transition-colors ${pagination.page === pageNum
                         ? 'bg-primary-600 text-white'
                         : 'text-gray-600 hover:bg-gray-100'
-                    }`}
+                      }`}
                   >
                     {pageNum}
                   </button>

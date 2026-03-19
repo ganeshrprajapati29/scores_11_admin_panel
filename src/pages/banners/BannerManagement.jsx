@@ -129,15 +129,34 @@ const BannerManagement = () => {
   }
 
   const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this banner?')) {
-      try {
-        await bannerService.deleteBanner(id)
-        fetchBanners()
-      } catch (error) {
-        console.error('Error deleting banner:', error)
-      }
-    }
+  if (!id) {
+    console.error("Invalid banner ID");
+    return;
   }
+
+  const confirmDelete = window.confirm(
+    "Are you sure you want to delete this banner?"
+  );
+
+  if (!confirmDelete) return;
+
+  try {
+    const res = await bannerService.deleteBanner(id);
+
+    if (res?.data?.success) {
+      fetchBanners();
+      toast.success("Banner deleted successfully");
+    }
+
+  } catch (error) {
+    console.error("Error deleting banner:", error?.response || error);
+
+    const message =
+      error?.response?.data?.message || "Failed to delete banner";
+
+    toast.error(message);
+  }
+};
 
   const handleToggle = async (banner) => {
     try {

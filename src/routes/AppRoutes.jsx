@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import {  BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import DashboardLayout from '../layout/DashboardLayout'
 import ProtectedRoute from '../layout/ProtectedRoute'
 
@@ -32,7 +32,7 @@ import AdminPlayerDetails from '../pages/admin/AdminPlayerDetails'
 import PostsList from '../pages/community/PostsList'
 import ReportedPosts from '../pages/community/ReportedPosts'
 import CreatePost from '../pages/community/CreatePost'
-import ReportedContent from '../pages/admin/ReportedContent'
+import ReportedContent from '../pages/admin/ReportedContent' 
 
 // Subscriptions
 import PlansList from '../pages/subscriptions/PlansList'
@@ -100,7 +100,7 @@ import CreateBlog from '../pages/blogs/CreateBlog'
 // News
 import NewsList from '../pages/news/NewsList'
 import CreateNews from '../pages/news/CreateNews'
-
+ 
 // Community
 import PostsList from '../pages/community/PostsList'
 import ReportedPosts from '../pages/community/ReportedPosts'
@@ -169,6 +169,8 @@ import BannerManagement from '../pages/banners/BannerManagement'
 
 const AppRoutes = () => {
   return (
+
+    <BrowserRouter>
     <Routes>
       {/* Public Routes */}
       <Route path="/login" element={<Login />} />
@@ -201,7 +203,7 @@ const AppRoutes = () => {
         
         
         {/* Admin User Routes - Order matters: static routes before dynamic */}
-        <Route path="/admin/users" element={<UsersList />} />
+        {/* <Route path="/admin/users" element={<UsersList />} /> */}
         <Route path="/admin/users/create" element={<CreateUser />} />
         {/* Static routes must come BEFORE dynamic :id route */}
         <Route path="/admin/users/verified" element={<VerifiedUsers />} />
@@ -226,7 +228,10 @@ const AppRoutes = () => {
         {/* Dynamic routes come after static routes */}
         <Route path="/teams/:id" element={<TeamsList />} />
         <Route path="/teams/:id/edit" element={<CreateTeam />} />
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/sumit
         <Route path="/teams/approvals" element={<TeamsList />} />
         <Route path="/teams/rankings" element={<TeamsList />} />
         <Route path="/teams/search" element={<TeamsList />} />
@@ -254,6 +259,7 @@ const AppRoutes = () => {
         {/* Static routes must come BEFORE dynamic :id route */}
         <Route path="/matches/live" element={<LiveControl />} />
         {/* Dynamic routes come after static routes */}
+<<<<<<< HEAD
         <Route path="/matches/:id" element={<MatchesList />} />
         <Route path="/matches/:id/edit" element={<CreateMatch />} />
         <Route path="/matches/:id/score" element={<LiveControl />} />
@@ -269,6 +275,9 @@ const AppRoutes = () => {
         <Route path="/matches/:id/venue" element={<MatchesList />} />
         <Route path="/matches/:id/umpires" element={<MatchesList />} />
         <Route path="/matches/:id/scorers" element={<MatchesList />} />
+=======
+        <><Route path="/matches/:id" element={<MatchesList />} /><Route path="/matches/:id/edit" element={<CreateMatch />} /><Route path="/matches/:id/live" element={<LiveControl />} /><Route path="/matches/:id/score" element={<LiveControl />} /><Route path="/matches/:id/status" element={<LiveControl />} /><Route path="/matches/:id/teams" element={<MatchesList />} /><Route path="/matches/:id/players" element={<MatchesList />} /><Route path="/matches/:id/analytics" element={<MatchesList />} /><Route path="/matches/:id/notifications" element={<MatchesList />} /><Route path="/matches/:id/reports" element={<MatchesList />} /><Route path="/matches/:id/contests" element={<MatchesList />} /><Route path="/matches/:id/tournaments" element={<MatchesList />} /><Route path="/matches/:id/leaderboard" element={<MatchesList />} /><Route path="/matches/:id/venue" element={<MatchesList />} /><Route path="/matches/:id/umpires" element={<MatchesList />} /><Route path="/matches/:id/scorers" element={<MatchesList />} /></>
+>>>>>>> origin/sumit
         
         
         {/* Tournaments */}
@@ -1088,7 +1097,7 @@ const AppRoutes = () => {
 
         
         {/* Player Management Admin */}
-        <Route path="/admin/players" element={<AdminPlayersList />} />
+        {/* <Route path="/admin/players" element={<AdminPlayersList />} /> */}
         <Route path="/admin/players/merge" element={<MergePlayers />} />
         <Route path="/admin/players/:id" element={<AdminPlayerDetails />} />
         <Route path="/admin/players/:id/edit" element={<AdminPlayerDetails />} />
@@ -1149,7 +1158,12 @@ const AppRoutes = () => {
       {/* Catch all - Redirect to Dashboard */}
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
+    </BrowserRouter>
   )
 }
 
 export default AppRoutes
+   
+
+
+

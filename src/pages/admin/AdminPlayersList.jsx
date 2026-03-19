@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import adminService from '../../services/admin.service';
+<<<<<<< HEAD
 import useAuth from '../../hooks/useAuth';
+=======
+import useAuth from "../../hooks/useAuth";
+>>>>>>> origin/sumit
 
 const AdminPlayersList = () => {
   const { user } = useAuth();
@@ -90,6 +94,7 @@ const AdminPlayersList = () => {
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Player Management</h1>
+        
         <Link
           to="/admin/players/merge"
           className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
@@ -154,106 +159,118 @@ const AdminPlayersList = () => {
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <table className="w-full">
           <thead className="bg-gray-50">
-            <tr>
-              <th className="p-4 text-left">
-                <input
-                  type="checkbox"
-                  onChange={handleSelectAll}
-                  checked={selectedPlayers.length === players.length && players.length > 0}
-                />
-              </th>
-              <th className="p-4 text-left">Player Name</th>
-              <th className="p-4 text-left">Role</th>
-              <th className="p-4 text-left">Team</th>
-              <th className="p-4 text-left">Stats</th>
-              <th className="p-4 text-left">Status</th>
-              <th className="p-4 text-left">Actions</th>
-            </tr>
-          </thead>
+  <tr>
+    <th className="p-4 text-left">
+      <input
+        type="checkbox"
+        onChange={handleSelectAll}
+        checked={
+          (selectedPlayers?.length || 0) === (players?.length || 0) &&
+          (players?.length || 0) > 0
+        }
+      />
+    </th>
+
+    <th className="p-4 text-left">Player Name</th>
+    <th className="p-4 text-left">Role</th>
+    <th className="p-4 text-left">Team</th>
+    <th className="p-4 text-left">Stats</th>
+    <th className="p-4 text-left">Status</th>
+    <th className="p-4 text-left">Actions</th>
+  </tr>
+</thead>
           <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan="7" className="p-4 text-center">Loading...</td>
-              </tr>
-            ) : players.length === 0 ? (
-              <tr>
-                <td colSpan="7" className="p-4 text-center">No players found</td>
-              </tr>
-            ) : (
-              players.map((player) => (
-                <tr key={player._id} className="border-t hover:bg-gray-50">
-                  <td className="p-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedPlayers.includes(player._id)}
-                      onChange={() => handleSelectPlayer(player._id)}
-                    />
-                  </td>
-                  <td className="p-4">
-                    <div>
-                      <div className="font-medium">{player.playerName}</div>
-                      <div className="text-sm text-gray-500">
-                        {player.user?.name || 'No user'}
-                      </div>
-                    </div>
-                  </td>
-                  <td className="p-4 capitalize">{player.role}</td>
-                  <td className="p-4">
-                    {player.team ? (
-                      <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
-                        {player.team.name}
-                      </span>
-                    ) : (
-                      <span className="text-gray-400">No team</span>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <div className="text-sm">
-                      <div>Runs: {player.battingStats?.runs || 0}</div>
-                      <div>Wickets: {player.bowlingStats?.wickets || 0}</div>
-                    </div>
-                  </td>
-                  <td className="p-4">
-                    {player.isVerified ? (
-                      <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
-                        Verified
-                      </span>
-                    ) : (
-                      <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">
-                        Pending
-                      </span>
-                    )}
-                  </td>
-                  <td className="p-4">
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleVerify(player._id, !player.isVerified)}
-                        className={`px-2 py-1 rounded text-sm ${
-                          player.isVerified 
-                            ? 'bg-red-100 text-red-600 hover:bg-red-200' 
-                            : 'bg-green-100 text-green-600 hover:bg-green-200'
-                        }`}
-                      >
-                        {player.isVerified ? 'Unverify' : 'Verify'}
-                      </button>
-                      <Link
-                        to={`/admin/players/${player._id}/stats`}
-                        className="bg-blue-100 text-blue-600 px-2 py-1 rounded text-sm hover:bg-blue-200"
-                      >
-                        Edit
-                      </Link>
-                      <button
-                        onClick={() => handleDelete(player._id)}
-                        className="bg-red-100 text-red-600 px-2 py-1 rounded text-sm hover:bg-red-200"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
+  {loading ? (
+    <tr>
+      <td colSpan="7" className="p-4 text-center">Loading...</td>
+    </tr>
+  ) : (players?.length || 0) === 0 ? (
+    <tr>
+      <td colSpan="7" className="p-4 text-center">No players found</td>
+    </tr>
+  ) : (
+    (players || []).map((player) => (
+      <tr key={player?._id} className="border-t hover:bg-gray-50">
+        <td className="p-4">
+          <input
+            type="checkbox"
+            checked={selectedPlayers?.includes(player?._id)}
+            onChange={() => handleSelectPlayer(player?._id)}
+          />
+        </td>
+
+        <td className="p-4">
+          <div>
+            <div className="font-medium">{player?.playerName || "N/A"}</div>
+            <div className="text-sm text-gray-500">
+              {player?.user?.name || "No user"}
+            </div>
+          </div>
+        </td>
+
+        <td className="p-4 capitalize">{player?.role || "-"}</td>
+
+        <td className="p-4">
+          {player?.team ? (
+            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-sm">
+              {player?.team?.name}
+            </span>
+          ) : (
+            <span className="text-gray-400">No team</span>
+          )}
+        </td>
+
+        <td className="p-4">
+          <div className="text-sm">
+            <div>Runs: {player?.battingStats?.runs || 0}</div>
+            <div>Wickets: {player?.bowlingStats?.wickets || 0}</div>
+          </div>
+        </td>
+
+        <td className="p-4">
+          {player?.isVerified ? (
+            <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">
+              Verified
+            </span>
+          ) : (
+            <span className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-sm">
+              Pending
+            </span>
+          )}
+        </td>
+
+        <td className="p-4">
+          <div className="flex gap-2">
+            <button
+              onClick={() => handleVerify(player?._id, !player?.isVerified)}
+              className={`px-2 py-1 rounded text-sm ${
+                player?.isVerified
+                  ? "bg-red-100 text-red-600 hover:bg-red-200"
+                  : "bg-green-100 text-green-600 hover:bg-green-200"
+              }`}
+            >
+              {player?.isVerified ? "Unverify" : "Verify"}
+            </button>
+
+            <Link
+              to={`/admin/players/${player?._id}/stats`}
+              className="bg-blue-100 text-blue-600 px-2 py-1 rounded text-sm hover:bg-blue-200"
+            >
+              Edit
+            </Link>
+
+            <button
+              onClick={() => handleDelete(player?._id)}
+              className="bg-red-100 text-red-600 px-2 py-1 rounded text-sm hover:bg-red-200"
+            >
+              Delete
+            </button>
+          </div>
+        </td>
+      </tr>
+    ))
+  )}
+</tbody>
         </table>
       </div>
 

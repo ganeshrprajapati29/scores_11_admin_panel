@@ -26,26 +26,44 @@ const LeaderboardList = () => {
   }, [pagination.page, pagination.limit, tournamentFilter])
 
   const fetchLeaderboards = async () => {
-    try {
-      setLoading(true)
-      const params = {
-        page: pagination.page,
-        limit: pagination.limit,
-        ...(search && { search }),
-        ...(tournamentFilter && { tournament: tournamentFilter })
-      }
-      const response = await leaderboardAPI.getAll(params)
-      setLeaderboards(response.data || [])
-      if (response.pagination) {
-        setPagination(prev => ({ ...prev, ...response.pagination }))
-      }
-    } catch (error) {
-      toast.error('Failed to fetch leaderboards')
-      console.error(error)
-    } finally {
-      setLoading(false)
+  try {
+
+    setLoading(true)
+
+    const params = {
+      page: pagination.page,
+      limit: pagination.limit,
+      ...(search && { search }),
+      ...(tournamentFilter && { tournament: tournamentFilter })
     }
+
+    const response = await leaderboardAPI.getAll(params)
+
+    console.log("Leaderboard API:", response)
+
+    // API structure fix
+    const leaderboardData = response?.data?.data || []
+
+    setLeaderboards(leaderboardData)
+
+    setPagination(prev => ({
+      ...prev,
+      total: leaderboardData.length,
+      totalPages: 1
+    }))
+
+  } catch (error) {
+
+    console.error("Leaderboard Fetch Error:", error)
+
+    toast.error("Failed to fetch leaderboards")
+
+  } finally {
+
+    setLoading(false)
+
   }
+}
 
   const fetchTournaments = async () => {
     try {
@@ -207,78 +225,114 @@ const LeaderboardList = () => {
                   <th className="text-left py-4 px-6 text-sm font-semibold text-gray-600">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
-                {leaderboards.map((leaderboard) => (
-                  <tr key={leaderboard._id} className="hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
-                          <Trophy className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">{leaderboard.name}</p>
-                          <p className="text-sm text-gray-500">ID: {leaderboard._id?.slice(-8)}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6">
-                      <p className="text-sm text-gray-600">
-                        {leaderboard.tournament?.name || 'Global'}
-                      </p>
-                    </td>
-                    <td className="py-4 px-6">
-                      <p className="text-sm text-gray-600">
-                        {leaderboard.entries?.length || 0}
-                      </p>
-                    </td>
-                    <td className="py-4 px-6">
-                      {leaderboard.entries?.[0] ? (
-                        <div className="flex items-center gap-2">
-                          {getRankIcon(1)}
-                          <span className="text-sm text-gray-600">
-                            {leaderboard.entries[0].user?.name || leaderboard.entries[0].team?.name}
-                          </span>
-                        </div>
-                      ) : (
-                        <span className="text-sm text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${leaderboard.isActive
-                          ? 'bg-green-100 text-green-700 border-green-200'
-                          : 'bg-red-100 text-red-700 border-red-200'
-                        }`}>
-                        {leaderboard.isActive ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-2">
-                        <Link
-                          to={`/leaderboard/${leaderboard._id}`}
-                          className="p-2 text-gray-500 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                          title="View Details"
-                        >
-                          <Eye size={18} />
-                        </Link>
-                        <Link
-                          to={`/leaderboard/${leaderboard._id}/edit`}
-                          className="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                          title="Edit Leaderboard"
-                        >
-                          <Edit size={18} />
-                        </Link>
-                        <button
-                          onClick={() => handleDelete(leaderboard._id)}
-                          className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Delete Leaderboard"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+             <tbody className="divide-y divide-gray-100">
+
+{leaderboards.map((leaderboard) => (
+
+<tr key={leaderboard._id} className="hover:bg-gray-50">
+
+{/* Name */}
+<td className="py-4 px-6">
+
+<div className="flex items-center gap-3">
+
+<div className="w-10 h-10 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-lg flex items-center justify-center">
+<Trophy className="w-5 h-5 text-white"/>
+</div>
+
+<div>
+<p className="font-medium text-gray-900">
+{leaderboard.team?.name}
+</p>
+
+<p className="text-sm text-gray-500">
+{leaderboard.team?.shortName}
+</p>
+</div>
+
+</div>
+
+</td>
+
+{/* Tournament */}
+<td className="py-4 px-6">
+
+<p className="text-sm text-gray-600">
+{leaderboard.team?.city || "N/A"}
+</p>
+
+</td>
+
+{/* Entries */}
+<td className="py-4 px-6">
+
+<p className="text-sm text-gray-600">
+{leaderboard.battingStats?.matchesPlayed || 0}
+</p>
+
+</td>
+
+{/* Rank */}
+<td className="py-4 px-6">
+
+<div className="flex items-center gap-2">
+
+{getRankIcon(leaderboard.rank)}
+
+<span className="text-sm text-gray-600">
+Rank {leaderboard.rank}
+</span>
+
+</div>
+
+</td>
+
+{/* Status */}
+<td className="py-4 px-6">
+
+<span className="px-3 py-1 rounded-full text-xs bg-green-100 text-green-700">
+
+{leaderboard.battingStats?.runs || 0} Runs
+
+</span>
+
+</td>
+
+{/* Actions */}
+<td className="py-4 px-6">
+
+<div className="flex gap-2">
+
+<Link
+to={`/leaderboard/${leaderboard._id}`}
+className="p-2 hover:bg-gray-100 rounded"
+>
+<Eye size={18}/>
+</Link>
+
+<Link
+to={`/leaderboard/${leaderboard._id}/edit`}
+className="p-2 hover:bg-gray-100 rounded"
+>
+<Edit size={18}/>
+</Link>
+
+<button
+onClick={() => handleDelete(leaderboard._id)}
+className="p-2 hover:bg-red-100 rounded"
+>
+<Trash2 size={18}/>
+</button>
+
+</div>
+
+</td>
+
+</tr>
+
+))}
+
+</tbody>
             </table>
           </div>
         )}
