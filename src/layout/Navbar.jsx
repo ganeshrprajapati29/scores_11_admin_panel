@@ -196,9 +196,5 @@ const Navbar = ({ onMenuClick, isSidebarOpen }) => {
   )
 }
 
-<<<<<<< HEAD
-export default Navbar
-=======
 export default Navbar
  
->>>>>>> origin/sumit

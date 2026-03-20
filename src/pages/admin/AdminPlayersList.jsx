@@ -1,11 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import adminService from '../../services/admin.service';
-<<<<<<< HEAD
-import useAuth from '../../hooks/useAuth';
-=======
 import useAuth from "../../hooks/useAuth";
->>>>>>> origin/sumit
 
 const AdminPlayersList = () => {
   const { user } = useAuth();
