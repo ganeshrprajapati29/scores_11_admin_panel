@@ -187,10 +187,10 @@ frontend/
 ### 🔐 Authentication Flow
 ```
 ┌──────────┐     ┌──────────┐     ┌──────────┐     ┌──────────┐
-│  Login   │────▶│  Axios   │────▶│  Backend │────▶│ MongoDB  │
+│  Login   │────▶│  Axios   │────▶│  Backend │────▶│ MongoDB │
 │  Page    │     │ Service  │     │   API    │     │   DB     │
 └──────────┘     └──────────┘     └──────────┘     └──────────┘
-      │                                                    │
+      │                                                    │   
       │ Response (JWT Token)                               │
       ▼                                                    │
 ┌──────────┐                                               │
@@ -256,7 +256,7 @@ frontend/
 - Running backend server (typically at `http://localhost:5000`)
 
 ### Installation
-  
+
 ```
 bash
 # 1. Navigate to frontend directory

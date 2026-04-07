@@ -39,7 +39,7 @@ const menuGroups = [
     items: [
       { name: 'All Users', path: '/users', icon: Users, description: 'Manage all users' },
       { name: 'Players', path: '/players', icon: Users2, description: 'Player profiles' },
-      // { name: 'Player Profiles', path: '/profiles', icon: UserCircle, description: 'Player profiles list' },
+      { name: 'Player Profiles', path: '/profiles', icon: UserCircle, description: 'Player profiles list' },
       { name: 'Player Management', path: '/admin/players', icon: Shield, description: 'Admin player control' },
       { name: 'Merge Duplicates', path: '/admin/players/merge', icon: Users, description: 'Merge duplicate players' },
       { name: 'Verifications', path: '/admin/verifications', icon: UserCheck, description: 'KYC & verification' },
@@ -56,13 +56,11 @@ const menuGroups = [
       { name: 'Teams', path: '/teams', icon: Users2, description: 'Team management' },
       { name: 'Team Approvals', path: '/teams/approvals', icon: Shield, description: 'Pending approvals' },
       { name: 'Matches', path: '/matches', icon: Calendar, description: 'Match scheduling' },
-      { name: 'Scorecards', path: '/admin/scorecards', icon: Activity, description: 'Live scorecards' },
       { name: 'Tournaments', path: '/tournaments', icon: Trophy, description: 'Tournament setup' },
       { name: 'Contests', path: '/contests', icon: Target, description: 'Fantasy contests' },
       { name: 'Live Scoring', path: '/matches/live', icon: Activity, description: 'Real-time scoring' },
     ]
   },
-
   {
     id: 'commerce',
     name: 'Commerce & Finance',
@@ -147,51 +145,15 @@ const menuGroups = [
   },
 ]
 
-import usePermission from '../hooks/usePermission'
-import { useMemo } from 'react'
-
 const Sidebar = ({ isOpen, onClose, isMobile }) => {
   const location = useLocation()
-  const permission = usePermission()
-  const { role, canAccessAdmin, canAccessSuperAdmin: canManageAdminResources, loading, canManagePlayers, canManageWallet, canViewAnalytics } = permission
   const [openGroups, setOpenGroups] = useState(['core-admin'])
   const [isCollapsed, setIsCollapsed] = useState(false)
-
-// Filter menu groups by role permissions
-  const filteredMenuGroups = useMemo(() => {
-    if (loading) return []
-    
-    return menuGroups.map(group => ({
-      ...group,
-      items: group.items?.filter(item => {
-        // Always show non-admin items
-        if (!item.path.startsWith('/admin/')) return true
-        
-        // Admin items - check permissions
-        if (item.name.includes('Player Management') || item.path === '/admin/players') {
-          return canManagePlayers()
-        }
-        if (item.name.includes('Roles')) {
-          return canManageAdminResources()
-        }
-        if (item.name.includes('Financial')) {
-          return canManageWallet()
-        }
-        if (item.name.includes('Analytics')) {
-          return canViewAnalytics()
-        }
-        if (item.path.startsWith('/admin/')) {
-          return canAccessAdmin()
-        }
-        return true
-      }) || []
-    })).filter(group => group.type === 'single' || group.items.length > 0)
-  }, [role, canAccessAdmin, canManagePlayers, canManageWallet, canViewAnalytics, canManageAdminResources, loading])
 
   // Auto-expand group based on current route
   useEffect(() => {
     const currentPath = location.pathname
-    filteredMenuGroups.forEach(group => {
+    menuGroups.forEach(group => {
       if (group.type === 'dropdown') {
         const isActive = group.items.some(item => 
           currentPath === item.path || currentPath.startsWith(item.path + '/')
@@ -201,7 +163,7 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
         }
       }
     })
-  }, [location.pathname, filteredMenuGroups])
+  }, [location.pathname])
 
   const toggleGroup = (groupName) => {
     setOpenGroups(prev => 
@@ -255,7 +217,7 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
       {/* Navigation */}
       <nav className="flex-1 overflow-y-auto py-4 px-3 scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
         <ul className="space-y-1.5">
-          {filteredMenuGroups.map((group) => (
+          {menuGroups.map((group) => (
             <li key={group.id} className="group">
               {group.type === 'single' ? (
                 // Single Item
@@ -416,7 +378,7 @@ const Sidebar = ({ isOpen, onClose, isMobile }) => {
     
   )
 }
-
+ 
 
 
 export default Sidebar

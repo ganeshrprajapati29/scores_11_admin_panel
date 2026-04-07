@@ -1,56 +1,151 @@
 import api from '../config/axiosConfig'
 
-export const matchService = {
-  getAllMatches: async (params = {}) => {
-    const response = await api.get('/matches/list', { params })
-    return response
-  },
+const matchesAPI = {
 
-  getMatchById: async (id) => {
-    const response = await api.get(`/matches/${id}`)
-    return response
-  },
+  // 🔥 GET ALL MATCHES
+getAllMatches: async (params = {}) => {
+  try {
+    const res = await api.get('/matches/list', { params })
 
-  createMatch: async (data) => {
-    const response = await api.post('/matches', data)
-    return response
-  },
+    let data = res.data || []
 
-  updateMatch: async (id, data) => {
-    const response = await api.put(`/matches/${id}`, data)
-    return response
-  },
+    // ✅ IMPORTANT: NO FILTER → ALL MATCHES
+    if (Array.isArray(data)) {
+      return data
+    }
 
-  deleteMatch: async (id) => {
-    const response = await api.delete(`/matches/${id}`)
-    return response
-  },
+    if (Array.isArray(data?.matches)) {
+      return data.matches
+    }
 
-  startMatch: async (id) => {
-    const response = await api.patch(`/matches/${id}/start`)
-    return response
-  },
+    return []
 
-  endMatch: async (id) => {
-    const response = await api.patch(`/matches/${id}/end`)
-    return response
-  },
-
-  updateMatchStatus: async (id, status) => {
-    const response = await api.patch(`/matches/${id}/status`, { status })
-    return response
-  },
-
-  getLiveMatches: async () => {
-    const response = await api.get('/matches/live')
-    return response.data;
-  },
-
-  getLiveScorecards: async () => {
-    const response = await api.get('/matches/live')
-    return response.data;
+  } catch (error) {
+    console.error("getAllMatches error:", error)
+    throw error
   }
+},
+
+  // 🔥 GET MATCH BY ID
+  getById: async (id) => {
+    try {
+      const res = await api.get(`/matches/${id}`)
+      return res.data
+    } catch (error) {
+      console.error("getById error:", error)
+      throw error
+    }
+  },
+
+  // 🔥 CREATE MATCH
+  createMatch: async (data) => {
+    try {
+      const res = await api.post('/matches', data)
+      return res.data
+    } catch (error) {
+      console.error("createMatch error:", error)
+      throw error
+    }
+  },
+
+  // 🔥 UPDATE MATCH
+  updateMatch: async (id, data) => {
+    try {
+      const res = await api.put(`/matches/${id}`, data)
+      return res.data
+    } catch (error) {
+      console.error("updateMatch error:", error)
+      throw error
+    }
+  },
+
+  // 🔥 DELETE MATCH
+  deleteMatch: async (id) => {
+    try {
+      const res = await api.delete(`/matches/${id}`)
+      return res.data
+    } catch (error) {
+      console.error("deleteMatch error:", error)
+      throw error
+    }
+  },
+
+  // 🔥 START MATCH
+  startMatch: async (id) => {
+    try {
+      const res = await api.patch(`/matches/${id}/start`)
+      return res.data
+    } catch (error) {
+      console.error("startMatch error:", error)
+      throw error
+    }
+  },
+
+  // 🔥 END MATCH
+  endMatch: async (id) => {
+    try {
+      const res = await api.patch(`/matches/${id}/end`)
+      return res.data
+    } catch (error) {
+      console.error("endMatch error:", error)
+      throw error
+    }
+  },
+
+  // 🔥 UPDATE STATUS
+  updateStatus: async (id, status) => {
+    try {
+      const res = await api.patch(`/matches/${id}/status`, { status })
+      return res.data
+    } catch (error) {
+      console.error("updateStatus error:", error)
+      throw error
+    }
+  },
+
+  // 🔥 LIVE MATCHES (🔥 FIXED SAFE VERSION)
+  getLiveMatches: async () => {
+    try {
+      const res = await api.get('/matches/live')
+
+      // ✅ handle both types of backend response
+      if (Array.isArray(res.data)) {
+        return res.data
+      } else if (res.data?.data) {
+        return res.data.data
+      } else {
+        return []
+      }
+
+    } catch (error) {
+      console.error("getLiveMatches error:", error)
+      return [] // ✅ crash nahi hoga
+    }
+  },
+
+
+
+
+   updateScore: async (id, data) => {
+    try {
+      const res = await api.patch(`/matches/${id}/score`, data)
+      return res.data
+    } catch (error) {
+      console.error("updateScore error:", error)
+      throw error
+    }
+  },
+
+  changeInnings: async (id, innings) => {
+    try {
+      const res = await api.patch(`/matches/${id}/innings`, { innings })
+      return res.data
+    } catch (error) {
+      console.error("changeInnings error:", error)
+      throw error
+    }
+  },
+  
 }
 
-export default matchService
-
+export default matchesAPI
