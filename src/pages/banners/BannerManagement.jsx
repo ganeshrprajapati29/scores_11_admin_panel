@@ -156,7 +156,7 @@ const BannerManagement = () => {
 
     toast.error(message);
   }
-};
+}; ''
 
   const handleToggle = async (banner) => {
     try {

@@ -24,46 +24,41 @@ const TeamsList = () => {
   // Debounce search term - wait 300ms after user stops typing
   const debouncedSearch = useDebounce(search, 300)
 
-  const fetchTeams = useCallback(async () => {
-    try {
-      setLoading(true)
-      const params = {
-        page: pagination.page,
-        limit: pagination.limit,
-        ...(debouncedSearch && { search: debouncedSearch }),
-        ...(statusFilter && { isActive: statusFilter })
-      }
-      const response = await teamsAPI.getAll(params)
-      setTeams(response.data || [])
-      if (response.pagination) {
-        setPagination(prev => ({ ...prev, ...response.pagination }))
-      }
-    } catch (error) {
-      toast.error('Failed to fetch teams')
-      console.error(error)
-    } finally {
-      setLoading(false)
+ const fetchTeams = useCallback(async () => {
+  try {
+    setLoading(true)
+
+    const params = {
+      page: pagination.page || 1,
+      limit: pagination.limit || 10,
     }
-  }, [pagination.page, pagination.limit, debouncedSearch, statusFilter])
 
-  useEffect(() => {
-    fetchTeams()
-  }, [fetchTeams])
-
-  // Reset to page 1 when search term changes
-  useEffect(() => {
-    if (debouncedSearch !== '') {
-      setPagination(prev => ({ ...prev, page: 1 }))
+    if (debouncedSearch) {
+      params.search = debouncedSearch
     }
-  }, [debouncedSearch])
 
-  const handleSearchChange = (e) => {
-    setSearch(e.target.value)
-  }
+    if (statusFilter !== "") {
+      params.isActive = statusFilter
+    }
 
-  const clearSearch = () => {
-    setSearch('')
+    const response = await teamsAPI.getAll(params)
+
+    setTeams(response?.data || [])
+
+    if (response?.pagination) {
+      setPagination(prev => ({
+        ...prev,
+        ...response.pagination
+      }))
+    }
+
+  } catch (error) {
+    console.error("🔥 API ERROR:", error?.response || error)
+    toast.error("Failed to fetch teams")
+  } finally {
+    setLoading(false)
   }
+}, [pagination.page, pagination.limit, debouncedSearch, statusFilter])
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this team?')) return
@@ -96,6 +91,9 @@ const TeamsList = () => {
     if (!isActive) return 'Inactive'
     if (!isVerified) return 'Pending'
     return 'Verified'
+  }
+   const handleSearchChange = (e) => {
+    setSearch(e.target.value)
   }
 
   return (

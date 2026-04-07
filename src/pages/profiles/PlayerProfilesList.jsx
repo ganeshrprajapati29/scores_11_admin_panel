@@ -253,7 +253,7 @@ const PlayerProfilesList = () => {
           <th className="p-4 text-left">Contact</th>
           <th className="p-4 text-left">Player</th>
           <th className="p-4 text-left">Actions</th>
-        </tr>
+        </tr>      
       </thead>
 
       <tbody>

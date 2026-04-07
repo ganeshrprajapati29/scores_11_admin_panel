@@ -179,9 +179,6 @@ const AppRoutes = () => {
       
       {/* Protected Routes with Dashboard Layout */}
       <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-        {/* Admin Routes - Protected by AdminProtectedRoute inside DashboardLayout */}
-        <Route path="/admin/*" element={<Navigate to="/admin/roles" replace />} />
-        <Route path="/admin" element={<Navigate to="/admin/roles" replace />} />
         
         {/* Dashboard - Default Route */}
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -222,17 +219,18 @@ const AppRoutes = () => {
         {/* Teams - Order matters: static routes before dynamic */}
         <Route path="/teams" element={<TeamsList />} />
         <Route path="/teams/create" element={<CreateTeam />} />
-        <Route path="/admin/scorecards" element={<LiveScorecards />} />
         {/* Static routes must come BEFORE dynamic :id route */}
         <Route path="/teams/approvals" element={<TeamsList />} />
         <Route path="/teams/rankings" element={<TeamsList />} />
-        <Route path="/teams/search" element={<TeamsList />} />
+        <Route path="/teams/search" element={<TeamsList />} /> 
         {/* Dynamic routes come after static routes */}
         <Route path="/teams/:id" element={<TeamsList />} />
 
         <Route path="/teams/:id/edit" element={<CreateTeam />} />
+<<<<<<< HEAD
 
-
+=======
+>>>>>>> origin/sumit
         <Route path="/teams/approvals" element={<TeamsList />} />
         <Route path="/teams/rankings" element={<TeamsList />} />
         <Route path="/teams/search" element={<TeamsList />} />
@@ -261,6 +259,7 @@ const AppRoutes = () => {
         <Route path="/matches/live" element={<LiveControl />} />
 
         {/* Dynamic routes come after static routes */}
+<<<<<<< HEAD
         <Route path="/matches/:id" element={<MatchesList />} />
         <Route path="/matches/:id/edit" element={<CreateMatch />} />
         <Route path="/matches/:id/live" element={<LiveControl />} />
@@ -276,25 +275,10 @@ const AppRoutes = () => {
         <Route path="/matches/:id/leaderboard" element={<MatchesList />} />
         <Route path="/matches/:id/venue" element={<MatchesList />} />
         <Route path="/matches/:id/umpires" element={<MatchesList />} />
-        <Route path="/matches/:id/scorers" element={<MatchesList />} /> 
-        <Route path="/matches/:id/edit" element={<CreateMatch />} />
-        <Route path="/matches/:id/live" element={<LiveControl />} />
-        <Route path="/matches/:id/score" element={<LiveControl />} />
-        <Route path="/matches/:id/status" element={<LiveControl />} />
-        <Route path="/matches/:id/teams" element={<MatchesList />} />
-        <Route path="/matches/:id/players" element={<MatchesList />} />
-        <Route path="/matches/:id/analytics" element={<MatchesList />} />
-        <Route path="/matches/:id/notifications" element={<MatchesList />} />
-        <Route path="/matches/:id/reports" element={<MatchesList />} />
-        <Route path="/matches/:id/contests" element={<MatchesList />} />
-        <Route path="/matches/:id/tournaments" element={<MatchesList />} />
-        <Route path="/matches/:id/leaderboard" element={<MatchesList />} />
-        <Route path="/matches/:id/venue" element={<MatchesList />} />
-        <Route path="/matches/:id/umpires" element={<MatchesList />} />
         <Route path="/matches/:id/scorers" element={<MatchesList />} />
-
+=======
         <><Route path="/matches/:id" element={<MatchesList />} /><Route path="/matches/:id/edit" element={<CreateMatch />} /><Route path="/matches/:id/live" element={<LiveControl />} /><Route path="/matches/:id/score" element={<LiveControl />} /><Route path="/matches/:id/status" element={<LiveControl />} /><Route path="/matches/:id/teams" element={<MatchesList />} /><Route path="/matches/:id/players" element={<MatchesList />} /><Route path="/matches/:id/analytics" element={<MatchesList />} /><Route path="/matches/:id/notifications" element={<MatchesList />} /><Route path="/matches/:id/reports" element={<MatchesList />} /><Route path="/matches/:id/contests" element={<MatchesList />} /><Route path="/matches/:id/tournaments" element={<MatchesList />} /><Route path="/matches/:id/leaderboard" element={<MatchesList />} /><Route path="/matches/:id/venue" element={<MatchesList />} /><Route path="/matches/:id/umpires" element={<MatchesList />} /><Route path="/matches/:id/scorers" element={<MatchesList />} /></>
-
+>>>>>>> origin/sumit
         
         
         {/* Tournaments */}
@@ -1114,7 +1098,7 @@ const AppRoutes = () => {
 
         
         {/* Player Management Admin */}
-        {/* <Route path="/admin/players" element={<AdminPlayersList />} /> */}
+        <Route path="/admin/players" element={<AdminPlayersList />} />
         <Route path="/admin/players/merge" element={<MergePlayers />} />
         <Route path="/admin/players/:id" element={<AdminPlayerDetails />} />
         <Route path="/admin/players/:id/edit" element={<AdminPlayerDetails />} />

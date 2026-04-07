@@ -266,7 +266,7 @@ const AdminPlayersList = () => {
       </tr>
     ))
   )}
-</tbody>
+</tbody> 
         </table>
       </div>
 

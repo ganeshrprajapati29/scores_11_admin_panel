@@ -9,6 +9,7 @@ const CreateMatch = () => {
   const [loading, setLoading] = useState(false)
   const [teams, setTeams] = useState([])
   const [tournaments, setTournaments] = useState([])
+
   const [formData, setFormData] = useState({
     team1: '',
     team2: '',
@@ -17,7 +18,7 @@ const CreateMatch = () => {
     city: '',
     scheduledDate: '',
     scheduledTime: '',
-    format: 'T20',
+    format: 't20', // ✅ FIX (lowercase)
     matchType: 'league',
     gender: 'male'
   })
@@ -46,32 +47,68 @@ const CreateMatch = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
+    // ✅ Validation
+    if (!formData.team1 || !formData.team2) {
+      return toast.error('Please select both teams')
+    }
+
     if (formData.team1 === formData.team2) {
-      toast.error('Please select different teams')
-      return
+      return toast.error('Please select different teams')
+    }
+
+    if (!formData.venue) {
+      return toast.error('Venue is required')
+    }
+
+    if (!formData.scheduledDate || !formData.scheduledTime) {
+      return toast.error('Date & Time required')
     }
 
     setLoading(true)
 
     try {
       const data = {
-        ...formData,
-        scheduledDate: formData.scheduledDate && formData.scheduledTime 
-          ? `${formData.scheduledDate}T${formData.scheduledTime}:00Z`
-          : formData.scheduledDate
+        team1: String(formData.team1),
+        team2: String(formData.team2),
+        tournament: formData.tournament || null,
+        city: formData.city,
+
+        // ✅ FIX 1: venue object
+        venue: {
+          name: formData.venue
+        },
+
+        // ✅ FIX 2: lowercase format
+        format: formData.format.toLowerCase(),
+
+        matchType: formData.matchType,
+        gender: formData.gender,
+
+        // ✅ FIX 3: ISO date
+        scheduledDate: new Date(
+          `${formData.scheduledDate}T${formData.scheduledTime}`
+        ).toISOString()
       }
-      delete data.scheduledTime
+
+      console.log("🚀 Sending:", data)
 
       await matchesAPI.create(data)
-      toast.success('Match created successfully')
+
+      toast.success('Match created successfully ✅')
       navigate('/matches')
+
     } catch (error) {
-      toast.error(error.message || 'Failed to create match')
+      console.error(error.response?.data)
+
+      toast.error(
+        error.response?.data?.message || 'Failed to create match'
+      )
     } finally {
       setLoading(false)
     }
   }
+
 
   return (
     <div className="space-y-6">
@@ -89,194 +126,205 @@ const CreateMatch = () => {
       {/* Form */}
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
         <form onSubmit={handleSubmit} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Team 1 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Team 1 *
-              </label>
-              <select
-                name="team1"
-                value={formData.team1}
-                onChange={handleChange}
-                className="input"
-                required
-              >
-                <option value="">Select Team 1</option>
-                {teams.map(team => (
-                  <option key={team._id} value={team._id}>{team.name}</option>
-                ))}
-              </select>
-            </div>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-            {/* Team 2 */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Team 2 *
-              </label>
-              <select
-                name="team2"
-                value={formData.team2}
-                onChange={handleChange}
-                className="input"
-                required
-              >
-                <option value="">Select Team 2</option>
-                {teams.filter(t => t._id !== formData.team1).map(team => (
-                  <option key={team._id} value={team._id}>{team.name}</option>
-                ))}
-              </select>
-            </div>
+    {/* Team 1 */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Team 1 *
+      </label>
+      <select
+        name="team1"
+        value={formData.team1}
+        onChange={handleChange}
+        className="input"
+        required
+      >
+        <option value="">Select Team 1</option>
+        {teams.map(team => (
+          <option key={team._id} value={team._id}>
+            {team.name}
+          </option>
+        ))}
+      </select>
+    </div>
 
-            {/* Tournament */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Tournament
-              </label>
-              <select
-                name="tournament"
-                value={formData.tournament}
-                onChange={handleChange}
-                className="input"
-              >
-                <option value="">Select Tournament</option>
-                {tournaments.map(tournament => (
-                  <option key={tournament._id} value={tournament._id}>{tournament.name}</option>
-                ))}
-              </select>
-            </div>
+    {/* Team 2 */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Team 2 *
+      </label>
+      <select
+        name="team2"
+        value={formData.team2}
+        onChange={handleChange}
+        className="input"
+        required
+      >
+        <option value="">Select Team 2</option>
+        {teams
+          .filter(t => t._id !== formData.team1)
+          .map(team => (
+            <option key={team._id} value={team._id}>
+              {team.name}
+            </option>
+          ))}
+      </select>
+    </div>
 
-            {/* Venue */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Venue *
-              </label>
-              <input
-                type="text"
-                name="venue"
-                value={formData.venue}
-                onChange={handleChange}
-                className="input"
-                placeholder="Enter venue name"
-                required
-              />
-            </div>
+    {/* Tournament */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Tournament
+      </label>
+      <select
+        name="tournament"
+        value={formData.tournament}
+        onChange={handleChange}
+        className="input"
+      >
+        <option value="">Select Tournament</option>
+        {tournaments.map(tournament => (
+          <option key={tournament._id} value={tournament._id}>
+            {tournament.name}
+          </option>
+        ))}
+      </select>
+    </div>
 
-            {/* City */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                City
-              </label>
-              <input
-                type="text"
-                name="city"
-                value={formData.city}
-                onChange={handleChange}
-                className="input"
-                placeholder="Enter city"
-              />
-            </div>
+    {/* Venue */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Venue *
+      </label>
+      <input
+        type="text"
+        name="venue"
+        value={formData.venue}
+        onChange={handleChange}
+        className="input"
+        placeholder="Enter venue name"
+        required
+      />
+    </div>
 
-            {/* Scheduled Date */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date *
-              </label>
-              <input
-                type="date"
-                name="scheduledDate"
-                value={formData.scheduledDate}
-                onChange={handleChange}
-                className="input"
-                required
-              />
-            </div>
+    {/* City */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        City
+      </label>
+      <input
+        type="text"
+        name="city"
+        value={formData.city}
+        onChange={handleChange}
+        className="input"
+        placeholder="Enter city"
+      />
+    </div>
 
-            {/* Scheduled Time */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Time *
-              </label>
-              <input
-                type="time"
-                name="scheduledTime"
-                value={formData.scheduledTime}
-                onChange={handleChange}
-                className="input"
-                required
-              />
-            </div>
+    {/* Date */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Date *
+      </label>
+      <input
+        type="date"
+        name="scheduledDate"
+        value={formData.scheduledDate}
+        onChange={handleChange}
+        className="input"
+        required
+      />
+    </div>
 
-            {/* Format */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Format
-              </label>
-              <select
-                name="format"
-                value={formData.format}
-                onChange={handleChange}
-                className="input"
-              >
-                <option value="T20">T20</option>
-                <option value="ODI">ODI</option>
-                <option value="Test">Test</option>
-                <option value="T10">T10</option>
-              </select>
-            </div>
+    {/* Time */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Time *
+      </label>
+      <input
+        type="time"
+        name="scheduledTime"
+        value={formData.scheduledTime}
+        onChange={handleChange}
+        className="input"
+        required
+      />
+    </div>
 
-            {/* Match Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Match Type
-              </label>
-              <select
-                name="matchType"
-                value={formData.matchType}
-                onChange={handleChange}
-                className="input"
-              >
-                <option value="league">League</option>
-                <option value="knockout">Knockout</option>
-                <option value="final">Final</option>
-                <option value="semi_final">Semi Final</option>
-                <option value="quarter_final">Quarter Final</option>
-              </select>
-            </div>
+    {/* Format */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Format
+      </label>
+      <select
+        name="format"
+        value={formData.format}
+        onChange={handleChange}
+        className="input"
+      >
+        {/* ✅ FIXED VALUES */}
+        <option value="t20">T20</option>
+        <option value="odi">ODI</option>
+        <option value="test">Test</option>
+        <option value="t10">T10</option>
+      </select>
+    </div>
 
-            {/* Gender */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Gender
-              </label>
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="input"
-              >
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="mixed">Mixed</option>
-              </select>
-            </div>
-          </div>
+    {/* Match Type */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Match Type
+      </label>
+      <select
+        name="matchType"
+        value={formData.matchType}
+        onChange={handleChange}
+        className="input"
+      >
+        <option value="league">League</option>
+        <option value="knockout">Knockout</option>
+        <option value="final">Final</option>
+        <option value="semi_final">Semi Final</option>
+        <option value="quarter_final">Quarter Final</option>
+      </select>
+    </div>
 
-          {/* Submit Buttons */}
-          <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-100">
-            <Link to="/matches" className="btn-secondary">
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary flex items-center gap-2"
-            >
-              {loading && <Loader2 className="animate-spin" size={18} />}
-              {loading ? 'Creating...' : 'Create Match'}
-            </button>
-          </div>
-        </form>
+    {/* Gender */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-2">
+        Gender
+      </label>
+      <select
+        name="gender"
+        value={formData.gender}
+        onChange={handleChange}
+        className="input"
+      >
+        <option value="male">Male</option>
+        <option value="female">Female</option>
+        <option value="mixed">Mixed</option>
+      </select>
+    </div>
+  </div>
+
+  {/* Buttons */}
+  <div className="flex items-center justify-end gap-4 pt-6 border-t border-gray-100">
+    <Link to="/matches" className="btn-secondary">
+      Cancel
+    </Link>
+
+    <button
+      type="submit"
+      disabled={loading}
+      className="btn-primary flex items-center gap-2"
+    >
+      {loading && <Loader2 className="animate-spin" size={18} />}
+      {loading ? 'Creating...' : 'Create Match'}
+    </button>
+  </div>
+</form>
       </div>
     </div>
   )

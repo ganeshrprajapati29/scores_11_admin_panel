@@ -35,7 +35,7 @@ const LoginHistory = () => {
         limit: pagination.limit
       })
       
-      setHistory(response.data || [])
+      setHistory(response.data || []) 
       
       // If user info is in response
       if (response.data?.user) {

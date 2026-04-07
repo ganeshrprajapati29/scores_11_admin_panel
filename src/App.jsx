@@ -192,6 +192,7 @@ function App() {
             <Route path="admin/contest-manager" element={<ContestManager />} />
             <Route path="admin/users/create" element={<CreateUser />} />
             <Route path="admin/players" element={<AdminPlayersList />} />
+            <Route path="/admin/scorecards" element={<LiveScorecards />} />
             <Route path="players/:id/details" element={<PlayerDetails />} />
             <Route path="leaderboard/players/:id/teams" element={<AdminPlayerDetails />} />
             <Route path="admin/users/:id" element={<ViewUser />} />
