@@ -76,6 +76,8 @@ import LiveControl from '../pages/matches/LiveControl'
 
 // Tournaments
 import TournamentList from '../pages/tournaments/TournamentList'
+import TournamentDetails from '../pages/tournaments/TournamentDetails'
+import LiveScorecards from '../pages/admin/LiveScorecards'
 import CreateTournament from '../pages/tournaments/CreateTournament'
 
 // Contests
@@ -223,6 +225,7 @@ const AppRoutes = () => {
         <Route path="/teams/search" element={<TeamsList />} /> 
         {/* Dynamic routes come after static routes */}
         <Route path="/teams/:id" element={<TeamsList />} />
+
         <Route path="/teams/:id/edit" element={<CreateTeam />} />
         <Route path="/teams/approvals" element={<TeamsList />} />
         <Route path="/teams/rankings" element={<TeamsList />} />
@@ -250,29 +253,15 @@ const AppRoutes = () => {
         <Route path="/matches/create" element={<CreateMatch />} />
         {/* Static routes must come BEFORE dynamic :id route */}
         <Route path="/matches/live" element={<LiveControl />} />
+
         {/* Dynamic routes come after static routes */}
-        <><Route path="/matches/:id" element={<MatchesList />} />
-        <Route path="/matches/:id/edit" element={<CreateMatch />} />
-        <Route path="/matches/:id/live" element={<LiveControl />} />
-        <Route path="/matches/:id/score" element={<LiveControl />} />
-        <Route path="/matches/:id/status" element={<LiveControl />} />
-        <Route path="/matches/:id/teams" element={<MatchesList />} />
-        <Route path="/matches/:id/players" element={<MatchesList />} />
-        <Route path="/matches/:id/analytics" element={<MatchesList />} />
-        <Route path="/matches/:id/notifications" element={<MatchesList />} />
-        <Route path="/matches/:id/reports" element={<MatchesList />} />
-        <Route path="/matches/:id/contests" element={<MatchesList />} />
-        <Route path="/matches/:id/tournaments" element={<MatchesList />} />
-        <Route path="/matches/:id/leaderboard" element={<MatchesList />} />
-        <Route path="/matches/:id/venue" element={<MatchesList />} />
-        <Route path="/matches/:id/umpires" element={<MatchesList />} />
-        <Route path="/matches/:id/scorers" element={<MatchesList />} /></>
+        <><Route path="/matches/:id" element={<MatchesList />} /><Route path="/matches/:id/edit" element={<CreateMatch />} /><Route path="/matches/:id/live" element={<LiveControl />} /><Route path="/matches/:id/score" element={<LiveControl />} /><Route path="/matches/:id/status" element={<LiveControl />} /><Route path="/matches/:id/teams" element={<MatchesList />} /><Route path="/matches/:id/players" element={<MatchesList />} /><Route path="/matches/:id/analytics" element={<MatchesList />} /><Route path="/matches/:id/notifications" element={<MatchesList />} /><Route path="/matches/:id/reports" element={<MatchesList />} /><Route path="/matches/:id/contests" element={<MatchesList />} /><Route path="/matches/:id/tournaments" element={<MatchesList />} /><Route path="/matches/:id/leaderboard" element={<MatchesList />} /><Route path="/matches/:id/venue" element={<MatchesList />} /><Route path="/matches/:id/umpires" element={<MatchesList />} /><Route path="/matches/:id/scorers" element={<MatchesList />} /></>
         
         
         {/* Tournaments */}
         <Route path="/tournaments" element={<TournamentList />} />
         <Route path="/tournaments/create" element={<CreateTournament />} />
-        <Route path="/tournaments/:id" element={<TournamentList />} />
+        <Route path="/tournaments/:id" element={<TournamentDetails />} />
         <Route path="/tournaments/:id/edit" element={<CreateTournament />} />
         <Route path="/tournaments/:id/teams" element={<TournamentList />} />
         <Route path="/tournaments/:id/matches" element={<TournamentList />} />
