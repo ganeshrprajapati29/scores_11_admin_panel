@@ -24,41 +24,54 @@ const TeamsList = () => {
   // Debounce search term - wait 300ms after user stops typing
   const debouncedSearch = useDebounce(search, 300)
 
- const fetchTeams = useCallback(async () => {
+
+const fetchTeams = useCallback(async () => {
   try {
-    setLoading(true)
+    setLoading(true);
 
     const params = {
       page: pagination.page || 1,
       limit: pagination.limit || 10,
-    }
+      ...(debouncedSearch && { search: debouncedSearch }),
+      ...(statusFilter !== "" && { isActive: statusFilter }),
+    };
 
-    if (debouncedSearch) {
-      params.search = debouncedSearch
-    }
+    const response = await teamsAPI.getAll(params);
 
-    if (statusFilter !== "") {
-      params.isActive = statusFilter
-    }
+    console.log("✅ API RESPONSE:", response);
 
-    const response = await teamsAPI.getAll(params)
+    const teamsData = Array.isArray(response?.data?.teams)
+      ? response.data.teams
+      : Array.isArray(response?.data)
+      ? response.data
+      : Array.isArray(response?.teams)
+      ? response.teams
+      : [];
 
-    setTeams(response?.data || [])
+    setTeams(teamsData);
 
-    if (response?.pagination) {
+    const paginationData =
+      response?.data?.pagination || response?.pagination;
+
+    if (paginationData) {
       setPagination(prev => ({
         ...prev,
-        ...response.pagination
-      }))
+        ...paginationData,
+      }));
     }
 
   } catch (error) {
-    console.error("🔥 API ERROR:", error?.response || error)
-    toast.error("Failed to fetch teams")
+    console.error("🔥 API ERROR:", error?.response || error);
+    toast.error("Failed to fetch teams");
   } finally {
-    setLoading(false)
+    setLoading(false);
   }
-}, [pagination.page, pagination.limit, debouncedSearch, statusFilter])
+}, [debouncedSearch, statusFilter]);
+
+// 🔥 IMPORTANT
+useEffect(() => {
+  fetchTeams();
+}, [fetchTeams]);
 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this team?')) return
@@ -196,113 +209,147 @@ const TeamsList = () => {
       </div>
 
       {/* Teams Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {loading ? (
-          Array.from({ length: 8 }).map((_, i) => (
-            <div key={i} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 animate-pulse">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="w-16 h-16 bg-gray-200 rounded-xl"></div>
-                <div className="flex-1">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-                  <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                </div>
+     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+  {loading ? (
+    Array.from({ length: 8 }).map((_, i) => (
+      <div
+        key={i}
+        className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 animate-pulse h-[320px] flex flex-col justify-between"
+      >
+        <div>
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-14 h-14 bg-gray-200 rounded-xl"></div>
+            <div className="flex-1">
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="h-3 bg-gray-200 rounded"></div>
+            <div className="h-3 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    ))
+  ) : teams.length === 0 ? (
+    <div className="col-span-full text-center py-16">
+      <Users className="w-14 h-14 text-gray-300 mx-auto mb-4" />
+      <p className="text-gray-500 text-lg font-medium">No teams found</p>
+      <p className="text-gray-400 text-sm mt-1">
+        Try adjusting your search or filter
+      </p>
+    </div>
+  ) : (
+    teams.map((team) => (
+      <div
+        key={team._id}
+        className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 hover:shadow-lg transition-all duration-300 h-[320px] flex flex-col justify-between"
+      >
+        {/* TOP CONTENT */}
+        <div>
+          {/* Header */}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 rounded-xl overflow-hidden bg-gradient-to-br from-primary-500 to-secondary-500 flex items-center justify-center text-white font-bold text-lg">
+                {team.logo ? (
+                  <img
+                    src={team.logo.url}
+                    alt={team.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  team.shortName?.slice(0, 2).toUpperCase()
+                )}
               </div>
-              <div className="space-y-2">
-                <div className="h-3 bg-gray-200 rounded"></div>
-                <div className="h-3 bg-gray-200 rounded"></div>
+
+              <div>
+                <h3 className="font-semibold text-gray-900 text-sm line-clamp-1">
+                  {team.name}
+                </h3>
+                <p className="text-xs text-gray-500">
+                  {team.shortName || "N/A"}
+                </p>
               </div>
             </div>
-          ))
-        ) : teams.length === 0 ? (
-          <div className="col-span-full text-center py-12">
-            <Users className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">No teams found</p>
-            <p className="text-gray-400 text-sm mt-1">Try adjusting your search or filter criteria</p>
+
+            <span
+              className={`px-2 py-1 rounded-full text-[10px] font-medium border whitespace-nowrap ${getStatusColor(
+                team.isActive,
+                team.isVerified
+              )}`}
+            >
+              {getStatusText(team.isActive, team.isVerified)}
+            </span>
           </div>
-        ) : (
-          teams.map((team) => (
-            <div key={team._id} className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
-              {/* Team Header */}
-              <div className="flex items-start justify-between mb-4">
-                <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary-500 to-secondary-500 rounded-xl flex items-center justify-center text-white font-bold text-xl">
-                    {team.logo ? (
-                      <img src={team.logo.url} alt={team.name} className="w-16 h-16 rounded-xl object-cover" />
-                    ) : (
-                      team.shortName?.slice(0, 2).toUpperCase() || team.name?.slice(0, 2).toUpperCase()
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{team.name}</h3>
-                    <p className="text-sm text-gray-500">{team.shortName || 'N/A'}</p>
-                  </div>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(team.isActive, team.isVerified)}`}>
-                  {getStatusText(team.isActive, team.isVerified)}
+
+          {/* Info */}
+          <div className="space-y-2 text-xs text-gray-600">
+            {team.city && (
+              <div className="flex items-center gap-2">
+                <MapPin size={13} />
+                <span className="truncate">
+                  {team.city}, {team.country || "India"}
                 </span>
               </div>
+            )}
 
-              {/* Team Info */}
-              <div className="space-y-3 mb-4">
-                {team.city && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <MapPin size={14} className="text-gray-400" />
-                    <span>{team.city}, {team.country || 'India'}</span>
-                  </div>
-                )}
-                {team.homeGround && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Trophy size={14} className="text-gray-400" />
-                    <span>{team.homeGround}</span>
-                  </div>
-                )}
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Users size={14} className="text-gray-400" />
-                  <span>{team.players?.length || 0} Players</span>
-                </div>
-                {team.stats && (
-                  <div className="flex items-center gap-4 text-sm text-gray-600">
-                    <span className="flex items-center gap-1">
-                      <Award size={14} className="text-green-500" />
-                      {team.stats.matchesWon} Wins
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users size={14} className="text-blue-500" />
-                      {team.stats.matchesPlayed} Played
-                    </span>
-                  </div>
-                )}
+            {team.homeGround && (
+              <div className="flex items-center gap-2">
+                <Trophy size={13} />
+                <span className="truncate">{team.homeGround}</span>
               </div>
+            )}
 
-              {/* Actions */}
-              <div className="flex items-center gap-2 pt-4 border-t border-gray-100">
-                <Link
-                  to={`/teams/${team._id}`}
-                  className="flex-1 btn-secondary text-center text-sm py-2 flex items-center justify-center gap-1"
-                >
-                  <Eye size={14} />
-                  View
-                </Link>
-                {!team.isVerified && team.isActive && (
-                  <button
-                    onClick={() => handleVerify(team._id)}
-                    className="flex-1 btn-primary text-center text-sm py-2 flex items-center justify-center gap-1"
-                  >
-                    <CheckCircle size={14} />
-                    Verify
-                  </button>
-                )}
-                <button
-                  onClick={() => handleDelete(team._id)}
-                  className="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
+            <div className="flex items-center gap-2">
+              <Users size={13} />
+              <span>{team.players?.length || 0} Players</span>
             </div>
-          ))
-        )}
+
+            {team.stats && (
+              <div className="flex justify-between pt-1">
+                <span className="text-green-600 font-medium">
+                  {team.stats.matchesWon} Wins
+                </span>
+                <span className="text-blue-600 font-medium">
+                  {team.stats.matchesPlayed} Played
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* BUTTONS FIXED BOTTOM */}
+        <div className="flex items-center gap-2 pt-4 border-t border-gray-100">
+          <Link
+            to={`/teams/${team._id}`}
+            className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs py-2 rounded-lg flex items-center justify-center gap-1 transition"
+          >
+            <Eye size={14} />
+            View
+          </Link>
+
+          {!team.isVerified && team.isActive && (
+            <button
+              onClick={() => handleVerify(team._id)}
+              className="flex-1 bg-primary-500 hover:bg-primary-600 text-white text-xs py-2 rounded-lg flex items-center justify-center gap-1 transition"
+            >
+              <CheckCircle size={14} />
+              Verify
+            </button>
+          )}
+
+          <button
+            onClick={() => handleDelete(team._id)}
+            className="w-9 h-9 flex items-center justify-center text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </div>
+    ))
+  )}
+</div>  
 
       {/* Pagination */}
       {pagination.totalPages > 1 && (
