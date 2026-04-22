@@ -19,31 +19,52 @@ const PlayersList = () => {
   const [search, setSearch] = useState('')
   const [statusFilter, setStatusFilter] = useState('')
 
-  const fetchPlayers = useCallback(async () => {
+ const fetchPlayers = async () => {
+    console.log("🔥 fetchPlayers CALLED");
+
     try {
-      setLoading(true)
+      setLoading(true);
+
       const params = {
         page: pagination.page,
         limit: pagination.limit,
-        ...(search && { search }),
-        ...(statusFilter && { status: statusFilter })
-      }
-      const response = await playersAPI.getAll(params)
-      setPlayers(response.data || [])
-      if (response.pagination) {
-        setPagination(prev => ({ ...prev, ...response.pagination }))
-      }
-    } catch (error) {
-      toast.error('Failed to fetch players')
-      console.error(error)
-    } finally {
-      setLoading(false)
-    }
-  }, [pagination.page, pagination.limit, search, statusFilter])
+        ...(search?.trim() && { search: search.trim() }),
+        ...(statusFilter && { status: statusFilter }),
+      };
 
+      console.log("📤 Sending Params 👉", params);
+
+      const data = await playersAPI.getAll(params);
+
+      console.log("✅ FULL RESPONSE 👉", data);
+
+      const playersData = Array.isArray(data?.data)
+        ? data.data
+        : [];
+
+      setPlayers(playersData);
+
+      setPagination((prev) => ({
+        ...prev,
+        total: data?.pagination?.total || playersData.length,
+        pages: data?.pagination?.pages || 1,
+      }));
+    } catch (error) {
+      console.error("❌ ERROR 👉", error);
+
+      if (error.response) {
+        console.error("👉 Status:", error.response.status);
+        console.error("👉 Data:", error.response.data);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ AUTO CALL ON LOAD
   useEffect(() => {
-    fetchPlayers()
-  }, [fetchPlayers])
+    fetchPlayers();
+  }, []);
 
   const handleSearch = (e) => {
     e.preventDefault()

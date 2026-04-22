@@ -55,7 +55,7 @@ export const authAPI = {
 
 // Users API
 export const usersAPI = {
-  getAll: (params) => api.get('/users', { params }),
+getAll: (params) => api.get('/user/list', { params }),
   getById: (id) => api.get(`/users/${id}`),
   create: (data) => api.post('/users/register', data),
   update: (id, data) => api.put(`/users/${id}`, data),
@@ -269,7 +269,7 @@ export const adminAPI = {
 
 // Player Profiles API
 export const playerProfilesAPI = {
-  getAll: (params) => api.get('/profiles', { params }),
+ getAll: (params) => api.get('/profiles', { params }),
   getById: (id) => api.get(`/profiles/${id}`),
   create: (data) => api.post('/profiles', data),
   update: (id, data) => api.put(`/profiles/${id}`, data),

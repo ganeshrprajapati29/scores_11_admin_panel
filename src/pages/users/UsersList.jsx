@@ -36,7 +36,7 @@ const UsersList = () => {
     fetchUsers()
   }, [pagination.page, pagination.limit, filters])
 
- const fetchUsers = async () => {
+const fetchUsers = async () => {
   try {
     setLoading(true)
 
@@ -49,38 +49,33 @@ const UsersList = () => {
       ...(filters.role && { role: filters.role }),
       ...(filters.level && { level: filters.level }),
       ...(filters.playerType && { playerType: filters.playerType }),
-      ...(filters.isActive && { isActive: filters.isActive === "true" }),
+      ...(filters.isActive !== '' && {
+        isActive: filters.isActive === "true",
+      }),
     }
 
-    // 🧪 DEBUG (important)
-    console.log("usersAPI 👉", usersAPI)
-
-    // ❌ agar yahan crash ho raha hai → usersAPI issue
     const data = await usersAPI.getAll(params)
 
-    const usersData = Array.isArray(data?.users)
-      ? data.users
-      : Array.isArray(data)
-      ? data
-      : []
+    console.log("API DATA 👉", data)
 
-    const paginationData = data?.pagination || {}
+    // ✅ FIXED
+    const usersData = Array.isArray(data?.data)
+      ? data.data
+      : []
 
     setUsers(usersData)
 
     setPagination(prev => ({
       ...prev,
-      total: paginationData.total ?? usersData.length,
-      pages:
-        paginationData.pages ??
-        Math.ceil((paginationData.total ?? usersData.length) / prev.limit),
+      total: usersData.length, // kyunki pagination backend se nahi aa raha
+      pages: Math.ceil(usersData.length / prev.limit),
     }))
 
   } catch (error) {
     console.error("Fetch users error:", error)
 
     toast.error(
-      error?.response?.data?.message || error.message || "Failed to fetch users"
+      error?.message || "Failed to fetch users"
     )
   } finally {
     setLoading(false)

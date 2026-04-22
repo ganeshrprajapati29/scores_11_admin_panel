@@ -28,51 +28,45 @@ const PlayerProfilesList = () => {
   }, [pagination.page, statusFilter])
 
  const fetchProfiles = async () => {
-
   try {
-
     setLoading(true);
 
     const params = {
       page: pagination.page,
       limit: pagination.limit,
-      ...(search ? { search } : {}),
-      ...(statusFilter ? { status: statusFilter } : {})
+      ...(search?.trim() && { search: search.trim() }),
+      ...(statusFilter && { status: statusFilter }),
     };
 
-    const response = await playerProfilesAPI.getAll(params);
+    const data = await playerProfilesAPI.getAll(params);
 
-    console.log("API response:", response);
+    console.log("API response:", data);
 
-    const profilesData = response?.data?.data || [];
-    const total = response?.data?.pagination?.total || profilesData.length;
-    const totalPages =
-      response?.data?.pagination?.totalPages ||
-      Math.ceil(total / pagination.limit);
+    // ✅ FIX: correct data extraction
+    const profilesData = Array.isArray(data?.data)
+      ? data.data
+      : [];
 
     setProfiles(profilesData);
 
+    // ✅ pagination fallback (backend nahi de raha)
     setPagination((prev) => ({
       ...prev,
-      total,
-      totalPages
+      total: data?.total ?? profilesData.length,
+      totalPages:
+        data?.totalPages ??
+        Math.max(1, Math.ceil((data?.total ?? profilesData.length) / prev.limit)),
     }));
 
   } catch (error) {
-
     console.error("Fetch Profiles Error:", error);
 
     toast.error(
-      error.response?.data?.message ||
-      "Failed to fetch player profiles"
+      error?.message || "Failed to fetch player profiles"
     );
-
   } finally {
-
     setLoading(false);
-
   }
-
 };
 
   const handleSearch = (e) => {
