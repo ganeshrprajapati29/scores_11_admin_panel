@@ -97,6 +97,7 @@ export const scoringService = {
 
       throw error;
     }
+    
   },
 
   // ✅ alias
@@ -132,6 +133,48 @@ export const scoringService = {
     } catch (error) {
       console.warn("⚠️ Player setup warning:", error?.response?.data || error);
     }
+  },
+
+
+
+
+  // Start Innings
+  startInnings: async (matchId, data = {}) => {
+    const response = await api.post(
+      `/scoring/match/${matchId}/innings/start`,
+      data
+    );
+    return response.data;
+  },
+
+  // End Innings
+  endInnings: async (matchId, data = {}) => {
+    const response = await api.post(
+      `/scoring/match/${matchId}/innings/end`,
+      data
+    );
+    return response.data;
+  },
+
+
+
+  // Initialize Match
+  initializeMatch: async (matchId, data = {}) => {
+    const response = await api.post(
+      `/scoring/match/${matchId}/initialize`,
+      data
+    );
+    return response.data;
+  },
+
+
+  // Set Striker
+  setStriker: async (matchId, data) => {
+    const response = await api.patch(
+      `/scoring/match/${matchId}/striker`,
+      data
+    );
+    return response.data;
   },
 
 };

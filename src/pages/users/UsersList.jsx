@@ -36,59 +36,56 @@ const UsersList = () => {
     fetchUsers()
   }, [pagination.page, pagination.limit, filters])
 
-  const fetchUsers = async () => {
-    try {
+ const fetchUsers = async () => {
+  try {
+    setLoading(true)
 
-      setLoading(true)
-
-      const params = {
-        page: pagination.page,
-        limit: pagination.limit,
-        sortBy: filters.sortBy,
-        sortOrder: filters.sortOrder,
-        ...(filters.search && { search: filters.search }),
-        ...(filters.role && { role: filters.role }),
-        ...(filters.level && { level: filters.level }),
-        ...(filters.playerType && { playerType: filters.playerType }),
-        ...(filters.isActive && { isActive: filters.isActive === "true" })
-      }
-
-      const response = await usersAPI.getAll(params)
-
-      // safer response handling
-      const usersData = Array.isArray(response.data?.users)
-        ? response.data.users
-        : Array.isArray(response.data)
-          ? response.data
-          : []
-
-      const paginationData = response.data?.pagination || {}
-
-      setUsers(usersData)
-
-      setPagination(prev => ({
-        ...prev,
-        total: paginationData.total ?? usersData.length ?? 0,
-        pages:
-          paginationData.pages ??
-          Math.ceil((paginationData.total ?? usersData.length ?? 0) / prev.limit) ??
-          1
-      }))
-
-    } catch (error) {
-
-      console.error("Fetch users error:", error)
-
-      toast.error(
-        error?.response?.data?.message || "Failed to fetch users"
-      )
-
-    } finally {
-
-      setLoading(false)
-
+    const params = {
+      page: pagination.page,
+      limit: pagination.limit,
+      sortBy: filters.sortBy,
+      sortOrder: filters.sortOrder,
+      ...(filters.search && { search: filters.search }),
+      ...(filters.role && { role: filters.role }),
+      ...(filters.level && { level: filters.level }),
+      ...(filters.playerType && { playerType: filters.playerType }),
+      ...(filters.isActive && { isActive: filters.isActive === "true" }),
     }
+
+    // 🧪 DEBUG (important)
+    console.log("usersAPI 👉", usersAPI)
+
+    // ❌ agar yahan crash ho raha hai → usersAPI issue
+    const data = await usersAPI.getAll(params)
+
+    const usersData = Array.isArray(data?.users)
+      ? data.users
+      : Array.isArray(data)
+      ? data
+      : []
+
+    const paginationData = data?.pagination || {}
+
+    setUsers(usersData)
+
+    setPagination(prev => ({
+      ...prev,
+      total: paginationData.total ?? usersData.length,
+      pages:
+        paginationData.pages ??
+        Math.ceil((paginationData.total ?? usersData.length) / prev.limit),
+    }))
+
+  } catch (error) {
+    console.error("Fetch users error:", error)
+
+    toast.error(
+      error?.response?.data?.message || error.message || "Failed to fetch users"
+    )
+  } finally {
+    setLoading(false)
   }
+}
 
   const handleSearch = (e) => {
     e.preventDefault()

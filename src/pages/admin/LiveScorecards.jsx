@@ -1,225 +1,319 @@
 import React, { useState, useEffect } from 'react'
 import { useSocket } from '../../context/SocketContext'
-
-// 🔥 FIXED PATH (2 level up)
 import matchService from '../../services/match.service'
-
-// 🔥 Check karo ye named export hai
 import { scoringService } from '../../services/scoring.service'
-
-import { Loader, Table, Button } from '../../components/common'
-import { classNames } from '../../utils/helpers'
-
-// 🔥 lucide icons
-import { LayoutDashboard, Activity, Trophy, Users, Clock } from 'lucide-react'
+import { Loader, Button } from '../../components/common'
+import { Activity } from 'lucide-react'
 
 const LiveScorecards = () => {
-  const [liveMatches, setLiveMatches] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [expandedMatch, setExpandedMatch] = useState(null);
 
-  const { socket, connected, joinLiveMatchRooms, leaveLiveMatchRooms } = useSocket();
+  const [liveMatches, setLiveMatches] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [expandedMatch, setExpandedMatch] = useState(null)
+
+  const [playerDropdown, setPlayerDropdown] = useState(null)
+
+  const [showModal, setShowModal] = useState(false)
+  const [selectedRun, setSelectedRun] = useState(0)
+
+  const [step, setStep] = useState(1)
+  const [direction, setDirection] = useState("")
+  const [shot, setShot] = useState("")
+  const [issue, setIssue] = useState("")
+
+  const { connected } = useSocket()
+
+  const shots = [
+    "Defence",
+    "Cover Drive",
+    "On Drive",
+    "Pull Shot",
+    "Helicopter Shot"
+  ]
 
   useEffect(() => {
-    fetchLiveMatches();
-  }, []);
+    fetchLiveMatches()
+  }, [])
 
   useEffect(() => {
-    if (socket && liveMatches.length > 0) {
-      const matchIds = liveMatches.map(m => m._id);
+    if (!connected) return
+    const interval = setInterval(() => {
+      fetchLiveMatches(true)
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [connected])
 
-      joinLiveMatchRooms(matchIds);
-
-      socket.on('liveScoreUpdate', handleLiveUpdate);
-
-      return () => {
-        leaveLiveMatchRooms(matchIds);
-        socket.off('liveScoreUpdate', handleLiveUpdate);
-      };
-    }
-  }, [socket, liveMatches]);
-
-  const fetchLiveMatches = async () => {
+  const fetchLiveMatches = async (silent = false) => {
     try {
-      setLoading(true);
-      const response = await matchService.getLiveMatches();
-      setLiveMatches(response);
-    } catch (error) {
-      console.error('Failed to fetch live matches:', error);
+      if (!silent) setLoading(true)
+      const res = await matchService.getLiveMatches()
+
+      setLiveMatches(prev => {
+        if (JSON.stringify(prev) === JSON.stringify(res)) return prev
+        return res
+      })
+
+    } catch (e) {
+      console.error(e)
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false)
     }
-  };
-
-  const handleLiveUpdate = (data) => {
-    setLiveMatches(prev =>
-      prev.map(match =>
-        match._id === data.matchId
-          ? {
-              ...match,
-              score: data.score,
-              currentInnings: data.currentInnings,
-            }
-          : match
-      )
-    );
-  };
-
-  // 🔥 NEXT BALL CALCULATION
-  const getNextBall = (overs = "0.0", type = "run") => {
-  // ✅ safe default
-  if (!overs || typeof overs !== "string") {
-    overs = "0.0";
   }
 
-  let parts = overs.split(".");
-
-  let over = Number(parts[0]) || 0;
-  let ball = Number(parts[1]) || 0;
-
-  // 🔥 wide / no-ball pe ball count same rahega
-  if (type !== "wide" && type !== "no-ball") {
-    ball++;
+  const openRunFlow = (run) => {
+    setSelectedRun(run)
+    setShowModal(true)
+    setStep(1)
   }
 
-  if (ball > 5) {
-    over += 1;
-    ball = 0;
-  }
+  const confirmRun = async (match) => {
+    try {
+      const current = match.score?.team1 || {}
+      let [over, ball] = (current.overs || "0.0").split(".").map(Number)
 
-  return `${over}.${ball}`;
-};
-  // 🔥 MAIN SCORING FUNCTION
-  
+      ball++
+      if (ball > 5) {
+        over++
+        ball = 0
+      }
 
-  const toggleMatch = async (matchId) => {
-  try {
-    if (expandedMatch === matchId) {
-      setExpandedMatch(null);
-      return;
+      await scoringService.addBall(match._id, {
+        overNumber: over,
+        ballNumber: ball,
+        runs: selectedRun,
+        shotType: shot,
+        direction,
+        comment: issue
+      })
+
+      fetchLiveMatches(true)
+
+      setShowModal(false)
+      setShot("")
+      setDirection("")
+      setIssue("")
+      setStep(1)
+
+    } catch (e) {
+      console.error(e)
     }
-
-    setExpandedMatch(matchId);
-
-    const response = await scoringService.getLiveScore(matchId);
-
-    // ✅ normalize response
-    const data = response?.data || response || {};
-
-    console.log("📊 Live Score API:", data);
-
-    setLiveMatches(prev =>
-      prev.map(match =>
-        match._id === matchId
-          ? {
-              ...match,
-
-              // ✅ IMPORTANT FIX: correct nesting
-              score: data?.score || match.score,
-
-              scorecard: {
-                ...match.scorecard,
-
-                // 🔥 FIX: correct path
-                currentInnings:
-                  data?.scorecard?.currentInnings ||
-                  data?.currentInnings ||
-                  {},
-
-                // optional: full scorecard store karo
-                full: data?.scorecard || {},
-              },
-            }
-          : match
-      )
-    );
-
-  } catch (error) {
-    console.error("❌ Error fetching scorecard:", {
-      message: error?.message,
-      response: error?.response?.data,
-    });
   }
-};
 
-  if (loading) return <Loader text="Loading live matches..." />;
+  const toggleMatch = (id) => {
+    setExpandedMatch(prev => (prev === id ? null : id))
+  }
+
+  if (loading) return <Loader text="Loading..." />
 
   return (
     <div className="p-6 space-y-6">
 
-      {/* HEADER */}
       <div className="flex items-center gap-4">
-        <Activity className="w-8 h-8 text-blue-600" />
-        <div>
-          <h1 className="text-3xl font-bold">Live Scorecards</h1>
-          <p>{connected ? '🔴 Live' : '⚫ Offline'} | {liveMatches.length} matches</p>
-        </div>
-        <Button onClick={fetchLiveMatches}>
-          <Clock className="w-4 h-4 mr-2" /> Refresh
-        </Button>
+        <Activity className="text-blue-600" />
+        <h1 className="text-2xl font-bold">Live Scorecards</h1>
       </div>
 
-      {/* MATCH LIST */}
-      {liveMatches.map((match) => (
+      {liveMatches.map(match => (
         <div key={match._id} className="border rounded-xl">
 
           {/* HEADER */}
           <div
-            className="p-4 bg-gray-100 cursor-pointer"
             onClick={() => toggleMatch(match._id)}
+            className="p-4 bg-gray-100 cursor-pointer"
           >
-            <h2 className="font-bold">
-              {match.team1?.name} vs {match.team2?.name}
-            </h2>
-
-            <p>
-              {match.score?.team1?.runs || 0}/
-              {match.score?.team1?.wickets || 0} (
-              {match.score?.team1?.overs || "0.0"})
-            </p>
+            {match.team1?.name} vs {match.team2?.name}
+            <br />
+            {match.score?.team1?.runs || 0}/
+            {match.score?.team1?.wickets || 0} (
+            {match.score?.team1?.overs || "0.0"})
           </div>
 
-          {/* EXPANDED */}
-         {expandedMatch === match._id && (
-  <div className="p-4 bg-gray-50">
+          {expandedMatch === match._id && (
+            <div className="p-4 space-y-4">
 
-    {/* QUICK CONTROLS */}
-    <div className="flex gap-2 flex-wrap">
+              {/* 🏏 TOP SCOREBOARD */}
+              <div className="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 rounded-xl">
 
-      <Button onClick={() => handleAddBall(match, 1)}>+1</Button>
-      <Button onClick={() => handleAddBall(match, 2)}>+2</Button>
-      <Button onClick={() => handleAddBall(match, 3)}>+3</Button>
-      <Button onClick={() => handleAddBall(match, 4)}>4</Button>
-      <Button onClick={() => handleAddBall(match, 6)}>6</Button>
+                <div className="flex justify-between">
+                  <div>
+                    <h2 className="font-bold">{match.team1?.name}</h2>
+                    <p className="text-2xl font-bold">
+                      {match.score?.team1?.runs || 0}/{match.score?.team1?.wickets || 0}
+                    </p>
+                    <p>Overs: {match.score?.team1?.overs || "0.0"}</p>
+                  </div>
 
-      <Button onClick={() => handleAddBall(match, 0, "wicket")}>
-        Wicket
-      </Button>
+                  <div className="text-right">
+                    <p>Run Rate</p>
+                    <p className="text-xl font-bold">
+                      {match.score?.team1?.overs
+                        ? (
+                            (match.score.team1.runs || 0) /
+                            (parseFloat(match.score.team1.overs) || 1)
+                          ).toFixed(2)
+                        : "0.00"}
+                    </p>
+                  </div>
+                </div>
 
-      <Button onClick={() => handleAddBall(match, 0, "wide")}>
-        Wide
-      </Button>
+                <div className="mt-3 text-sm border-t pt-2">
+                  <p>
+                    🏏 {match.currentPlayers?.striker?.name} *
+                    ({match.currentPlayers?.striker?.runs || 0}/{match.currentPlayers?.striker?.balls || 0})
+                  </p>
+                  <p>
+                    {match.currentPlayers?.nonStriker?.name}
+                    ({match.currentPlayers?.nonStriker?.runs || 0}/{match.currentPlayers?.nonStriker?.balls || 0})
+                  </p>
+                  <p>
+                    🎯 {match.currentPlayers?.bowler?.name}
+                    ({match.currentPlayers?.bowler?.overs || 0} ov)
+                  </p>
+                </div>
 
-    </div>
+                <div className="mt-2 text-xs bg-blue-900 p-2 rounded">
+                  Last Ball: {match.lastBall?.runs || 0} |
+                  {match.lastBall?.shotType || "-"} |
+                  {match.lastBall?.direction || "-"}
+                </div>
+              </div>
 
-    {/* SCORECARD */}
-    <div className="mt-4">
-      <p>Overs: {match.score?.team1?.overs}</p>
-      <p>Runs: {match.score?.team1?.runs}</p>
-      <p>Wickets: {match.score?.team1?.wickets}</p>
-    </div>
+              {/* PLAYER DROPDOWN */}
+              <div className="bg-gray-50 p-4 rounded border">
+                <div className="grid grid-cols-2 gap-3 text-sm">
 
-  </div>
-)}
+                  {/* STRIKER */}
+                  <div className="relative bg-white p-3 border rounded">
+                    <p>Striker</p>
+                    <div onClick={() => setPlayerDropdown("striker")} className="cursor-pointer">
+                      {match.currentPlayers?.striker?.name} ⬇
+                    </div>
+
+                    {playerDropdown === "striker" && (
+                      <div className="absolute bg-white border mt-2 w-full z-20">
+                        {(match.team1?.players || []).map(p => (
+                          <div
+                            key={p._id}
+                            className="p-2 hover:bg-gray-100"
+                            onClick={() => {
+                              scoringService.changePlayers(match._id, { strikerId: p._id })
+                              setPlayerDropdown(null)
+                            }}
+                          >
+                            {p.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* NON STRIKER */}
+                  <div className="relative bg-white p-3 border rounded">
+                    <p>Non-Striker</p>
+                    <div onClick={() => setPlayerDropdown("nonStriker")} className="cursor-pointer">
+                      {match.currentPlayers?.nonStriker?.name} ⬇
+                    </div>
+
+                    {playerDropdown === "nonStriker" && (
+                      <div className="absolute bg-white border mt-2 w-full z-20">
+                        {(match.team1?.players || []).map(p => (
+                          <div
+                            key={p._id}
+                            className="p-2 hover:bg-gray-100"
+                            onClick={() => {
+                              scoringService.changePlayers(match._id, { nonStrikerId: p._id })
+                              setPlayerDropdown(null)
+                            }}
+                          >
+                            {p.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* BOWLER */}
+                  <div className="relative bg-white p-3 border rounded col-span-2">
+                    <p>Bowler</p>
+                    <div onClick={() => setPlayerDropdown("bowler")} className="cursor-pointer">
+                      {match.currentPlayers?.bowler?.name} ⬇
+                    </div>
+
+                    {playerDropdown === "bowler" && (
+                      <div className="absolute bg-white border mt-2 w-full z-20">
+                        {(match.team2?.players || []).map(p => (
+                          <div
+                            key={p._id}
+                            className="p-2 hover:bg-gray-100"
+                            onClick={() => {
+                              scoringService.changePlayers(match._id, { bowlerId: p._id })
+                              setPlayerDropdown(null)
+                            }}
+                          >
+                            {p.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+              </div>
+
+              {/* RUN BUTTONS */}
+              <div className="flex gap-2 flex-wrap">
+                {[0,1,2,3,4,6].map(r => (
+                  <Button key={r} onClick={() => openRunFlow(r)}>{r}</Button>
+                ))}
+              </div>
+
+              {/* MAP + SHOT */}
+              {showModal && (
+                <div className="fixed inset-0 bg-black/50 flex justify-center items-center">
+                  <div className="bg-white p-6 rounded w-[400px]">
+
+                    <h2>Run: {selectedRun}</h2>
+
+                    {step === 1 && (
+                      <div className="grid grid-cols-2 gap-2">
+                        {["Cover","Point","MidWicket","LongOn"].map(d => (
+                          <Button key={d} onClick={() => {
+                            setDirection(d)
+                            setStep(2)
+                          }}>
+                            {d}
+                          </Button>
+                        ))}
+                      </div>
+                    )}
+
+                    {step === 2 && (
+                      <>
+                        {shots.map(s => (
+                          <Button key={s} onClick={()=>setShot(s)}>{s}</Button>
+                        ))}
+                        <input onChange={(e)=>setIssue(e.target.value)} />
+                        <Button onClick={()=>confirmRun(match)}>Confirm</Button>
+                      </>
+                    )}
+
+                    <Button onClick={()=>setShowModal(false)}>Cancel</Button>
+
+                  </div>
+                </div>
+              )}
+
+            </div>
+          )}
         </div>
       ))}
 
-      {/* SOCKET STATUS */}
       <div className="fixed bottom-4 right-4">
-        {connected ? "🟢 Connected" : "🔴 Disconnected"}
+        {connected ? "🟢 Live" : "🔴 Offline"}
       </div>
-    </div>
-  );
-};
 
-export default LiveScorecards;
+    </div>
+  )
+}
+
+export default LiveScorecards 

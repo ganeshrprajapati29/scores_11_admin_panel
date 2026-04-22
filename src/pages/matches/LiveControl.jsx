@@ -258,38 +258,62 @@ const LiveMatches = () => {
     }))
   }
 
-  const handleUpdate = async (match) => {
-    if (!match || actionLoading) return;
+ const handleUpdate = async (match) => {
+  // ✅ Safety check
+  if (!match?._id || actionLoading) return;
 
-    setActionLoading(true);
+  setActionLoading(true);
 
-    try {
-      const payload = {};
+  try {
+    const payload = {};
 
-      // ✅ ONLY send if user typed value
-      if (editData.runs !== "" && editData.runs !== undefined) {
-        payload.runs = Number(editData.runs);
-      }
-
-      if (editData.wickets !== "" && editData.wickets !== undefined) {
-        payload.wickets = Number(editData.wickets);
-      }
-
-      if (editData.overs !== "" && editData.overs !== undefined) {
-        payload.overs = editData.overs;
-      }
-
-      console.log("✅ FINAL PAYLOAD:", payload);
-
-      await matchesAPI.updateScore(match._id, payload);
-
-      fetchMatch(true);
-
-    } catch (err) {
-      console.error("Update error:", err);
-    } finally {
-      setActionLoading(false);
+    // ✅ Runs
+    if (editData?.runs !== "" && editData?.runs !== undefined) {
+      payload.runs = Number(editData.runs);
     }
+
+    // ✅ Wickets
+    if (editData?.wickets !== "" && editData?.wickets !== undefined) {
+      payload.wickets = Number(editData.wickets);
+    }
+
+    // ✅ Overs (IMPORTANT FIX)
+    if (editData?.overs !== "" && editData?.overs !== undefined) {
+      payload.overs = String(editData.overs);
+    }
+
+    // ❌ Stop empty request
+    if (Object.keys(payload).length === 0) {
+      console.warn("⚠️ Nothing to update");
+      return;
+    }
+
+    console.log("✅ FINAL PAYLOAD:", payload);
+    console.log("🆔 MATCH ID:", match._id);
+
+    const res = await matchesAPI.updateScore(match._id, payload);
+
+    console.log("✅ API RESPONSE:", res?.data || res);
+
+    await fetchMatch(true);
+
+    // ✅ Reset fields (optional)
+    setEditData({
+      runs: "",
+      wickets: "",
+      overs: ""
+    });
+
+  } catch (err) {
+    // ✅ Proper error output (IMPORTANT)
+    console.error(
+      "❌ Update error:",
+      err?.response?.data || err.message || err
+    );
+  } finally {
+    setActionLoading(false);
+  }
+
 
 
     const getCurrentBattingTeam = (match) => {

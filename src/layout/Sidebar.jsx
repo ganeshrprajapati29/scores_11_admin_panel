@@ -58,7 +58,7 @@ const menuGroups = [
       { name: 'Matches', path: '/matches', icon: Calendar, description: 'Match scheduling' },
       { name: 'Tournaments', path: '/tournaments', icon: Trophy, description: 'Tournament setup' },
       { name: 'Contests', path: '/contests', icon: Target, description: 'Fantasy contests' },
-      { name: 'Live Scoring', path: '/matches/live', icon: Activity, description: 'Real-time scoring' },
+      { name: 'Live Scoring', path: '/admin/scorecards', icon: Activity, description: 'Real-time scoring' },
     ]
   },
   {

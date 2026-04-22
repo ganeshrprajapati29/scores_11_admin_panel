@@ -1,8 +1,9 @@
 import api from '../config/axiosConfig'
 
+
 export const userService = {
   getAllUsers: async (params = {}) => {
-    const response = await api.get('/users/list', { params })
+    const response = await api.get('/user/list', { params })
     return response
   },
 
