@@ -15,10 +15,13 @@ const getAuthHeader = () => {
 export const playerService = {
 
   // Get all players
-  getAll: async () => {
-    const res = await axios.get(`${BASE_URL}/players`, getAuthHeader());
-    return res.data;
-  },
+ getAll: async (params = {}) => {
+  const res = await axios.get(`${BASE_URL}/players`, {
+    ...getAuthHeader(),
+    params,   // 🔥 important
+  });
+  return res.data;
+},
 
   // Get player by ID
   getById: async (id) => {

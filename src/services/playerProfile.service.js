@@ -51,25 +51,42 @@ API.interceptors.response.use(
 export const playerProfilesAPI = {
 
   /* GET ALL PROFILES */
-  getAll: (params = {}) =>
-    API.get("/profiles", { params }),
+  getAll: async (params = {}) => {
+    const res = await API.get("/profiles", { params });
+    return res.data;   // ✅ always return data only
+  },
 
   /* GET PROFILE BY ID */
-  getById: (id) =>
-    API.get(`/profiles/${id}`),
+  getById: async (id) => {
+    if (!id) throw new Error("Profile ID is required");
+
+    const res = await API.get(`/profiles/${id}`);
+    return res.data;
+  },
 
   /* CREATE PROFILE */
-  create: (data) =>
-    API.post("/profiles", data),
+  create: async (data) => {
+    if (!data) throw new Error("Profile data is required");
+
+    const res = await API.post("/profiles", data);
+    return res.data;
+  },
 
   /* UPDATE PROFILE */
-  update: (id, data) =>
-    API.put(`/profiles/${id}`, data),
+  update: async (id, data) => {
+    if (!id) throw new Error("Profile ID is required");
+
+    const res = await API.put(`/profiles/${id}`, data);
+    return res.data;
+  },
 
   /* DELETE PROFILE */
-  delete: (id) =>
-    API.delete(`/profiles/${id}`)
+  delete: async (id) => {
+    if (!id) throw new Error("Profile ID is required");
+
+    const res = await API.delete(`/profiles/${id}`);
+    return res.data;
+  }
 
 };
-
 export default API;

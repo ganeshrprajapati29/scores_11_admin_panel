@@ -44,34 +44,47 @@ const fetchAssociations = async () => {
   }
 };
 
+const handleDelete = async (id) => {
+  // ✅ 1. ID validation
+  if (!id || id.length < 10) {
+    toast.error("Invalid Association ID");
+    return;
+  }
 
- const handleDelete = async (id) => {
+  // ✅ 2. Confirm dialog
+  const confirmDelete = window.confirm("Are you sure you want to delete this association?");
+  if (!confirmDelete) return;
+
   try {
+    // ✅ 3. API call
+    const response = await associationsAPI.delete(id);
 
-    if (!id) {
-      toast.error("Invalid Association ID");
-      return;
-    }
+    // ✅ 4. Success message from backend (if available)
+    toast.success(response?.data?.message || "Association deleted successfully");
 
-    const confirmDelete = window.confirm("Delete this association?");
-    if (!confirmDelete) return;
+    // ✅ 5. Optimistic UI update (fast UX)
+    setAssociations((prev) =>
+      prev.filter((item) => item._id !== id)
+    );
 
-    await associationsAPI.delete(id);
-
-    toast.success("Association deleted successfully");
-
-    // UI update
-    setAssociations((prev) => prev.filter((item) => item._id !== id));
-
-    // optional refresh
-    fetchAssociations();
+    // ❗ OPTIONAL: agar backend se latest data chahiye
+    // await fetchAssociations();
 
   } catch (error) {
     console.error("Delete Association Error:", error?.response || error);
 
-    toast.error(
-      error?.response?.data?.message || "Failed to delete association"
-    );
+    // ✅ 6. Better error handling
+    if (error?.response?.status === 403) {
+      toast.error("You are not authorized to delete this association");
+    } else if (error?.response?.status === 404) {
+      toast.error("Association not found");
+    } else if (error?.response?.status === 500) {
+      toast.error("Server error, please try again");
+    } else {
+      toast.error(
+        error?.response?.data?.message || error.message || "Delete failed"
+      );
+    }
   }
 };
 
@@ -188,13 +201,13 @@ const fetchAssociations = async () => {
                 </div>
                 
                 <div className="mt-4 flex items-center gap-2 pt-3 border-t border-gray-100">
-                  <Link
+                  {/* <Link
                     to={`/associations/${association._id}`}
                     className="flex-1 flex items-center justify-center gap-2 px-3 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition-colors text-sm"
                   >
                     <Eye size={16} />
                     View Details
-                  </Link>
+                  </Link> */}
                   <button 
                     onClick={() => handleDelete(association._id)} 
                     className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"

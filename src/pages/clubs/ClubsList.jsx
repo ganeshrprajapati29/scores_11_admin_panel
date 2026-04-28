@@ -53,15 +53,19 @@ const ClubsList = () => {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to delete this club?')) return
-    try {
-      await clubsAPI.delete(id)
-      toast.success('Club deleted successfully')
-      fetchClubs()
-    } catch (error) {
-      toast.error(error.message || 'Failed to delete club')
-    }
+  if (!window.confirm('Are you sure you want to delete this club?')) return;
+
+  try {
+    await clubsAPI.delete(id); // bas id bhejna hai
+    toast.success('Club deleted successfully');
+    fetchClubs();
+  } catch (error) {
+    console.error(error);
+    toast.error(
+      error.response?.data?.message || 'Failed to delete club'
+    );
   }
+};
 
   const handleVerify = async (id) => {
     try {

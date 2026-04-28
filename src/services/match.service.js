@@ -3,28 +3,28 @@ import api from '../config/axiosConfig'
 const matchesAPI = {
 
   // 🔥 GET ALL MATCHES
-getAllMatches: async (params = {}) => {
-  try {
-    const res = await api.get('/matches/list', { params })
+  getAllMatches: async (params = {}) => {
+    try {
+      const res = await api.get('/matches/list', { params })
 
-    let data = res.data || []
+      let data = res.data || []
 
-    // ✅ IMPORTANT: NO FILTER → ALL MATCHES
-    if (Array.isArray(data)) {
-      return data
+      // ✅ IMPORTANT: NO FILTER → ALL MATCHES
+      if (Array.isArray(data)) {
+        return data
+      }
+
+      if (Array.isArray(data?.matches)) {
+        return data.matches
+      }
+
+      return []
+
+    } catch (error) {
+      console.error("getAllMatches error:", error)
+      throw error
     }
-
-    if (Array.isArray(data?.matches)) {
-      return data.matches
-    }
-
-    return []
-
-  } catch (error) {
-    console.error("getAllMatches error:", error)
-    throw error
-  }
-},
+  },
 
   // 🔥 GET MATCH BY ID
   getById: async (id) => {
@@ -126,7 +126,7 @@ getAllMatches: async (params = {}) => {
 
 
 
-   updateScore: async (id, data) => {
+  updateScore: async (id, data) => {
     try {
       const res = await api.patch(`/matches/${id}/score`, data)
       return res.data
@@ -135,7 +135,7 @@ getAllMatches: async (params = {}) => {
       throw error
     }
   },
-
+ 
   changeInnings: async (id, innings) => {
     try {
       const res = await api.patch(`/matches/${id}/innings`, { innings })
@@ -145,7 +145,48 @@ getAllMatches: async (params = {}) => {
       throw error
     }
   },
-  
+
+
+
+
+ endInnings: async (matchId) => {
+  try {
+    // ✅ Validate input
+    if (!matchId) {
+      throw new Error("Match ID is required");
+    }
+
+    console.log("🚀 API Call: End Innings →", matchId);
+
+    // ✅ API request
+    const res = await api.patch(`/matches/${matchId}/end-innings`)
+
+    // ✅ Extract clean response
+    const data = res?.data?.data || res?.data || null;
+
+    if (!data) {
+      throw new Error("Invalid response from server");
+    }
+
+    console.log("✅ API Success: End Innings", data);
+
+    return data;
+
+  } catch (error) {
+    // ✅ Clean error extraction
+    const errorMsg =
+      error?.response?.data?.message ||
+      error?.response?.data ||
+      error?.message ||
+      "Failed to end innings";
+
+    console.error("❌ endInnings error:", errorMsg);
+
+    // ✅ Throw normalized error
+    throw new Error(errorMsg);
+  }
+}
+
 }
 
 export default matchesAPI

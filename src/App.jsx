@@ -200,6 +200,7 @@ function App() {
             <Route path="admin/players/merge" element={<MergePlayers />} />
             <Route path="teams/:id" element={<TeamsList />} />
             <Route path="matches/:id" element={<MatchesList />} />
+            <Route path="/clubs/:id" element={<ClubsList />} />
           </Route>
         </Routes>
         

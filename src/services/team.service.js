@@ -1,10 +1,10 @@
 import api from '../config/axiosConfig'
 
 export const teamService = {
-  getAllTeams: async (params = {}) => {
-    const response = await api.get('/teams/list', { params })
-    return response
-  },
+ getAllTeams: async (params = {}) => {
+  const response = await api.get('/teams', { params })
+  return response?.data
+},
 
   getTeamById: async (id) => {
     const response = await api.get(`/teams/${id}`)
