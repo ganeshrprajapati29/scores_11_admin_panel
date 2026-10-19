@@ -1,6 +1,6 @@
 import axios from 'axios'
-
-const API_URL = import.meta.env.VITE_API_URL || '/api/v1'
+import { API_URL } from '../config/apiBase'
+import { toast } from 'react-hot-toast'
 
 const api = axios.create({
   baseURL: API_URL,
@@ -28,6 +28,8 @@ api.interceptors.response.use(
     const status = error.response?.status
     if (status === 401) {
       localStorage.removeItem('token')
+      localStorage.removeItem('refreshToken')
+      localStorage.removeItem('auth-storage')
       window.location.href = '/login'
       return Promise.reject(error)
     }
@@ -40,9 +42,6 @@ api.interceptors.response.use(
     return Promise.reject(error.response?.data || error)
   }
 )
-
-// Import toast for 403 handling
-import { toast } from 'react-hot-toast'
 
 // Auth API
 export const authAPI = {

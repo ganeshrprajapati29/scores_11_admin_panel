@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { io } from 'socket.io-client'
+import { SOCKET_URL } from '../config/apiBase'
 
 const SocketContext = createContext(null)
 
@@ -17,7 +18,7 @@ export const SocketProvider = ({ children }) => {
 
  useEffect(() => {
   const socketInstance = io(
-    import.meta.env.VITE_SOCKET_URL || "http://68.178.171.95:3000",
+    SOCKET_URL,
     {
       transports: ["websocket", "polling"], // ✅ FIX: fallback add
       autoConnect: true,

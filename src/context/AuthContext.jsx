@@ -13,7 +13,7 @@ export const useAuth = () => {
 }
 
 export const AuthProvider = ({ children }) => {
-  const { user, token, isAuthenticated, login: storeLogin, logout: storeLogout, setLoading, loading } = useAuthStore()
+  const { user, token, isAuthenticated, logout: storeLogout, setSession, setLoading, loading } = useAuthStore()
   const [initialized, setInitialized] = useState(false)
 
   useEffect(() => {
@@ -23,7 +23,11 @@ export const AuthProvider = ({ children }) => {
         try {
           setLoading(true)
           const response = await authAPI.getCurrentUser()
-          storeLogin(response.data, storedToken)
+          setSession({
+            user: response?.data || response,
+            token: storedToken,
+            refreshToken: localStorage.getItem('refreshToken')
+          })
         } catch (error) {
           storeLogout()
         } finally {
@@ -41,7 +45,12 @@ export const AuthProvider = ({ children }) => {
     try {
       setLoading(true)
       const response = await authAPI.login({ email, password })
-      storeLogin(response.data, response.token)
+      const payload = response?.data || response
+      setSession({
+        user: payload?.user,
+        token: payload?.accessToken || payload?.token,
+        refreshToken: payload?.refreshToken
+      })
       return response
     } catch (error) {
       throw error

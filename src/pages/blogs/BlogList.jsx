@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import axios from "axios";
 import {
   Search, Plus, FileText, User, Calendar,
   Eye, Heart, MessageCircle, Trash2, Edit,
@@ -100,24 +99,16 @@ const BlogList = () => {
   }
 
   try {
-    const response = await axios.patch(
-      `http://localhost:5000/api/v1/blogs/${id}/unpublish`,
-      {},
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const response = await blogsAPI.unpublish(id);
 
-    if (response?.data) {
+    if (response) {
       setBlogs((prevBlogs) =>
         prevBlogs.map((blog) =>
           blog._id === id ? { ...blog, status: "draft" } : blog
         )
       );
 
-      toast.success(response.data.message || "Blog unpublished successfully");
+      toast.success(response.message || "Blog unpublished successfully");
     }
 
   } catch (error) {

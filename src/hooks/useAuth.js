@@ -1,5 +1,6 @@
 import { useCallback } from 'react'
 import useAuthStore from '../store/authStore'
+import { API_URL } from '../config/apiBase'
 
 const useAuth = () => {
   const { 
@@ -8,8 +9,8 @@ const useAuth = () => {
     isAuthenticated, 
     loading, 
     error,
-    login: storeLogin,
     logout: storeLogout,
+    setSession,
     setError,
     clearError,
     updateUser
@@ -17,7 +18,7 @@ const useAuth = () => {
 
   const login = useCallback(async (email, password) => {
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || '/api/v1'}/auth/login`, {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,17 +32,22 @@ const useAuth = () => {
         throw new Error(data.message || 'Login failed')
       }
       
-      storeLogin(data.data, data.token || data.accessToken)
+      const payload = data?.data || data
+      setSession({
+        user: payload?.user,
+        token: payload?.accessToken || payload?.token || data?.token || data?.accessToken,
+        refreshToken: payload?.refreshToken || data?.refreshToken
+      })
       return data
     } catch (error) {
       setError(error.message)
       throw error
     }
-  }, [storeLogin, setError])
+  }, [setSession, setError])
 
   const logout = useCallback(async () => {
     try {
-      await fetch(`${import.meta.env.VITE_API_URL || '/api/v1'}/auth/logout`, {
+      await fetch(`${API_URL}/auth/logout`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
